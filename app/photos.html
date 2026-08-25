@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ảnh</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.app-shell{
+  max-width:430px;
+  width:100%;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:var(--blue);
+}
+.app-header .action-btn{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  font-size:16px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header .action-btn:active{
+  transform:scale(.9);
+  background:rgba(255,255,255,.12);
+}
+
+.app-body{
+  flex:1;
+  padding:12px 16px 16px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Search */
+.photos-search{
+  height:40px;
+  background:var(--glass);
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  gap:10px;
+  margin-bottom:14px;
+  border:1px solid transparent;
+  transition:all .3s;
+}
+.photos-search:focus-within{
+  border-color:rgba(10,132,255,.3);
+}
+.photos-search i{
+  color:rgba(255,255,255,.2);
+  font-size:16px;
+}
+.photos-search input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:white;
+  font-size:14px;
+  font-family:inherit;
+}
+.photos-search input::placeholder{
+  color:rgba(255,255,255,.2);
+}
+
+/* Tabs */
+.photos-tabs{
+  display:flex;
+  background:var(--glass);
+  border-radius:12px;
+  padding:3px;
+  margin-bottom:16px;
+}
+.photos-tabs button{
+  flex:1;
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,.4);
+  padding:8px;
+  border-radius:9px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .3s;
+  font-family:inherit;
+}
+.photos-tabs button.active{
+  background:var(--glass-strong);
+  color:#fff;
+}
+
+/* Title row */
+.photos-title-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.photos-subtitle{
+  font-size:20px;
+  font-weight:800;
+}
+.photos-count{
+  font-size:11px;
+  color:rgba(255,255,255,.3);
+  margin-top:2px;
+}
+.photos-actions{
+  display:flex;
+  gap:8px;
+}
+.photos-actions button{
+  border:none;
+  background:var(--glass);
+  color:rgba(255,255,255,.6);
+  padding:6px 12px;
+  border-radius:12px;
+  font-size:11px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.photos-actions button:active{
+  transform:scale(.95);
+  background:var(--glass-strong);
+}
+.add-photo-btn{
+  background:var(--blue);
+  color:#fff !important;
+}
+.add-photo-btn input{
+  display:none;
+}
+
+/* Photo grid */
+.photo-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px;
+}
+.photo-item{
+  aspect-ratio:1;
+  background-size:cover;
+  background-position:center;
+  border-radius:6px;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:all .2s;
+}
+.photo-item:active{
+  transform:scale(.98);
+}
+.photo-item .overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  transition:all .3s;
+}
+.photo-item:hover .overlay{
+  opacity:1;
+  background:rgba(0,0,0,.3);
+}
+.photo-item .overlay i{
+  color:#fff;
+  font-size:22px;
+}
+.photo-item .photo-index{
+  position:absolute;
+  bottom:6px;
+  right:8px;
+  font-size:10px;
+  color:rgba(255,255,255,.5);
+  background:rgba(0,0,0,.4);
+  padding:1px 8px;
+  border-radius:10px;
+}
+
+/* Empty state */
+.photos-empty{
+  text-align:center;
+  padding:60px 20px;
+  color:rgba(255,255,255,.2);
+}
+.photos-empty i{
+  font-size:56px;
+  display:block;
+  margin-bottom:16px;
+  color:rgba(255,255,255,.06);
+}
+.photos-empty div{
+  font-size:17px;
+  font-weight:700;
+  color:rgba(255,255,255,.4);
+  margin-bottom:4px;
+}
+.photos-empty span{
+  font-size:13px;
+  color:rgba(255,255,255,.15);
+}
+
+/* Albums */
+.album-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+.album-card{
+  cursor:pointer;
+  transition:all .2s;
+}
+.album-card:active{
+  transform:scale(.97);
+}
+.album-preview{
+  height:120px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  margin-bottom:8px;
+  position:relative;
+  overflow:hidden;
+}
+.album-preview .overlay-text{
+  position:absolute;
+  bottom:8px;
+  right:10px;
+  font-size:11px;
+  color:rgba(255,255,255,.7);
+  background:rgba(0,0,0,.3);
+  padding:2px 10px;
+  border-radius:10px;
+}
+.album-color-1{background:linear-gradient(135deg,#1d976c,#93f9b9);}
+.album-color-2{background:linear-gradient(135deg,#ff416c,#ff4b2b);}
+.album-color-3{background:linear-gradient(135deg,#654ea3,#eaafc8);}
+.album-color-4{background:linear-gradient(135deg,#396afc,#2948ff);}
+.album-name{
+  font-size:14px;
+  font-weight:700;
+}
+.album-count{
+  font-size:11px;
+  color:rgba(255,255,255,.3);
+  margin-top:2px;
+}
+
+/* Photo viewer */
+.photo-viewer{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.96);
+  z-index:1000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  animation:fadeIn .3s ease;
+}
+@keyframes fadeIn{
+  0%{opacity:0;}
+  100%{opacity:1;}
+}
+.photo-viewer.open{
+  display:flex;
+}
+.photo-viewer img{
+  max-width:94%;
+  max-height:85%;
+  object-fit:contain;
+  border-radius:10px;
+  animation:zoomIn .3s ease;
+}
+@keyframes zoomIn{
+  0%{transform:scale(.9);opacity:0;}
+  100%{transform:scale(1);opacity:1;}
+}
+.viewer-controls{
+  position:absolute;
+  bottom:40px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:20px;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:30px;
+  border:1px solid rgba(255,255,255,.06);
+}
+.viewer-controls button{
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,.6);
+  font-size:20px;
+  cursor:pointer;
+  transition:all .2s;
+  padding:4px 8px;
+}
+.viewer-controls button:active{
+  transform:scale(.85);
+  color:#fff;
+}
+.viewer-controls .count{
+  font-size:12px;
+  color:rgba(255,255,255,.3);
+  display:flex;
+  align-items:center;
+}
+.viewer-close{
+  position:absolute;
+  top:20px;
+  right:20px;
+  width:40px;
+  height:40px;
+  border:none;
+  border-radius:50%;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.viewer-close:active{
+  transform:scale(.9);
+  background:rgba(255,255,255,.12);
+}
+.viewer-info{
+  position:absolute;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:12px;
+  color:rgba(255,255,255,.2);
+  text-align:center;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:2000;
+  border:1px solid var(--sep);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .album-preview{
+    height:100px;
+  }
+  .photo-grid{
+    gap:3px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-flower2"></i> Ảnh</div>
+    <button class="action-btn" onclick="showToast('📸 Đang mở camera...')"><i class="bi bi-camera"></i></button>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+    
+    <!-- Search -->
+    <div class="photos-search">
+      <i class="bi bi-search"></i>
+      <input id="photoSearch" type="text" placeholder="Tìm kiếm ảnh..." oninput="searchPhotos()">
+    </div>
+
+    <!-- Tabs -->
+    <div class="photos-tabs">
+      <button class="active" onclick="switchTab('library', this)"><i class="bi bi-grid-fill"></i> Thư viện</button>
+      <button onclick="switchTab('albums', this)"><i class="bi bi-folder-fill"></i> Album</button>
+    </div>
+
+    <!-- LIBRARY -->
+    <div id="libraryView">
+      <div class="photos-title-row">
+        <div>
+          <div class="photos-subtitle">Gần đây</div>
+          <div class="photos-count" id="photoCount">0 ảnh</div>
+        </div>
+        <div class="photos-actions">
+          <button onclick="addSamplePhotos()"><i class="bi bi-stars"></i> Mẫu</button>
+          <button onclick="clearPhotos()"><i class="bi bi-trash3"></i> Xóa</button>
+          <label class="add-photo-btn"><i class="bi bi-plus"></i><input type="file" id="photoInput" accept="image/*" multiple hidden onchange="handlePhotos(event)"></label>
+        </div>
+      </div>
+      <div class="photo-grid" id="photoGrid"></div>
+      <div class="photos-empty" id="photosEmpty">
+        <i class="bi bi-images"></i>
+        <div>Chưa có ảnh</div>
+        <span>Thêm ảnh từ thiết bị của bạn</span>
+      </div>
+    </div>
+
+    <!-- ALBUMS -->
+    <div id="albumsView" style="display:none;">
+      <div class="photos-subtitle" style="margin-bottom:8px;">Album của bạn</div>
+      <div class="album-grid">
+        <div class="album-card" onclick="showToast('📂 Đang mở album Gần đây')">
+          <div class="album-preview album-color-1">
+            <i class="bi bi-clock-history"></i>
+            <span class="overlay-text" id="albumRecentCount">0</span>
+          </div>
+          <div class="album-name">Gần đây</div>
+          <div class="album-count">Tất cả ảnh</div>
+        </div>
+        <div class="album-card" onclick="showToast('❤️ Đang mở album Yêu thích')">
+          <div class="album-preview album-color-2"><i class="bi bi-heart-fill"></i></div>
+          <div class="album-name">Yêu thích</div>
+          <div class="album-count">0 ảnh</div>
+        </div>
+        <div class="album-card" onclick="showToast('🎬 Đang mở album Video')">
+          <div class="album-preview album-color-3"><i class="bi bi-play-fill"></i></div>
+          <div class="album-name">Video</div>
+          <div class="album-count">0 video</div>
+        </div>
+        <div class="album-card" onclick="showToast('📱 Đang mở album Ảnh chụp màn hình')">
+          <div class="album-preview album-color-4"><i class="bi bi-phone"></i></div>
+          <div class="album-name">Ảnh chụp màn hình</div>
+          <div class="album-count">0 ảnh</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PHOTO VIEWER -->
+  <div class="photo-viewer" id="photoViewer" onclick="closeViewer()">
+    <button class="viewer-close" onclick="event.stopPropagation();closeViewer()"><i class="bi bi-x-lg"></i></button>
+    <img id="viewerImg" src="" alt="Ảnh">
+    <div class="viewer-controls">
+      <button onclick="event.stopPropagation();prevPhoto()"><i class="bi bi-chevron-left"></i></button>
+      <span class="count" id="viewerCount">1 / 1</span>
+      <button onclick="event.stopPropagation();nextPhoto()"><i class="bi bi-chevron-right"></i></button>
+    </div>
+    <div class="viewer-info" id="viewerInfo">Nhấn vào ảnh để đóng</div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= DATA =================
+let photos = [];
+let currentViewerIndex = 0;
+
+const samplePhotos = [
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1518173946687-a4d8892bbd9f?w=400&h=400&fit=crop'
+];
+
+// ================= RENDER =================
+function renderPhotos() {
+  const grid = document.getElementById('photoGrid');
+  const empty = document.getElementById('photosEmpty');
+  const count = document.getElementById('photoCount');
+  const albumCount = document.getElementById('albumRecentCount');
+  
+  count.textContent = photos.length + ' ảnh';
+  if (albumCount) albumCount.textContent = photos.length;
+  
+  if (photos.length === 0) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  grid.style.display = 'grid';
+  empty.style.display = 'none';
+  
+  grid.innerHTML = photos.map((url, idx) => `
+    <div class="photo-item" style="background-image:url('${url}');" onclick="openViewer(${idx})">
+      <div class="overlay"><i class="bi bi-eye"></i></div>
+      <div class="photo-index">${idx + 1}</div>
+    </div>
+  `).join('');
+}
+
+// ================= PHOTO ACTIONS =================
+function addSamplePhotos() {
+  photos = photos.concat(samplePhotos);
+  renderPhotos();
+  showToast('✅ Đã thêm ảnh mẫu');
+}
+
+function clearPhotos() {
+  if (photos.length === 0) {
+    showToast('📷 Chưa có ảnh để xóa');
+    return;
+  }
+  if (!confirm('Xóa tất cả ảnh?')) return;
+  photos = [];
+  renderPhotos();
+  showToast('🗑️ Đã xóa tất cả ảnh');
+}
+
+function handlePhotos(event) {
+  const files = Array.from(event.target.files || []);
+  let remaining = files.length;
+  
+  if (remaining === 0) return;
+  
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      photos.push(e.target.result);
+      remaining--;
+      if (remaining === 0) {
+        renderPhotos();
+        showToast(`✅ Đã thêm ${files.length} ảnh`);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  
+  event.target.value = '';
+}
+
+// ================= VIEWER =================
+function openViewer(index) {
+  if (index < 0 || index >= photos.length) return;
+  currentViewerIndex = index;
+  document.getElementById('viewerImg').src = photos[index];
+  document.getElementById('viewerCount').textContent = `${index + 1} / ${photos.length}`;
+  document.getElementById('photoViewer').classList.add('open');
+}
+
+function closeViewer() {
+  document.getElementById('photoViewer').classList.remove('open');
+}
+
+function nextPhoto() {
+  if (currentViewerIndex < photos.length - 1) {
+    openViewer(currentViewerIndex + 1);
+  } else {
+    showToast('📷 Đây là ảnh cuối cùng');
+  }
+}
+
+function prevPhoto() {
+  if (currentViewerIndex > 0) {
+    openViewer(currentViewerIndex - 1);
+  } else {
+    showToast('📷 Đây là ảnh đầu tiên');
+  }
+}
+
+// ================= SEARCH =================
+function searchPhotos() {
+  // For demo, search is visual only
+  const query = document.getElementById('photoSearch').value.toLowerCase().trim();
+  // In real app, would filter by tags/names
+}
+
+// ================= TABS =================
+function switchTab(tab, btn) {
+  document.querySelectorAll('.photos-tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  document.getElementById('libraryView').style.display = tab === 'library' ? 'block' : 'none';
+  document.getElementById('albumsView').style.display = tab === 'albums' ? 'block' : 'none';
+}
+
+// ================= TOAST =================
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('photoViewer').classList.contains('open')) {
+    if (e.key === 'Escape') closeViewer();
+    if (e.key === 'ArrowRight') nextPhoto();
+    if (e.key === 'ArrowLeft') prevPhoto();
+  }
+});
+
+// ================= INIT =================
+// Add some sample photos on load
+if (photos.length === 0) {
+  // Add a few sample photos but not all
+  photos = samplePhotos.slice(0, 4);
+  renderPhotos();
+}
+</script>
+</body>
+</html>

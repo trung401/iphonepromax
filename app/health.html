@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sức khỏe</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --glass:rgba(255,255,255,.055);
+  --glass-strong:rgba(255,255,255,.08);
+  --sep:rgba(255,255,255,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.app-shell{
+  max-width:430px;
+  width:100%;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+}
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:#FF375F;
+}
+.app-header .refresh-btn{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  font-size:16px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header .refresh-btn:active{
+  transform:scale(.9);
+  background:rgba(255,255,255,.12);
+}
+
+.app-body{
+  flex:1;
+  padding:12px 16px 16px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Greeting */
+.health-greeting{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+}
+.health-small{
+  font-size:10px;
+  color:rgba(255,255,255,.3);
+  letter-spacing:1px;
+  font-weight:700;
+}
+.health-big{
+  font-size:26px;
+  font-weight:800;
+  margin-top:2px;
+}
+.health-heart{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:rgba(255,55,95,.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#FF375F;
+  font-size:18px;
+}
+
+/* Cards */
+.health-card{
+  background:var(--glass);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:20px;
+  padding:16px;
+}
+.heart-card{
+  margin-bottom:12px;
+  background:linear-gradient(135deg,rgba(255,55,95,.08),rgba(255,55,95,.02));
+  border-color:rgba(255,55,95,.1);
+}
+.health-card-top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.health-icon{
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+.health-icon.heart{background:rgba(255,55,95,.15);color:#FF375F;}
+.health-icon.blue{background:rgba(40,150,255,.15);color:#2997FF;}
+.health-icon.purple{background:rgba(175,82,222,.15);color:#AF52DE;}
+.health-icon.orange{background:rgba(255,159,10,.15);color:#FF9F0A;}
+.health-icon.green{background:rgba(52,199,89,.15);color:#34C759;}
+
+.health-label{
+  font-size:10px;
+  color:rgba(255,255,255,.35);
+  font-weight:700;
+  letter-spacing:.7px;
+}
+.health-value{
+  font-size:24px;
+  font-weight:800;
+  margin-top:2px;
+}
+.health-value small{
+  font-size:11px;
+  font-weight:600;
+  color:rgba(255,255,255,.4);
+}
+.health-unit{
+  font-size:11px;
+  color:rgba(255,255,255,.3);
+  margin-top:2px;
+}
+.health-status{
+  margin-left:auto;
+  font-size:9px;
+  color:#34C759;
+  background:rgba(52,199,89,.1);
+  padding:4px 10px;
+  border-radius:8px;
+  font-weight:600;
+}
+.health-status.warning{
+  color:#FF9F0A;
+  background:rgba(255,159,10,.1);
+}
+.health-status.danger{
+  color:#FF453A;
+  background:rgba(255,69,58,.1);
+}
+
+/* Grid */
+.health-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+/* Progress */
+.health-progress{
+  height:4px;
+  background:rgba(255,255,255,.06);
+  border-radius:4px;
+  overflow:hidden;
+  margin-top:10px;
+}
+.health-progress>div{
+  height:100%;
+  border-radius:4px;
+  transition:width 1s ease;
+}
+.health-progress.blue>div{background:#2997FF;}
+.health-progress.orange>div{background:#FF9F0A;}
+.health-progress.green>div{background:#34C759;}
+
+.health-goal{
+  font-size:9px;
+  color:rgba(255,255,255,.25);
+  margin-top:6px;
+}
+
+/* Heart line */
+.heart-line{
+  height:36px;
+  margin-top:12px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.heart-line span{
+  flex:1;
+  height:2px;
+  background:rgba(255,55,95,.3);
+  border-radius:4px;
+}
+.heart-line span:nth-child(2){height:8px;background:rgba(255,55,95,.5);}
+.heart-line span:nth-child(3){height:18px;background:rgba(255,55,95,.7);}
+.heart-line span:nth-child(4){height:28px;background:rgba(255,55,95,.9);}
+.heart-line span:nth-child(5){height:14px;background:rgba(255,55,95,.6);}
+.heart-line span:nth-child(6){height:6px;background:rgba(255,55,95,.4);}
+.heart-line span:nth-child(7){height:2px;background:rgba(255,55,95,.2);}
+
+/* Sleep */
+.sleep-bar{
+  display:flex;
+  gap:3px;
+  margin-top:10px;
+}
+.sleep-bar span{
+  flex:1;
+  height:5px;
+  border-radius:4px;
+  background:#AF52DE;
+  transition:opacity .5s;
+}
+.sleep-bar span.light{opacity:.25;}
+.sleep-bar span.medium{opacity:.5;}
+.sleep-bar span.deep{opacity:.9;}
+
+/* Distance */
+.distance-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:12px;
+  color:#34C759;
+  font-size:9px;
+}
+.distance-line span{
+  flex:1;
+  height:2px;
+  border-top:2px dashed rgba(52,199,89,.3);
+}
+
+/* Activity */
+.health-section-title{
+  margin:20px 2px 10px;
+  font-size:17px;
+  font-weight:750;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.health-section-title span{
+  font-size:11px;
+  color:rgba(255,255,255,.3);
+  font-weight:500;
+}
+.activity-card{
+  background:var(--glass);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:20px;
+  padding:16px 12px 12px;
+}
+.activity-chart{
+  height:130px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-around;
+  gap:6px;
+}
+.activity-column{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  align-items:center;
+  gap:6px;
+}
+.activity-column .bar{
+  width:14px;
+  min-height:8px;
+  background:rgba(255,55,95,.25);
+  border-radius:8px;
+  transition:height 1s ease;
+}
+.activity-column .bar.active{
+  background:#FF375F;
+  box-shadow:0 0 20px rgba(255,55,95,.2);
+}
+.activity-column span{
+  font-size:9px;
+  color:rgba(255,255,255,.3);
+}
+
+.health-footer{
+  text-align:center;
+  font-size:9px;
+  color:rgba(255,255,255,.2);
+  padding:16px 0 4px;
+}
+.health-footer i{
+  color:#34C759;
+  margin-right:4px;
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .health-value{
+    font-size:20px;
+  }
+  .health-grid{
+    gap:8px;
+  }
+  .health-card{
+    padding:12px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-heart-fill"></i> Sức khỏe</div>
+    <button class="refresh-btn" onclick="refreshAll()"><i class="bi bi-arrow-clockwise"></i></button>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+    <div class="health-greeting">
+      <div>
+        <div class="health-small" id="todayLabel">HÔM NAY</div>
+        <div class="health-big">Tổng quan</div>
+      </div>
+      <div class="health-heart"><i class="bi bi-heart-fill"></i></div>
+    </div>
+
+    <!-- Heart -->
+    <div class="health-card heart-card">
+      <div class="health-card-top">
+        <div class="health-icon heart"><i class="bi bi-heart-pulse-fill"></i></div>
+        <div>
+          <div class="health-label">NHỊP TIM</div>
+          <div class="health-value"><span id="heartRate">72</span> <small>BPM</small></div>
+        </div>
+        <div class="health-status" id="heartStatus">Bình thường</div>
+      </div>
+      <div class="heart-line" id="heartLine">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="health-grid">
+      <!-- Steps -->
+      <div class="health-card">
+        <div class="health-icon blue"><i class="bi bi-person-walking"></i></div>
+        <div class="health-label">BƯỚC CHÂN</div>
+        <div class="health-value"><span id="steps">0</span></div>
+        <div class="health-unit">bước hôm nay</div>
+        <div class="health-progress blue"><div id="stepsProgress" style="width:0%;"></div></div>
+        <div class="health-goal">Mục tiêu 10.000</div>
+      </div>
+
+      <!-- Sleep -->
+      <div class="health-card">
+        <div class="health-icon purple"><i class="bi bi-moon-stars-fill"></i></div>
+        <div class="health-label">GIẤC NGỦ</div>
+        <div class="health-value"><span id="sleepHours">0</span>h <span id="sleepMinutes">0</span>m</div>
+        <div class="health-unit">đêm qua</div>
+        <div class="sleep-bar" id="sleepBar">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div class="health-goal">Mục tiêu 8 giờ</div>
+      </div>
+
+      <!-- Calories -->
+      <div class="health-card">
+        <div class="health-icon orange"><i class="bi bi-fire"></i></div>
+        <div class="health-label">NĂNG LƯỢNG</div>
+        <div class="health-value"><span id="calories">0</span> <small>kcal</small></div>
+        <div class="health-unit">đã đốt cháy</div>
+        <div class="health-progress orange"><div id="caloriesProgress" style="width:0%;"></div></div>
+        <div class="health-goal">Mục tiêu 600 kcal</div>
+      </div>
+
+      <!-- Distance -->
+      <div class="health-card">
+        <div class="health-icon green"><i class="bi bi-geo-alt-fill"></i></div>
+        <div class="health-label">QUÃNG ĐƯỜNG</div>
+        <div class="health-value"><span id="distance">0</span> <small>km</small></div>
+        <div class="health-unit">đã di chuyển</div>
+        <div class="distance-line"><i class="bi bi-geo-alt-fill"></i><span></span><i class="bi bi-flag-fill"></i></div>
+      </div>
+    </div>
+
+    <!-- Activity -->
+    <div class="health-section-title">
+      Hoạt động
+      <span id="activityLabel">7 ngày</span>
+    </div>
+    <div class="activity-card">
+      <div class="activity-chart" id="activityChart">
+        <!-- Bars will be generated by JS -->
+      </div>
+    </div>
+
+    <div class="health-footer">
+      <i class="bi bi-shield-check"></i>
+      Dữ liệu sức khỏe được cập nhật tự động
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= DATA GENERATORS =================
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomFloat(min, max, decimals = 1) {
+  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+}
+
+// ================= GENERATE HEALTH DATA =================
+function generateHealthData() {
+  const heartRate = randomInt(60, 85);
+  const steps = randomInt(2000, 12000);
+  const calories = randomInt(150, 650);
+  const distance = randomFloat(1.5, 8.5);
+  
+  // Sleep (5-9 hours)
+  const sleepHours = randomInt(5, 9);
+  const sleepMinutes = randomInt(0, 59);
+  
+  return { heartRate, steps, calories, distance, sleepHours, sleepMinutes };
+}
+
+// ================= UPDATE UI =================
+function updateHealthData() {
+  const data = generateHealthData();
+  
+  // Heart rate
+  document.getElementById('heartRate').textContent = data.heartRate;
+  const heartStatus = document.getElementById('heartStatus');
+  if (data.heartRate < 65) {
+    heartStatus.textContent = 'Thấp';
+    heartStatus.className = 'health-status warning';
+  } else if (data.heartRate > 80) {
+    heartStatus.textContent = 'Cao';
+    heartStatus.className = 'health-status danger';
+  } else {
+    heartStatus.textContent = 'Bình thường';
+    heartStatus.className = 'health-status';
+  }
+  
+  // Steps
+  document.getElementById('steps').textContent = data.steps.toLocaleString();
+  const stepsPercent = Math.min((data.steps / 10000) * 100, 100);
+  document.getElementById('stepsProgress').style.width = stepsPercent + '%';
+  
+  // Sleep
+  document.getElementById('sleepHours').textContent = data.sleepHours;
+  document.getElementById('sleepMinutes').textContent = String(data.sleepMinutes).padStart(2, '0');
+  
+  // Sleep quality visualization
+  const sleepBars = document.querySelectorAll('#sleepBar span');
+  const quality = data.sleepHours / 8;
+  sleepBars.forEach((bar, i) => {
+    const index = i / sleepBars.length;
+    if (index < quality * 0.6) {
+      bar.className = 'deep';
+    } else if (index < quality * 0.85) {
+      bar.className = 'medium';
+    } else {
+      bar.className = 'light';
+    }
+  });
+  
+  // Calories
+  document.getElementById('calories').textContent = data.calories;
+  const caloriesPercent = Math.min((data.calories / 600) * 100, 100);
+  document.getElementById('caloriesProgress').style.width = caloriesPercent + '%';
+  
+  // Distance
+  document.getElementById('distance').textContent = data.distance;
+  
+  // Update activity chart
+  updateActivityChart();
+  
+  // Update today label
+  const now = new Date();
+  const days = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+  document.getElementById('todayLabel').textContent = days[now.getDay()].toUpperCase();
+}
+
+// ================= ACTIVITY CHART =================
+function updateActivityChart() {
+  const chart = document.getElementById('activityChart');
+  const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  const today = new Date().getDay();
+  // Adjust for Monday = 0
+  const startDay = today === 0 ? 6 : today - 1;
+  
+  let bars = '';
+  for (let i = 0; i < 7; i++) {
+    const dayIndex = (startDay + i) % 7;
+    const isToday = i === 6;
+    const height = randomInt(30, 95);
+    bars += `
+      <div class="activity-column">
+        <div class="bar ${isToday ? 'active' : ''}" style="height:${height}%;"></div>
+        <span>${days[dayIndex]}</span>
+      </div>
+    `;
+  }
+  chart.innerHTML = bars;
+}
+
+// ================= REFRESH =================
+function refreshAll() {
+  updateHealthData();
+  // Vibrate if supported
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+// ================= AUTO UPDATE =================
+// Update every 10 seconds
+setInterval(updateHealthData, 10000);
+
+// Initial load
+updateHealthData();
+
+// Also update on visibility change (when user returns to app)
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    updateHealthData();
+  }
+});
+</script>
+</body>
+</html>

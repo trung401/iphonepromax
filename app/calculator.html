@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Máy tính</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  background: #000;
+  font-family: 'Manrope', sans-serif;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calc-app {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 400px;
+  height: 100%;
+  max-height: 780px;
+  padding: 16px 20px 20px;
+  background: #000;
+  border-radius: 20px;
+  position: relative;
+}
+
+.calc-display {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 0 4px 20px;
+  min-height: 100px;
+  max-height: 200px;
+}
+.calc-display .sub { 
+  font-size: 18px; 
+  color: rgba(255,255,255,.5); 
+  min-height: 26px; 
+  text-align: right; 
+  width: 100%; 
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.calc-display .result { 
+  font-size: 48px; 
+  font-weight: 300; 
+  text-align: right; 
+  width: 100%; 
+  line-height: 1.1;
+  letter-spacing: 0.5px;
+  transition: font-size 0.2s;
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.calc-grid button {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: none;
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #333;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: all 0.15s;
+  min-height: 60px;
+  min-width: 60px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.calc-grid button:active { 
+  filter: brightness(1.5);
+  transform: scale(0.95);
+}
+.calc-grid button.func { background: #a5a5a5; color: #000; }
+.calc-grid button.operator { background: #FF9F0A; color: #fff; font-size: 28px; }
+.calc-grid button.zero {
+  grid-column: span 2;
+  border-radius: 40px;
+  aspect-ratio: auto;
+  justify-content: flex-start;
+  padding-left: 28px;
+  min-height: 60px;
+}
+
+/* Điều chỉnh khi màn hình nhỏ hơn */
+@media (max-height: 700px) {
+  .calc-app {
+    max-height: 100%;
+    padding: 12px 16px 16px;
+  }
+  .calc-grid {
+    gap: 10px;
+  }
+  .calc-grid button {
+    font-size: 20px;
+    min-height: 50px;
+    min-width: 50px;
+  }
+  .calc-grid button.operator { font-size: 24px; }
+  .calc-grid button.zero {
+    padding-left: 24px;
+    min-height: 50px;
+  }
+  .calc-display .result { font-size: 40px; }
+  .calc-display .sub { font-size: 16px; min-height: 22px; }
+}
+
+@media (max-height: 580px) {
+  .calc-grid {
+    gap: 8px;
+  }
+  .calc-grid button {
+    font-size: 18px;
+    min-height: 42px;
+    min-width: 42px;
+  }
+  .calc-grid button.operator { font-size: 20px; }
+  .calc-grid button.zero {
+    padding-left: 20px;
+    min-height: 42px;
+  }
+  .calc-display .result { font-size: 34px; }
+  .calc-display .sub { font-size: 14px; min-height: 18px; }
+  .calc-display { min-height: 70px; padding-bottom: 12px; }
+}
+
+@media (max-height: 480px) {
+  .calc-grid {
+    gap: 6px;
+  }
+  .calc-grid button {
+    font-size: 16px;
+    min-height: 36px;
+    min-width: 36px;
+  }
+  .calc-grid button.operator { font-size: 18px; }
+  .calc-grid button.zero {
+    padding-left: 16px;
+    min-height: 36px;
+  }
+  .calc-display .result { font-size: 28px; }
+  .calc-display .sub { font-size: 12px; min-height: 16px; }
+  .calc-display { min-height: 50px; padding-bottom: 8px; }
+  .calc-app { padding: 8px 12px 12px; }
+}
+
+/* Khi màn hình quá rộng, giới hạn kích thước */
+@media (min-width: 500px) {
+  .calc-app {
+    max-width: 400px;
+    max-height: 780px;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  }
+}
+</style>
+</head>
+<body>
+<div class="calc-app">
+  <div class="calc-display">
+    <div class="sub" id="calcSub"></div>
+    <div class="result" id="calcResult">0</div>
+  </div>
+  <div class="calc-grid">
+    <button class="func" data-action="C">C</button>
+    <button class="func" data-action="±">±</button>
+    <button class="func" data-action="%">%</button>
+    <button class="operator" data-action="÷">÷</button>
+    <button data-action="7">7</button>
+    <button data-action="8">8</button>
+    <button data-action="9">9</button>
+    <button class="operator" data-action="×">×</button>
+    <button data-action="4">4</button>
+    <button data-action="5">5</button>
+    <button data-action="6">6</button>
+    <button class="operator" data-action="−">−</button>
+    <button data-action="1">1</button>
+    <button data-action="2">2</button>
+    <button data-action="3">3</button>
+    <button class="operator" data-action="+">+</button>
+    <button class="zero" data-action="0">0</button>
+    <button data-action=".">.</button>
+    <button class="operator" data-action="=">=</button>
+  </div>
+</div>
+<script>
+(function(){
+  let current='0', previous=null, operator=null, resetNext=false, subText='';
+  const resultEl=document.getElementById('calcResult'), subEl=document.getElementById('calcSub');
+  
+  function updateDisplay(){ 
+    resultEl.textContent=current; 
+    subEl.textContent=subText; 
+  }
+  
+  function compute(){
+    if(operator===null||previous===null) return;
+    const a=parseFloat(previous), b=parseFloat(current);
+    let result;
+    switch(operator){
+      case '+': result=a+b; break;
+      case '−': result=a-b; break;
+      case '×': result=a*b; break;
+      case '÷': result=b!==0?a/b:'Lỗi'; break;
+      default: return;
+    }
+    if(typeof result==='number'){ 
+      result=parseFloat(result.toFixed(10)); 
+      current=String(result); 
+    }
+    else current=result;
+    operator=null; previous=null; resetNext=true; subText='';
+  }
+  
+  function handleAction(action){
+    if(action==='C'){ 
+      current='0'; previous=null; operator=null; resetNext=false; subText=''; 
+      updateDisplay(); return; 
+    }
+    if(action==='±'){ 
+      if(current!=='0') current=current.startsWith('-')?current.slice(1):'-'+current; 
+      updateDisplay(); return; 
+    }
+    if(action==='%'){ 
+      const num=parseFloat(current); 
+      if(!isNaN(num)){ current=String(num/100); } 
+      updateDisplay(); return; 
+    }
+    if(['+','−','×','÷'].includes(action)){
+      if(operator&&!resetNext) compute();
+      previous=current;
+      operator=action;
+      resetNext=true;
+      subText=previous+' '+action;
+      updateDisplay(); return;
+    }
+    if(action==='='){ 
+      if(operator&&!resetNext) compute(); 
+      updateDisplay(); return; 
+    }
+    if(action==='.'){ 
+      if(resetNext){ current='0.'; resetNext=false; } 
+      else if(!current.includes('.')) current+='.'; 
+      updateDisplay(); return; 
+    }
+    if(resetNext||current==='0'){ 
+      current=action; 
+      resetNext=false; 
+    } else current+=action;
+    updateDisplay();
+  }
+  
+  document.querySelectorAll('.calc-grid button').forEach(btn=>{
+    btn.addEventListener('click', function(e){ 
+      const action=this.dataset.action||this.textContent.trim(); 
+      handleAction(action); 
+    });
+  });
+  
+  updateDisplay();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>App Store</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.app-shell{
+  max-width:430px;
+  width:100%;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:var(--blue);
+}
+.app-header .action-btn{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  font-size:16px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header .action-btn:active{
+  transform:scale(.9);
+  background:rgba(255,255,255,.12);
+}
+
+.app-body{
+  flex:1;
+  padding:12px 16px 16px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Search */
+.appstore-search{
+  height:40px;
+  border-radius:12px;
+  background:var(--glass);
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  gap:10px;
+  margin-bottom:16px;
+  border:1px solid transparent;
+  transition:all .3s;
+}
+.appstore-search:focus-within{
+  border-color:rgba(10,132,255,.3);
+}
+.appstore-search i{
+  color:rgba(255,255,255,.2);
+  font-size:16px;
+}
+.appstore-search input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:white;
+  font-size:14px;
+  font-family:inherit;
+}
+.appstore-search input::placeholder{
+  color:rgba(255,255,255,.2);
+}
+
+/* Banner */
+.appstore-banner{
+  min-height:150px;
+  border-radius:20px;
+  padding:20px 24px;
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,#101820,#1a2a3a);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+  border:1px solid rgba(255,255,255,.06);
+}
+.banner-small{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1px;
+  color:rgba(255,255,255,.4);
+}
+.banner-title{
+  font-size:26px;
+  font-weight:800;
+  line-height:1.2;
+  margin-top:4px;
+}
+.banner-desc{
+  font-size:12px;
+  color:rgba(255,255,255,.4);
+  margin-top:6px;
+}
+.banner-icon{
+  font-size:72px;
+  opacity:.6;
+  transform:rotate(-8deg);
+  color:var(--blue);
+}
+.banner-tag{
+  display:inline-block;
+  background:var(--blue);
+  padding:2px 10px;
+  border-radius:12px;
+  font-size:9px;
+  font-weight:700;
+  margin-top:6px;
+}
+
+/* Tabs */
+.appstore-tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:4px;
+  margin-bottom:4px;
+}
+.appstore-tabs button{
+  border:none;
+  white-space:nowrap;
+  padding:8px 16px;
+  border-radius:20px;
+  background:var(--glass);
+  color:rgba(255,255,255,.4);
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  transition:all .3s;
+  font-family:inherit;
+}
+.appstore-tabs button:active{
+  transform:scale(.95);
+}
+.appstore-tabs button.active{
+  background:var(--blue);
+  color:#fff;
+}
+.appstore-tabs button i{
+  margin-right:6px;
+}
+
+/* Section title */
+.appstore-section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:18px;
+  font-weight:800;
+  margin:18px 2px 12px;
+}
+.appstore-section-title span{
+  font-size:12px;
+  color:var(--blue);
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* App list */
+.appstore-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.store-app{
+  display:flex;
+  align-items:center;
+  padding:10px 12px;
+  border-radius:16px;
+  background:var(--glass);
+  border:1px solid transparent;
+  transition:all .3s;
+  cursor:pointer;
+}
+.store-app:active{
+  transform:scale(.98);
+  background:var(--glass-strong);
+}
+.store-app.hidden{
+  display:none !important;
+}
+.store-icon{
+  width:52px;
+  height:52px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:26px;
+  flex-shrink:0;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 4px 12px rgba(0,0,0,.3);
+}
+.store-icon.instagram{background:linear-gradient(135deg,#833AB4,#FD1D1D,#FCAF45);}
+.store-icon.spotify{background:#1DB954;}
+.store-icon.tiktok{background:#050505;}
+.store-icon.discord{background:#5865F2;}
+.store-icon.youtube{background:#FF0000;}
+.store-icon.github{background:#24292e;}
+.store-icon.roblox{background:#1a1a2e;}
+.store-icon.music{background:linear-gradient(135deg,#fa233b,#fb5c74);}
+.store-icon.maps{background:linear-gradient(135deg,#34A853,#4285F4);}
+.store-icon.telegram{background:#229ED9;}
+.store-icon.facebook{background:#1877F2;}
+.store-icon.minecraft{background:#55a630;}
+.store-icon.netflix{background:#E50914;}
+.store-icon.twitter{background:#1DA1F2;}
+.store-icon.whatsapp{background:#25D366;}
+
+.store-info{
+  flex:1;
+  min-width:0;
+  margin-left:12px;
+}
+.store-name{
+  font-size:14px;
+  font-weight:700;
+}
+.store-desc{
+  font-size:11px;
+  color:rgba(255,255,255,.35);
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.store-rating{
+  font-size:11px;
+  color:#FFD60A;
+  margin-top:2px;
+  letter-spacing:1px;
+}
+.store-rating .reviews{
+  color:rgba(255,255,255,.2);
+  font-size:9px;
+  margin-left:4px;
+}
+.store-btn{
+  border:none;
+  background:rgba(10,132,255,.15);
+  color:var(--blue);
+  font-size:13px;
+  font-weight:700;
+  padding:6px 18px;
+  border-radius:20px;
+  cursor:pointer;
+  transition:all .3s;
+  font-family:inherit;
+  flex-shrink:0;
+}
+.store-btn:active{
+  transform:scale(.95);
+}
+.store-btn:hover{
+  background:rgba(10,132,255,.25);
+}
+.store-btn.installed{
+  color:#34C759;
+  background:rgba(52,199,89,.15);
+}
+.store-btn.downloading{
+  color:var(--orange);
+  background:rgba(255,159,10,.15);
+  cursor:default;
+}
+.store-price{
+  font-size:12px;
+  color:rgba(255,255,255,.3);
+  margin-right:8px;
+  font-weight:600;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:2000;
+  border:1px solid var(--sep);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .store-icon{
+    width:44px;
+    height:44px;
+    font-size:20px;
+  }
+  .banner-title{
+    font-size:20px;
+  }
+  .banner-icon{
+    font-size:52px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="fa-brands fa-app-store-ios"></i> App Store</div>
+    <button class="action-btn" onclick="showToast('🔄 Đang kiểm tra cập nhật...')"><i class="fa-solid fa-rotate"></i></button>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+    
+    <!-- Search -->
+    <div class="appstore-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="appSearch" type="text" placeholder="Tìm kiếm ứng dụng..." oninput="searchApps()">
+    </div>
+
+    <!-- Banner -->
+    <div class="appstore-banner">
+      <div>
+        <div class="banner-small">🔥 ỨNG DỤNG NỔI BẬT</div>
+        <div class="banner-title">Khám phá<br>ứng dụng mới.</div>
+        <div class="banner-desc">Những ứng dụng được yêu thích nhất</div>
+        <span class="banner-tag">#1 Tuần này</span>
+      </div>
+      <div class="banner-icon"><i class="fa-brands fa-app-store-ios"></i></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="appstore-tabs">
+      <button class="active" onclick="filterApps('all', this)"><i class="fa-solid fa-th"></i> Tất cả</button>
+      <button onclick="filterApps('social', this)"><i class="fa-solid fa-users"></i> Xã hội</button>
+      <button onclick="filterApps('music', this)"><i class="fa-solid fa-music"></i> Âm nhạc</button>
+      <button onclick="filterApps('game', this)"><i class="fa-solid fa-gamepad"></i> Trò chơi</button>
+      <button onclick="filterApps('productivity', this)"><i class="fa-solid fa-briefcase"></i> Năng suất</button>
+    </div>
+
+    <!-- Section Title -->
+    <div class="appstore-section-title">
+      Ứng dụng phổ biến
+      <span onclick="showToast('📱 Xem tất cả ứng dụng')">Xem tất cả →</span>
+    </div>
+
+    <!-- App List -->
+    <div class="appstore-list" id="appList">
+      <div class="store-app" data-category="social" data-name="Instagram">
+        <div class="store-icon instagram"><i class="fa-brands fa-instagram"></i></div>
+        <div class="store-info">
+          <div class="store-name">Instagram</div>
+          <div class="store-desc">Ảnh và mạng xã hội</div>
+          <div class="store-rating">★★★★★ <span class="reviews">12.5K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Instagram')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="music" data-name="Spotify">
+        <div class="store-icon spotify"><i class="fa-brands fa-spotify"></i></div>
+        <div class="store-info">
+          <div class="store-name">Spotify</div>
+          <div class="store-desc">Nghe nhạc, podcast</div>
+          <div class="store-rating">★★★★★ <span class="reviews">8.2K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Spotify')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="social" data-name="TikTok">
+        <div class="store-icon tiktok"><i class="fa-brands fa-tiktok"></i></div>
+        <div class="store-info">
+          <div class="store-name">TikTok</div>
+          <div class="store-desc">Video ngắn, giải trí</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">6.8K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'TikTok')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="social" data-name="Discord">
+        <div class="store-icon discord"><i class="fa-brands fa-discord"></i></div>
+        <div class="store-info">
+          <div class="store-name">Discord</div>
+          <div class="store-desc">Trò chuyện & cộng đồng</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">4.5K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Discord')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="social" data-name="YouTube">
+        <div class="store-icon youtube"><i class="fa-brands fa-youtube"></i></div>
+        <div class="store-info">
+          <div class="store-name">YouTube</div>
+          <div class="store-desc">Video & giải trí</div>
+          <div class="store-rating">★★★★★ <span class="reviews">15.2K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'YouTube')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="productivity" data-name="GitHub">
+        <div class="store-icon github"><i class="fa-brands fa-github"></i></div>
+        <div class="store-info">
+          <div class="store-name">GitHub</div>
+          <div class="store-desc">Code & dự án</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">2.1K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'GitHub')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="game" data-name="Roblox">
+        <div class="store-icon roblox"><i class="fa-solid fa-gamepad"></i></div>
+        <div class="store-info">
+          <div class="store-name">Roblox</div>
+          <div class="store-desc">Trò chơi đa dạng</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">3.8K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Roblox')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="music" data-name="Apple Music">
+        <div class="store-icon music"><i class="fa-solid fa-music"></i></div>
+        <div class="store-info">
+          <div class="store-name">Apple Music</div>
+          <div class="store-desc">Âm nhạc không giới hạn</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">7.5K đánh giá</span></div>
+        </div>
+        <span class="store-price">49.000đ</span>
+        <button class="store-btn" onclick="installApp(this,'Apple Music')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="productivity" data-name="Google Maps">
+        <div class="store-icon maps"><i class="fa-solid fa-map-location-dot"></i></div>
+        <div class="store-info">
+          <div class="store-name">Google Maps</div>
+          <div class="store-desc">Bản đồ & chỉ đường</div>
+          <div class="store-rating">★★★★★ <span class="reviews">9.8K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Google Maps')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="social" data-name="Telegram">
+        <div class="store-icon telegram"><i class="fa-brands fa-telegram"></i></div>
+        <div class="store-info">
+          <div class="store-name">Telegram</div>
+          <div class="store-desc">Nhắn tin an toàn</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">3.2K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Telegram')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="social" data-name="Facebook">
+        <div class="store-icon facebook"><i class="fa-brands fa-facebook"></i></div>
+        <div class="store-info">
+          <div class="store-name">Facebook</div>
+          <div class="store-desc">Mạng xã hội</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">11.2K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Facebook')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="game" data-name="Minecraft">
+        <div class="store-icon minecraft"><i class="fa-solid fa-cubes"></i></div>
+        <div class="store-info">
+          <div class="store-name">Minecraft</div>
+          <div class="store-desc">Xây dựng & phiêu lưu</div>
+          <div class="store-rating">★★★★★ <span class="reviews">5.6K đánh giá</span></div>
+        </div>
+        <span class="store-price">199.000đ</span>
+        <button class="store-btn" onclick="installApp(this,'Minecraft')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="social" data-name="Netflix">
+        <div class="store-icon netflix"><i class="fa-solid fa-film"></i></div>
+        <div class="store-info">
+          <div class="store-name">Netflix</div>
+          <div class="store-desc">Phim & chương trình</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">8.9K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Netflix')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="social" data-name="Twitter">
+        <div class="store-icon twitter"><i class="fa-brands fa-twitter"></i></div>
+        <div class="store-info">
+          <div class="store-name">Twitter</div>
+          <div class="store-desc">Tin tức & xu hướng</div>
+          <div class="store-rating">★★★★☆ <span class="reviews">4.1K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'Twitter')">Tải</button>
+      </div>
+
+      <div class="store-app" data-category="social" data-name="WhatsApp">
+        <div class="store-icon whatsapp"><i class="fa-brands fa-whatsapp"></i></div>
+        <div class="store-info">
+          <div class="store-name">WhatsApp</div>
+          <div class="store-desc">Nhắn tin miễn phí</div>
+          <div class="store-rating">★★★★★ <span class="reviews">14.7K đánh giá</span></div>
+        </div>
+        <span class="store-price">Miễn phí</span>
+        <button class="store-btn" onclick="installApp(this,'WhatsApp')">Tải</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= STATE =================
+let installedApps = [];
+
+// ================= FILTER =================
+function filterApps(category, button) {
+  document.querySelectorAll('.appstore-tabs button').forEach(btn => btn.classList.remove('active'));
+  button.classList.add('active');
+  
+  const search = document.getElementById('appSearch').value.toLowerCase().trim();
+  document.querySelectorAll('.store-app').forEach(app => {
+    const appCategory = app.dataset.category;
+    const name = app.dataset.name.toLowerCase();
+    const matchCategory = category === 'all' || appCategory === category;
+    const matchSearch = name.includes(search);
+    app.classList.toggle('hidden', !(matchCategory && matchSearch));
+  });
+}
+
+function searchApps() {
+  const search = document.getElementById('appSearch').value.toLowerCase().trim();
+  const activeTab = document.querySelector('.appstore-tabs button.active');
+  let category = activeTab ? activeTab.textContent.toLowerCase().includes('tất') ? 'all' : 
+    activeTab.textContent.toLowerCase().includes('xã') ? 'social' :
+    activeTab.textContent.toLowerCase().includes('nhạc') ? 'music' :
+    activeTab.textContent.toLowerCase().includes('chơi') ? 'game' :
+    activeTab.textContent.toLowerCase().includes('suất') ? 'productivity' : 'all' : 'all';
+  
+  document.querySelectorAll('.store-app').forEach(app => {
+    const name = app.dataset.name.toLowerCase();
+    const appCategory = app.dataset.category;
+    const matchCategory = category === 'all' || appCategory === category;
+    const matchSearch = name.includes(search);
+    app.classList.toggle('hidden', !(matchCategory && matchSearch));
+  });
+}
+
+// ================= INSTALL =================
+function installApp(btn, name) {
+  if (btn.classList.contains('installed')) {
+    showToast(`📱 Đang mở ${name}...`);
+    return;
+  }
+  
+  btn.textContent = '⏳ Đang tải';
+  btn.disabled = true;
+  btn.classList.add('downloading');
+  
+  setTimeout(() => {
+    btn.textContent = '📂 Mở';
+    btn.classList.remove('downloading');
+    btn.classList.add('installed');
+    btn.disabled = false;
+    installedApps.push(name);
+    showToast(`✅ Đã cài đặt ${name}!`);
+  }, 1200 + Math.random() * 800);
+}
+
+// ================= TOAST =================
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+    const search = document.getElementById('appSearch');
+    if (document.activeElement !== search) {
+      e.preventDefault();
+      search.focus();
+    }
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('appSearch').blur();
+  }
+});
+
+// ================= INIT =================
+// No additional init needed
+</script>
+</body>
+</html>

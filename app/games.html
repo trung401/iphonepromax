@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Trò chơi</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --orange:#FF9F0A;
+  --green:#30D158;
+  --red:#FF453A;
+  --purple:#BF5AF2;
+  --pink:#FF375F;
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.app-shell{
+  width:100%;
+  max-width:430px;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:var(--purple);
+}
+
+.app-body{
+  flex:1;
+  padding:12px 16px 20px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Game menu */
+.game-menu{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+.game-menu-btn{
+  padding:16px 12px;
+  border-radius:16px;
+  border:none;
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  font-family:inherit;
+}
+.game-menu-btn:active{
+  transform:scale(.95);
+}
+.game-menu-btn i{
+  font-size:28px;
+}
+.game-menu-btn .sub{
+  font-size:11px;
+  font-weight:400;
+  opacity:.7;
+}
+.btn-ttt{background:linear-gradient(135deg,#0A84FF,#5856D6);}
+.btn-guess{background:linear-gradient(135deg,#FF9F0A,#FF6B00);}
+.btn-memory{background:linear-gradient(135deg,#30D158,#00A84D);}
+.btn-puzzle{background:linear-gradient(135deg,#BF5AF2,#8A3AC0);}
+.btn-cards{background:linear-gradient(135deg,#FF375F,#D6003D);}
+.btn-snake{background:linear-gradient(135deg,#64D2FF,#0088CC);}
+
+/* Game container */
+.game-container{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  padding:10px 0;
+  animation:fadeIn .3s ease;
+}
+@keyframes fadeIn{
+  0%{opacity:0;transform:translateY(10px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+.game-title{
+  font-size:20px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.game-board{
+  display:grid;
+  gap:6px;
+  margin:4px 0;
+}
+.game-board .cell{
+  width:60px;
+  height:60px;
+  background:var(--glass);
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+  border:2px solid transparent;
+}
+.game-board .cell:active{
+  transform:scale(.9);
+}
+.game-board .cell:hover{
+  background:var(--glass-strong);
+}
+.game-board .cell.x{
+  color:var(--blue);
+}
+.game-board .cell.o{
+  color:var(--orange);
+}
+.game-board .cell.win{
+  border-color:var(--green);
+  background:rgba(48,209,88,.1);
+}
+.game-status{
+  font-size:15px;
+  color:rgba(255,255,255,.6);
+  text-align:center;
+  min-height:24px;
+}
+.game-controls{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.game-controls button{
+  padding:8px 20px;
+  border-radius:16px;
+  border:none;
+  background:var(--blue);
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.game-controls button:active{
+  transform:scale(.95);
+}
+.game-controls button.secondary{
+  background:var(--glass);
+  color:#fff;
+}
+.game-score{
+  font-size:13px;
+  color:rgba(255,255,255,.3);
+}
+
+/* Guess game */
+.guess-input-row{
+  display:flex;
+  gap:10px;
+  margin:8px 0;
+  align-items:center;
+}
+.guess-input-row input{
+  padding:10px 16px;
+  border-radius:14px;
+  border:1px solid var(--sep);
+  background:var(--glass);
+  color:#fff;
+  width:100px;
+  font-size:18px;
+  font-weight:600;
+  text-align:center;
+  outline:none;
+  font-family:inherit;
+}
+.guess-input-row input:focus{
+  border-color:var(--blue);
+}
+.guess-input-row button{
+  padding:10px 24px;
+  border-radius:14px;
+  border:none;
+  background:var(--blue);
+  color:#fff;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.guess-input-row button:active{
+  transform:scale(.95);
+}
+.guess-hint{
+  font-size:14px;
+  padding:8px 16px;
+  border-radius:12px;
+  background:var(--glass);
+  min-width:120px;
+  text-align:center;
+}
+.guess-hint.high{color:var(--orange);}
+.guess-hint.low{color:var(--blue);}
+.guess-hint.win{color:var(--green);}
+
+/* Memory game */
+.memory-card{
+  width:60px;
+  height:60px;
+  border-radius:14px;
+  background:var(--glass);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  cursor:pointer;
+  transition:all .3s;
+  border:2px solid transparent;
+}
+.memory-card:active{
+  transform:scale(.9);
+}
+.memory-card.flipped{
+  background:rgba(255,255,255,.12);
+  border-color:var(--blue);
+}
+.memory-card.matched{
+  background:rgba(48,209,88,.15);
+  border-color:var(--green);
+}
+.memory-card .back{
+  font-size:22px;
+  color:rgba(255,255,255,.2);
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:200;
+  border:1px solid var(--sep);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .game-menu-btn{
+    padding:12px 8px;
+    font-size:12px;
+  }
+  .game-menu-btn i{
+    font-size:22px;
+  }
+  .game-board .cell{
+    width:50px;
+    height:50px;
+    font-size:22px;
+  }
+  .memory-card{
+    width:50px;
+    height:50px;
+    font-size:22px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-joystick"></i> Trò chơi</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+    <!-- Menu -->
+    <div class="game-menu">
+      <button class="game-menu-btn btn-ttt" onclick="startGame('ttt')">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+        Cờ ca-rô
+        <span class="sub">X vs O</span>
+      </button>
+      <button class="game-menu-btn btn-guess" onclick="startGame('guess')">
+        <i class="bi bi-dice-5-fill"></i>
+        Đoán số
+        <span class="sub">1-100</span>
+      </button>
+      <button class="game-menu-btn btn-memory" onclick="startGame('memory')">
+        <i class="bi bi-brain"></i>
+        Trí nhớ
+        <span class="sub">Ghép cặp</span>
+      </button>
+      <button class="game-menu-btn btn-puzzle" onclick="startGame('puzzle')">
+        <i class="bi bi-puzzle-fill"></i>
+        Xếp hình
+        <span class="sub">Sắp xếp</span>
+      </button>
+      <button class="game-menu-btn btn-cards" onclick="startGame('cards')">
+        <i class="bi bi-suit-heart-fill"></i>
+        Bài cao
+        <span class="sub">May rủi</span>
+      </button>
+      <button class="game-menu-btn btn-snake" onclick="startGame('snake')">
+        <i class="bi bi-arrow-up-circle-fill"></i>
+        Rắn săn mồi
+        <span class="sub">Điều khiển</span>
+      </button>
+    </div>
+
+    <!-- Game container -->
+    <div id="gameContainer" class="game-container">
+      <div class="game-title">🎮 Chọn trò chơi</div>
+      <div class="game-status">Bấm vào một trò chơi để bắt đầu</div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= TOAST =================
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ================= GAME: TIC TAC TOE =================
+function startTTT() {
+  let board = ['','','','','','','','',''];
+  let turn = 'X';
+  let gameOver = false;
+  let winCells = [];
+
+  const wins = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+
+  function checkWinner() {
+    for (const [a,b,c] of wins) {
+      if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+        winCells = [a,b,c];
+        return board[a];
+      }
+    }
+    return null;
+  }
+
+  function render() {
+    const container = document.getElementById('gameContainer');
+    const winner = checkWinner();
+    const full = board.every(c => c);
+    if (winner) gameOver = true;
+    if (full && !winner) gameOver = true;
+
+    container.innerHTML = `
+      <div class="game-title">🎮 Cờ ca-rô</div>
+      <div class="game-board" style="grid-template-columns:repeat(3,1fr);">
+        ${board.map((c, i) => `
+          <div class="cell ${c ? c.toLowerCase() : ''} ${winCells.includes(i) ? 'win' : ''}" 
+               onclick="window.tttMove(${i})" 
+               style="${c ? 'cursor:default;' : ''}">
+            ${c || ''}
+          </div>
+        `).join('')}
+      </div>
+      <div class="game-status">
+        ${winner ? `🏆 Người chơi <strong style="color:${winner === 'X' ? 'var(--blue)' : 'var(--orange)'}">${winner}</strong> thắng!` : 
+          (full ? '🤝 Hòa!' : `Lượt: <strong style="color:${turn === 'X' ? 'var(--blue)' : 'var(--orange)'}">${turn}</strong>`)}
+      </div>
+      <div class="game-controls">
+        <button onclick="startGame('ttt')">Chơi lại</button>
+        <button class="secondary" onclick="goHome()">🏠 Về menu</button>
+      </div>
+    `;
+  }
+
+  window.tttMove = function(i) {
+    if (gameOver || board[i]) return;
+    board[i] = turn;
+    turn = turn === 'X' ? 'O' : 'X';
+    render();
+  };
+
+  render();
+}
+
+// ================= GAME: GUESS NUMBER =================
+function startGuess() {
+  const secret = Math.floor(Math.random() * 100) + 1;
+  let tries = 0;
+  let guessed = false;
+
+  function render() {
+    const container = document.getElementById('gameContainer');
+    container.innerHTML = `
+      <div class="game-title">🎯 Đoán số</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.3);">Nhập số từ 1 đến 100</div>
+      <div class="guess-input-row">
+        <input id="guessInput" type="number" min="1" max="100" placeholder="?">
+        <button onclick="window.guessSubmit()">Đoán</button>
+      </div>
+      <div id="guessStatus" class="game-status">Nhập số và bấm Đoán</div>
+      <div class="game-score">🎯 Đã đoán: ${tries} lần</div>
+      <div class="game-controls">
+        <button onclick="startGame('guess')">Chơi lại</button>
+        <button class="secondary" onclick="goHome()">🏠 Về menu</button>
+      </div>
+    `;
+    document.getElementById('guessInput').focus();
+  }
+
+  window.guessSubmit = function() {
+    if (guessed) return;
+    const input = document.getElementById('guessInput');
+    const status = document.getElementById('guessStatus');
+    const val = parseInt(input.value);
+    
+    if (isNaN(val) || val < 1 || val > 100) {
+      status.textContent = '❌ Nhập số từ 1 đến 100!';
+      return;
+    }
+    
+    tries++;
+    if (val === secret) {
+      status.textContent = `🎉 Chính xác! Số là ${secret}. Bạn đã đoán ${tries} lần.`;
+      status.style.color = 'var(--green)';
+      guessed = true;
+      showToast(`🎉 Bạn đã thắng sau ${tries} lần!`);
+    } else if (val < secret) {
+      status.textContent = `⬆️ Cao hơn! (lần ${tries})`;
+      status.style.color = 'var(--blue)';
+    } else {
+      status.textContent = `⬇️ Thấp hơn! (lần ${tries})`;
+      status.style.color = 'var(--orange)';
+    }
+    document.querySelector('.game-score').textContent = `🎯 Đã đoán: ${tries} lần`;
+    input.value = '';
+    input.focus();
+  };
+
+  render();
+}
+
+// ================= GAME: MEMORY =================
+function startMemory() {
+  const emojis = ['🍎','🍌','🍇','🍉','🍒','🍓','🍊','🍋'];
+  let cards = [...emojis, ...emojis];
+  let shuffled = cards.sort(() => Math.random() - 0.5);
+  let flipped = [];
+  let matched = [];
+  let lock = false;
+
+  function render() {
+    const container = document.getElementById('gameContainer');
+    container.innerHTML = `
+      <div class="game-title">🧠 Trí nhớ</div>
+      <div class="game-board" style="grid-template-columns:repeat(4,1fr);gap:6px;">
+        ${shuffled.map((emoji, idx) => `
+          <div class="memory-card ${matched.includes(idx) ? 'matched' : (flipped.includes(idx) ? 'flipped' : '')}" 
+               onclick="window.memoryFlip(${idx})">
+            ${matched.includes(idx) || flipped.includes(idx) ? emoji : '<span class="back">❓</span>'}
+          </div>
+        `).join('')}
+      </div>
+      <div class="game-status">
+        ${matched.length === shuffled.length ? '🎉 Bạn đã thắng!' : 
+          `Đã tìm được ${matched.length/2}/${emojis.length} cặp`}
+      </div>
+      <div class="game-controls">
+        <button onclick="startGame('memory')">Chơi lại</button>
+        <button class="secondary" onclick="goHome()">🏠 Về menu</button>
+      </div>
+    `;
+  }
+
+  window.memoryFlip = function(idx) {
+    if (lock || flipped.includes(idx) || matched.includes(idx) || flipped.length === 2) return;
+    flipped.push(idx);
+    render();
+    
+    if (flipped.length === 2) {
+      lock = true;
+      const [i1, i2] = flipped;
+      if (shuffled[i1] === shuffled[i2]) {
+        matched.push(i1, i2);
+        flipped = [];
+        lock = false;
+        render();
+        if (matched.length === shuffled.length) {
+          showToast('🎉 Bạn đã thắng!');
+        }
+      } else {
+        setTimeout(() => {
+          flipped = [];
+          lock = false;
+          render();
+        }, 700);
+      }
+    }
+  };
+
+  render();
+}
+
+// ================= GAME: PUZZLE (3x3 Sliding) =================
+function startPuzzle() {
+  let tiles = [1,2,3,4,5,6,7,8,0];
+  let moves = 0;
+  
+  function shuffle() {
+    for (let i = tiles.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+    }
+    // Make sure it's solvable
+    let inversions = 0;
+    for (let i = 0; i < tiles.length; i++) {
+      for (let j = i + 1; j < tiles.length; j++) {
+        if (tiles[i] && tiles[j] && tiles[i] > tiles[j]) inversions++;
+      }
+    }
+    if (inversions % 2 !== 0) shuffle();
+  }
+  shuffle();
+
+  function findEmpty() {
+    return tiles.indexOf(0);
+  }
+
+  function isSolved() {
+    return tiles.every((t, i) => t === i + 1 || (i === 8 && t === 0));
+  }
+
+  function render() {
+    const container = document.getElementById('gameContainer');
+    container.innerHTML = `
+      <div class="game-title">🧩 Xếp hình</div>
+      <div class="game-board" style="grid-template-columns:repeat(3,1fr);">
+        ${tiles.map((t, i) => `
+          <div class="cell" onclick="window.puzzleMove(${i})" 
+               style="${t === 0 ? 'background:transparent;cursor:default;' : ''}">
+            ${t || ''}
+          </div>
+        `).join('')}
+      </div>
+      <div class="game-status">${isSolved() ? '🎉 Bạn đã thắng!' : `Số bước: ${moves}`}</div>
+      <div class="game-controls">
+        <button onclick="startGame('puzzle')">Chơi lại</button>
+        <button class="secondary" onclick="goHome()">🏠 Về menu</button>
+      </div>
+    `;
+  }
+
+  window.puzzleMove = function(idx) {
+    if (isSolved()) return;
+    const empty = findEmpty();
+    const row = Math.floor(idx / 3);
+    const col = idx % 3;
+    const emptyRow = Math.floor(empty / 3);
+    const emptyCol = empty % 3;
+    if (Math.abs(row - emptyRow) + Math.abs(col - emptyCol) === 1) {
+      [tiles[idx], tiles[empty]] = [tiles[empty], tiles[idx]];
+      moves++;
+      render();
+      if (isSolved()) showToast('🎉 Bạn đã thắng!');
+    }
+  };
+
+  render();
+}
+
+// ================= GAME: HIGH CARD =================
+function startCards() {
+  const suits = ['♥','♦','♣','♠'];
+  const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+  let deck = [];
+  let playerCard = null;
+  let computerCard = null;
+  let score = 0;
+  let gameOver = false;
+
+  function buildDeck() {
+    deck = [];
+    for (const suit of suits) {
+      for (const value of values) {
+        deck.push({ suit, value, rank: values.indexOf(value) });
+      }
+    }
+    deck.sort(() => Math.random() - 0.5);
+  }
+
+  function getCardEmoji(card) {
+    const suitMap = {'♥':'❤️','♦':'♦️','♣':'♣️','♠':'♠️'};
+    return `${card.value}${suitMap[card.suit] || card.suit}`;
+  }
+
+  function render() {
+    const container = document.getElementById('gameContainer');
+    container.innerHTML = `
+      <div class="game-title">🃏 Bài cao</div>
+      <div style="display:flex;gap:40px;padding:12px 0;">
+        <div style="text-align:center;">
+          <div style="font-size:13px;color:rgba(255,255,255,.3);">Bạn</div>
+          <div style="font-size:36px;padding:8px;">${playerCard ? getCardEmoji(playerCard) : '❓'}</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:13px;color:rgba(255,255,255,.3);">Máy</div>
+          <div style="font-size:36px;padding:8px;">${computerCard ? getCardEmoji(computerCard) : '❓'}</div>
+        </div>
+      </div>
+      <div class="game-status">
+        ${gameOver ? `🎉 Bạn thắng!` : (playerCard ? 'Chọn hành động' : 'Bấm "Rút bài" để bắt đầu')}
+      </div>
+      <div class="game-score">Điểm: ${score}</div>
+      <div class="game-controls">
+        ${!gameOver ? `
+          <button onclick="window.drawCard()">${playerCard ? 'Rút tiếp' : 'Rút bài'}</button>
+        ` : ''}
+        <button onclick="startGame('cards')">Chơi lại</button>
+        <button class="secondary" onclick="goHome()">🏠 Về menu</button>
+      </div>
+    `;
+  }
+
+  window.drawCard = function() {
+    if (gameOver || deck.length < 2) {
+      buildDeck();
+      playerCard = null;
+      computerCard = null;
+      gameOver = false;
+    }
+    playerCard = deck.pop();
+    computerCard = deck.pop();
+    if (playerCard.rank > computerCard.rank) {
+      score++;
+      showToast('🎉 Bạn thắng!');
+    } else if (playerCard.rank < computerCard.rank) {
+      score = Math.max(0, score - 1);
+      showToast('😅 Máy thắng!');
+    } else {
+      showToast('🤝 Hòa!');
+    }
+    if (deck.length < 2) gameOver = true;
+    render();
+  };
+
+  buildDeck();
+  render();
+}
+
+// ================= GAME: SNAKE =================
+function startSnake() {
+  const size = 8;
+  let snake = [{x:3,y:3}];
+  let food = {x:5,y:5};
+  let direction = 'right';
+  let nextDirection = 'right';
+  let score = 0;
+  let gameOver = false;
+  let gameInterval = null;
+
+  function randomFood() {
+    let pos;
+    do {
+      pos = {x: Math.floor(Math.random() * size), y: Math.floor(Math.random() * size)};
+    } while (snake.some(s => s.x === pos.x && s.y === pos.y));
+    return pos;
+  }
+
+  function moveSnake() {
+    if (gameOver) return;
+    direction = nextDirection;
+    const head = { ...snake[0] };
+    switch (direction) {
+      case 'up': head.y--; break;
+      case 'down': head.y++; break;
+      case 'left': head.x--; break;
+      case 'right': head.x++; break;
+    }
+    if (head.x < 0 || head.x >= size || head.y < 0 || head.y >= size) {
+      endGame();
+      return;
+    }
+    if (snake.some(s => s.x === head.x && s.y === head.y)) {
+      endGame();
+      return;
+    }
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score++;
+      food = randomFood();
+    } else {
+      snake.pop();
+    }
+    render();
+  }
+
+  function endGame() {
+    gameOver = true;
+    if (gameInterval) {
+      clearInterval(gameInterval);
+      gameInterval = null;
+    }
+    showToast(`💀 Game Over! Điểm: ${score}`);
+    render();
+  }
+
+  function render() {
+    const container = document.getElementById('gameContainer');
+    let grid = '';
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const isSnake = snake.some(s => s.x === x && s.y === y);
+        const isFood = food.x === x && food.y === y;
+        grid += `<div class="cell" style="width:40px;height:40px;font-size:18px;${isSnake ? 'background:var(--blue);' : ''}${isFood ? 'background:var(--orange);' : ''}">${isFood ? '🍎' : ''}</div>`;
+      }
+    }
+    container.innerHTML = `
+      <div class="game-title">🐍 Rắn săn mồi</div>
+      <div class="game-board" style="grid-template-columns:repeat(${size},1fr);gap:4px;">
+        ${grid}
+      </div>
+      <div class="game-status">${gameOver ? '💀 Game Over!' : `Điểm: ${score}`}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.2);">Dùng phím mũi tên để điều khiển</div>
+      <div class="game-controls">
+        <button onclick="startGame('snake')">Chơi lại</button>
+        <button class="secondary" onclick="goHome()">🏠 Về menu</button>
+      </div>
+    `;
+  }
+
+  // Keyboard controls
+  function handleKey(e) {
+    const key = e.key;
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(key)) {
+      e.preventDefault();
+    }
+    if (gameOver) return;
+    switch (key) {
+      case 'ArrowUp': if (direction !== 'down') nextDirection = 'up'; break;
+      case 'ArrowDown': if (direction !== 'up') nextDirection = 'down'; break;
+      case 'ArrowLeft': if (direction !== 'right') nextDirection = 'left'; break;
+      case 'ArrowRight': if (direction !== 'left') nextDirection = 'right'; break;
+    }
+  }
+  document.addEventListener('keydown', handleKey);
+  window._snakeKeyHandler = handleKey;
+
+  // Start game loop
+  if (gameInterval) clearInterval(gameInterval);
+  gameInterval = setInterval(moveSnake, 350);
+  render();
+}
+
+// ================= GAME ROUTER =================
+function startGame(type) {
+  // Clean up any running game
+  if (window._snakeKeyHandler) {
+    document.removeEventListener('keydown', window._snakeKeyHandler);
+    delete window._snakeKeyHandler;
+  }
+  if (window._gameInterval) {
+    clearInterval(window._gameInterval);
+    delete window._gameInterval;
+  }
+
+  switch(type) {
+    case 'ttt': startTTT(); break;
+    case 'guess': startGuess(); break;
+    case 'memory': startMemory(); break;
+    case 'puzzle': startPuzzle(); break;
+    case 'cards': startCards(); break;
+    case 'snake': startSnake(); break;
+    default: goHome();
+  }
+}
+
+function goHome() {
+  const container = document.getElementById('gameContainer');
+  container.innerHTML = `
+    <div class="game-title">🎮 Chọn trò chơi</div>
+    <div class="game-status">Bấm vào một trò chơi để bắt đầu</div>
+  `;
+  if (window._snakeKeyHandler) {
+    document.removeEventListener('keydown', window._snakeKeyHandler);
+    delete window._snakeKeyHandler;
+  }
+}
+</script>
+</body>
+</html>

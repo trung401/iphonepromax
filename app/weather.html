@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Thời tiết</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --glass:rgba(255,255,255,.08);
+  --glass-strong:rgba(255,255,255,.12);
+  --sep:rgba(255,255,255,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:radial-gradient(circle at 30% 10%,#141428 0%,#050507 55%,#000 100%);
+  min-height:100vh;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.app-shell{
+  width:100%;
+  max-width:430px;
+  min-height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05);
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:var(--blue);
+}
+.app-header .search-btn{
+  border:none;
+  background:rgba(10,132,255,.15);
+  color:var(--blue);
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header .search-btn:active{
+  transform:scale(.9);
+  background:rgba(10,132,255,.25);
+}
+
+.app-body{
+  flex:1;
+  padding:16px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Search overlay */
+.search-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.95);
+  backdrop-filter:blur(20px);
+  z-index:50;
+  display:none;
+  flex-direction:column;
+  padding:16px 20px;
+  border-radius:44px;
+}
+.search-overlay.open{
+  display:flex;
+}
+.search-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--sep);
+}
+.search-header .back{
+  border:none;
+  background:transparent;
+  color:var(--blue);
+  font-size:20px;
+  cursor:pointer;
+  padding:4px;
+}
+.search-header input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:rgba(255,255,255,.06);
+  color:white;
+  padding:10px 16px;
+  border-radius:12px;
+  font-size:16px;
+  font-family:inherit;
+}
+.search-header input::placeholder{
+  color:rgba(255,255,255,.25);
+}
+.search-results{
+  flex:1;
+  overflow-y:auto;
+  padding-top:12px;
+}
+.search-result-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 12px;
+  border-bottom:1px solid var(--sep);
+  cursor:pointer;
+  transition:background .2s;
+  border-radius:8px;
+}
+.search-result-item:active{
+  background:rgba(255,255,255,.06);
+}
+.search-result-item .info{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.search-result-item .city{
+  font-size:16px;
+  font-weight:600;
+}
+.search-result-item .country{
+  font-size:12px;
+  color:rgba(255,255,255,.35);
+}
+.search-result-item i{
+  color:var(--blue);
+  font-size:18px;
+}
+
+/* Loading */
+.weather-loading,.weather-error{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:60vh;
+  gap:10px;
+  color:rgba(255,255,255,.5);
+  font-size:14px;
+}
+.weather-loading i,.weather-error i{
+  font-size:40px;
+}
+.weather-refresh-btn{
+  margin-top:10px;
+  background:var(--glass);
+  border:none;
+  color:#fff;
+  padding:8px 18px;
+  border-radius:16px;
+  font-size:13px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family:inherit;
+  transition:background .2s;
+}
+.weather-refresh-btn:active{
+  background:var(--glass-strong);
+}
+
+/* Weather main */
+.weather-main{
+  text-align:center;
+  padding:14px 0 18px;
+}
+.weather-main .temp{
+  font-family:'Manrope',sans-serif;
+  font-size:64px;
+  font-weight:800;
+  letter-spacing:-1px;
+}
+.weather-main .desc{
+  font-size:16px;
+  font-weight:600;
+  color:rgba(255,255,255,.85);
+  margin-top:2px;
+}
+.weather-main .location{
+  font-size:14px;
+  color:rgba(255,255,255,.45);
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+.weather-main .location i{
+  font-size:12px;
+}
+.weather-main .last-update{
+  font-size:11px;
+  color:rgba(255,255,255,.25);
+  margin-top:2px;
+}
+.weather-main .refresh-btn{
+  margin-top:10px;
+  background:var(--glass);
+  border:none;
+  color:#fff;
+  padding:6px 16px;
+  border-radius:14px;
+  font-size:12px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:inherit;
+  transition:background .2s;
+}
+.weather-main .refresh-btn:active{
+  background:var(--glass-strong);
+}
+
+/* Weather details */
+.weather-details{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:16px;
+}
+.weather-details .item{
+  background:var(--glass);
+  border-radius:14px;
+  padding:10px 4px;
+  text-align:center;
+}
+.weather-details .val{
+  font-size:15px;
+  font-weight:700;
+}
+.weather-details .lbl{
+  font-size:10px;
+  color:rgba(255,255,255,.4);
+  margin-top:2px;
+}
+
+/* Chart */
+.weather-chart{
+  background:var(--glass);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:14px;
+}
+.chart-title{
+  font-size:12px;
+  font-weight:700;
+  color:rgba(255,255,255,.5);
+  margin-bottom:10px;
+}
+.chart-bars{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  height:90px;
+}
+.chart-bar{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  flex:1;
+}
+.bar-temp{
+  font-size:10px;
+  color:rgba(255,255,255,.6);
+}
+.bar{
+  width:8px;
+  border-radius:4px;
+  background:linear-gradient(180deg,#5FC2FF,#0B67D6);
+}
+.bar-label{
+  font-size:10px;
+  color:rgba(255,255,255,.35);
+}
+
+/* Forecast */
+.forecast-list{
+  background:var(--glass);
+  border-radius:16px;
+  overflow:hidden;
+}
+.forecast-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 16px;
+  border-bottom:1px solid var(--sep);
+  font-size:14px;
+}
+.forecast-item:last-child{
+  border-bottom:none;
+}
+.forecast-item .day{
+  width:70px;
+  font-weight:600;
+}
+.forecast-item .icon{
+  font-size:18px;
+}
+.forecast-item .temps{
+  display:flex;
+  gap:10px;
+}
+.forecast-item .high{
+  font-weight:700;
+}
+.forecast-item .low{
+  color:rgba(255,255,255,.4);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+  .search-overlay{
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .weather-main .temp{font-size:48px;}
+  .weather-details .val{font-size:13px;}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-cloud-sun-fill"></i> Thời tiết</div>
+    <button class="search-btn" onclick="openSearch()"><i class="bi bi-search"></i></button>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body" id="weatherBody">
+    <div class="weather-loading">
+      <i class="bi bi-cloud-sun"></i>
+      <div>Đang tải dữ liệu thời tiết...</div>
+    </div>
+  </div>
+
+  <!-- SEARCH OVERLAY -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-header">
+      <button class="back" onclick="closeSearch()"><i class="bi bi-chevron-left"></i></button>
+      <input id="searchInput" type="text" placeholder="Tìm kiếm thành phố..." oninput="searchCity()">
+    </div>
+    <div class="search-results" id="searchResults">
+      <div style="text-align:center;padding:40px 0;color:rgba(255,255,255,.2);font-size:14px;">
+        <i class="bi bi-search" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+        Nhập tên thành phố để tìm kiếm
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ================= STATE =================
+let weatherData = null;
+let currentLocation = {
+  name: 'Hà Nội',
+  lat: 21.0285,
+  lon: 105.8542
+};
+let searchTimeout = null;
+
+// ================= WEATHER API =================
+async function fetchWeather(lat, lon) {
+  const body = document.getElementById('weatherBody');
+  body.innerHTML = `<div class="weather-loading"><i class="bi bi-cloud-sun"></i><div>Đang tải dữ liệu thời tiết...</div></div>`;
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Lỗi kết nối API');
+    const data = await res.json();
+
+    const current = data.current_weather;
+    const hourly = data.hourly;
+    const daily = data.daily;
+
+    function getWeatherInfo(code) {
+      const map = {
+        0: { icon: '☀️', desc: 'Trời quang' },
+        1: { icon: '🌤️', desc: 'Có mây nhẹ' },
+        2: { icon: '⛅', desc: 'Có mây vừa' },
+        3: { icon: '☁️', desc: 'Nhiều mây' },
+        45: { icon: '🌫️', desc: 'Sương mù' },
+        48: { icon: '🌫️', desc: 'Sương mù đóng băng' },
+        51: { icon: '🌦️', desc: 'Mưa phùn nhẹ' },
+        53: { icon: '🌦️', desc: 'Mưa phùn vừa' },
+        55: { icon: '🌧️', desc: 'Mưa phùn nặng' },
+        61: { icon: '🌧️', desc: 'Mưa nhẹ' },
+        63: { icon: '🌧️', desc: 'Mưa vừa' },
+        65: { icon: '🌧️', desc: 'Mưa nặng' },
+        71: { icon: '❄️', desc: 'Tuyết nhẹ' },
+        73: { icon: '❄️', desc: 'Tuyết vừa' },
+        75: { icon: '❄️', desc: 'Tuyết nặng' },
+        80: { icon: '🌦️', desc: 'Mưa rào nhẹ' },
+        81: { icon: '🌧️', desc: 'Mưa rào vừa' },
+        82: { icon: '⛈️', desc: 'Mưa rào nặng' },
+        95: { icon: '⛈️', desc: 'Giông' },
+        96: { icon: '⛈️', desc: 'Giông mưa đá' },
+        99: { icon: '⛈️', desc: 'Giông mưa đá nặng' }
+      };
+      return map[code] || { icon: '🌤️', desc: 'Đang cập nhật' };
+    }
+
+    const info = getWeatherInfo(current.weathercode);
+
+    weatherData = {
+      temp: Math.round(current.temperature),
+      desc: info.desc,
+      icon: info.icon,
+      humid: hourly.relative_humidity_2m ? Math.round(hourly.relative_humidity_2m[0]) : 65,
+      wind: current.wind_speed ? Math.round(current.wind_speed) : 10,
+      rain: hourly.precipitation_probability ? Math.round(hourly.precipitation_probability[0]) : 0,
+      hourly: hourly.time.slice(0, 8).map((t, i) => ({
+        time: new Date(t).getHours() + 'h',
+        temp: Math.round(hourly.temperature_2m[i])
+      })),
+      forecast: daily.time.map((t, i) => ({
+        day: i === 0 ? 'Hôm nay' : (['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'][new Date(t).getDay()]),
+        icon: getWeatherInfo(daily.weather_code[i]).icon,
+        high: Math.round(daily.temperature_2m_max[i]),
+        low: Math.round(daily.temperature_2m_min[i])
+      }))
+    };
+
+    renderWeather();
+  } catch (err) {
+    body.innerHTML = `
+      <div class="weather-error">
+        <i class="bi bi-wifi-off"></i>
+        <div>Không thể tải dữ liệu thời tiết</div>
+        <div style="font-size:12px;margin-top:4px;color:rgba(255,255,255,.2);">${err.message}</div>
+        <button class="weather-refresh-btn" onclick="refreshWeather()">
+          <i class="bi bi-arrow-clockwise"></i> Thử lại
+        </button>
+      </div>
+    `;
+  }
+}
+
+// ================= RENDER =================
+function renderWeather() {
+  if (!weatherData) return;
+  const body = document.getElementById('weatherBody');
+  const maxTemp = Math.max(...weatherData.hourly.map(h => h.temp));
+
+  body.innerHTML = `
+    <div class="weather-main">
+      <div class="temp">${weatherData.temp}°C</div>
+      <div class="desc">${weatherData.icon} ${weatherData.desc}</div>
+      <div class="location">
+        <i class="bi bi-geo-alt-fill"></i> ${currentLocation.name}
+      </div>
+      <div class="last-update">Cập nhật: ${new Date().toLocaleTimeString('vi-VN')}</div>
+      <button class="refresh-btn" onclick="refreshWeather()">
+        <i class="bi bi-arrow-clockwise"></i> Làm mới
+      </button>
+    </div>
+
+    <div class="weather-details">
+      <div class="item">
+        <div class="val">${weatherData.humid}%</div>
+        <div class="lbl">Độ ẩm</div>
+      </div>
+      <div class="item">
+        <div class="val">${weatherData.wind} km/h</div>
+        <div class="lbl">Gió</div>
+      </div>
+      <div class="item">
+        <div class="val">${weatherData.rain}%</div>
+        <div class="lbl">Khả năng mưa</div>
+      </div>
+      <div class="item">
+        <div class="val">${weatherData.temp}°</div>
+        <div class="lbl">Cảm giác</div>
+      </div>
+    </div>
+
+    <div class="weather-chart">
+      <div class="chart-title">🌡️ NHIỆT ĐỘ THEO GIỜ</div>
+      <div class="chart-bars">
+        ${weatherData.hourly.map(h => {
+          const pct = (h.temp / maxTemp) * 80 + 4;
+          return `
+            <div class="chart-bar">
+              <div class="bar-temp">${h.temp}°</div>
+              <div class="bar" style="height:${pct}px;"></div>
+              <div class="bar-label">${h.time}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="forecast-list">
+      ${weatherData.forecast.map(f => `
+        <div class="forecast-item">
+          <span class="day">${f.day}</span>
+          <span class="icon">${f.icon}</span>
+          <span class="temps">
+            <span class="high">${f.high}°</span>
+            <span class="low">${f.low}°</span>
+          </span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ================= SEARCH =================
+async function searchCity() {
+  const query = document.getElementById('searchInput').value.trim();
+  const resultsContainer = document.getElementById('searchResults');
+
+  if (!query) {
+    resultsContainer.innerHTML = `
+      <div style="text-align:center;padding:40px 0;color:rgba(255,255,255,.2);font-size:14px;">
+        <i class="bi bi-search" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+        Nhập tên thành phố để tìm kiếm
+      </div>
+    `;
+    return;
+  }
+
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(async () => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=10&addressdetails=1&accept-language=vi`);
+      const data = await res.json();
+
+      if (data.length === 0) {
+        resultsContainer.innerHTML = `
+          <div style="text-align:center;padding:40px 0;color:rgba(255,255,255,.2);font-size:14px;">
+            <i class="bi bi-exclamation-triangle" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+            Không tìm thấy thành phố
+          </div>
+        `;
+        return;
+      }
+
+      resultsContainer.innerHTML = data.map(item => `
+        <div class="search-result-item" onclick="selectCity('${item.lat}', '${item.lon}', '${item.display_name}')">
+          <div class="info">
+            <div class="city">${item.address?.city || item.address?.town || item.address?.village || item.display_name.split(',')[0]}</div>
+            <div class="country">${item.address?.country || ''}</div>
+          </div>
+          <i class="bi bi-chevron-right"></i>
+        </div>
+      `).join('');
+    } catch (err) {
+      resultsContainer.innerHTML = `
+        <div style="text-align:center;padding:40px 0;color:rgba(255,255,255,.2);font-size:14px;">
+          <i class="bi bi-wifi-off" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+          Lỗi tìm kiếm. Vui lòng thử lại.
+        </div>
+      `;
+    }
+  }, 300);
+}
+
+function selectCity(lat, lon, name) {
+  currentLocation.lat = parseFloat(lat);
+  currentLocation.lon = parseFloat(lon);
+  currentLocation.name = name.split(',')[0];
+  closeSearch();
+  fetchWeather(currentLocation.lat, currentLocation.lon);
+}
+
+// ================= SEARCH UI =================
+function openSearch() {
+  document.getElementById('searchOverlay').classList.add('open');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').focus();
+  document.getElementById('searchResults').innerHTML = `
+    <div style="text-align:center;padding:40px 0;color:rgba(255,255,255,.2);font-size:14px;">
+      <i class="bi bi-search" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+      Nhập tên thành phố để tìm kiếm
+    </div>
+  `;
+}
+
+function closeSearch() {
+  document.getElementById('searchOverlay').classList.remove('open');
+}
+
+// ================= REFRESH =================
+function refreshWeather() {
+  fetchWeather(currentLocation.lat, currentLocation.lon);
+}
+
+// ================= GET LOCATION =================
+function getLocation() {
+  return new Promise((resolve) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          currentLocation.lat = pos.coords.latitude;
+          currentLocation.lon = pos.coords.longitude;
+          resolve(true);
+        },
+        () => resolve(false)
+      );
+    } else {
+      resolve(false);
+    }
+  });
+}
+
+async function getCityName(lat, lon) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10&accept-language=vi`);
+    const data = await res.json();
+    if (data && data.address) {
+      return data.address.city || data.address.town || data.address.village || data.address.county || 'Vị trí của bạn';
+    }
+    return 'Vị trí của bạn';
+  } catch (e) {
+    return 'Vị trí của bạn';
+  }
+}
+
+// ================= INIT =================
+async function initWeather() {
+  const hasLocation = await getLocation();
+  if (hasLocation) {
+    currentLocation.name = await getCityName(currentLocation.lat, currentLocation.lon);
+  }
+  await fetchWeather(currentLocation.lat, currentLocation.lon);
+  setInterval(refreshWeather, 600000);
+}
+
+initWeather();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (document.getElementById('searchOverlay').classList.contains('open')) {
+      closeSearch();
+    }
+  }
+});
+</script>
+</body>
+</html>

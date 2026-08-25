@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>iPhone 15 Pro — Giả lập</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <style>
+    :root {
+      --blue: #0A84FF;
+      --green: #30D158;
+      --red: #FF453A;
+      --orange: #FF9F0A;
+      --yellow: #FFD60A;
+      --purple: #BF5AF2;
+      --pink: #FF375F;
+      --teal: #64D2FF;
+      --gray: #8E8E93;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-strong: rgba(255, 255, 255, 0.14);
+      --sep: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at 30% 10%, #141428 0%, #050507 55%, #000 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow: hidden;
+    }
+
+    .iphone {
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 54px;
+      padding: 12px;
+      position: relative;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 2px #2c2c2e, 0 0 0 3px #000, 0 30px 90px rgba(0, 0, 0, .85), inset 0 0 2px rgba(255, 255, 255, .08);
+    }
+
+    .iphone-screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 10;
+      background-size: cover;
+      /* phủ kín toàn bộ khung */
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image .5s ease;
+      background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1080&h=1920&fit=crop');
+
+      /* Bổ sung để đảm bảo hình nền không lòi ra ngoài góc bo */
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    /* Tạo lớp chứa nội dung bên trong để nhận padding */
+    .iphone-screen-content {
+      padding: 60px 16px 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 34px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 12px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, .04);
+    }
+
+    .dynamic-island .camera-dot {
+      width: 9px;
+      height: 9px;
+      background: radial-gradient(circle at 30% 30%, #2a3a6e, #060612);
+      border-radius: 50%;
+      border: 1px solid #222;
+    }
+
+    .dynamic-island .sensor-dot {
+      width: 5px;
+      height: 5px;
+      background: #151530;
+      border-radius: 50%;
+    }
+
+    .dynamic-island .led {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2.2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: .25;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* Status bar */
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 54px;
+      padding: 16px 30px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      z-index: 400;
+      pointer-events: none;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, .35);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-bar .icons {
+      display: flex;
+      gap: 6px;
+      font-size: 14px;
+      align-items: center;
+    }
+
+    /* Lock screen */
+    .lock-screen {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(10, 14, 30, .35), rgba(0, 0, 0, .55));
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 76px 24px 40px;
+      text-align: center;
+      transition: opacity .45s ease, transform .45s ease;
+    }
+
+    .lock-screen.hidden {
+      opacity: 0;
+      transform: scale(1.06);
+      pointer-events: none;
+    }
+
+    .lock-time {
+      font-family: 'Manrope', sans-serif;
+      font-size: 82px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, .4);
+    }
+
+    .lock-date {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, .75);
+      margin-top: 6px;
+    }
+
+    .lock-widgets {
+      margin-top: 28px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lock-widget {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 20px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      backdrop-filter: blur(10px);
+    }
+
+    .lock-widget .lw-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .lock-widget .lw-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, .55);
+      text-transform: uppercase;
+      letter-spacing: .3px;
+    }
+
+    .lock-widget .lw-sub {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, .92);
+      margin-top: 1px;
+    }
+
+    .lock-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lock-footer .hint {
+      font-size: 12px;
+      color: rgba(255, 255, 255, .4);
+      font-weight: 500;
+    }
+
+    .lock-footer .home-indicator {
+      width: 134px;
+      height: 5px;
+      background: rgba(255, 255, 255, .35);
+      border-radius: 3px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    /* Home screen */
+    .home-screen {
+      padding: 60px 16px 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 10;
+      background-size: cover;
+      background-position: center;
+      transition: background-image .5s ease;
+    }
+
+    .home-screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at bottom, rgba(0, 0, 0, .35), rgba(0, 0, 0, .55));
+      z-index: -1;
+    }
+
+    .desktop-pages {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      flex: 1;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      cursor: grab;
+    }
+
+    .desktop-pages::-webkit-scrollbar {
+      display: none;
+    }
+
+    .desktop-pages.dragging {
+      cursor: grabbing;
+      scroll-snap-type: none;
+    }
+
+    .desktop-page {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
+      padding: 0 4px;
+    }
+
+    .desktop-page .app-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px 8px;
+      padding-top: 8px;
+    }
+
+    .app-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform .18s cubic-bezier(.34, 1.56, .64, 1);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-icon:active {
+      transform: scale(.86);
+    }
+
+    .icon-bg {
+      width: 60px;
+      height: 60px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 27px;
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, .35), inset 0 1px 1px rgba(255, 255, 255, .25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .icon-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, 0) 45%);
+    }
+
+    .app-label {
+      font-size: 10.5px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, .96);
+      text-align: center;
+      line-height: 1.2;
+      max-width: 66px;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+    }
+
+    .i-weather {
+      background: linear-gradient(160deg, #5FC2FF, #0B67D6);
+    }
+
+    .i-calendar {
+      background: #fff;
+      color: #1c1c1e;
+    }
+
+    .i-calendar .cal-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+    }
+
+    .i-calendar .cal-badge .top {
+      font-size: 9px;
+      font-weight: 700;
+      color: #FF3B30;
+      letter-spacing: .5px;
+    }
+
+    .i-calendar .cal-badge .num {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: -2px;
+    }
+
+    .i-notes {
+      background: linear-gradient(160deg, #FFE165, #FFB300);
+      color: #5c4400;
+    }
+
+    .i-calculator {
+      background: linear-gradient(160deg, #4a4a4d, #232326);
+    }
+
+    .i-settings {
+      background: linear-gradient(160deg, #9a9aa0, #6d6d72);
+    }
+
+    .i-safari {
+      background: radial-gradient(circle at 30% 30%, #7FE0FF, #0A84FF 60%, #0057D8);
+    }
+
+    .i-appstore {
+      background: linear-gradient(160deg, #3ec1ff, #0a6efb);
+    }
+
+    .i-photos {
+      background: conic-gradient(from 210deg, #FFD60A, #FF453A, #BF5AF2, #0A84FF, #30D158, #FFD60A);
+    }
+
+    .i-camera {
+      background: linear-gradient(160deg, #3a3a3d, #0f0f10);
+    }
+
+    .i-music {
+      background: linear-gradient(160deg, #FF5C7A, #D6003D);
+    }
+
+    .i-maps {
+      background: linear-gradient(160deg, #8FE38A, #1FA34B);
+    }
+
+    .i-health {
+      background: #fff;
+    }
+
+    .i-gemini {
+      background: linear-gradient(135deg, #6C5CE7, #0A84FF 55%, #00C6FB);
+    }
+
+    .i-minigames {
+      background: linear-gradient(160deg, #FF9F0A, #D65E00);
+    }
+
+    .i-messages {
+      background: linear-gradient(160deg, #3CE874, #12A94A);
+    }
+
+    .i-mail {
+      background: linear-gradient(160deg, #63B4FF, #0A63D6);
+    }
+
+    /* Dock */
+    .dock {
+      padding: 14px 14px 8px;
+      background: rgba(255, 255, 255, .10);
+      backdrop-filter: blur(30px) saturate(160%);
+      -webkit-backdrop-filter: blur(30px) saturate(160%);
+      border-radius: 26px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 6px 0 10px;
+      border: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .dock .icon-bg {
+      width: 56px;
+      height: 56px;
+      border-radius: 13px;
+      font-size: 24px;
+    }
+
+    .page-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 0;
+      position: relative;
+      z-index: 5;
+    }
+
+    .page-indicator .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .25);
+      transition: background .3s, transform .3s;
+    }
+
+    .page-indicator .dot.active {
+      background: rgba(255, 255, 255, .9);
+      transform: scale(1.3);
+    }
+
+    .page-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0, 0, 0, .35);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      backdrop-filter: blur(6px);
+      opacity: .85;
+    }
+
+    .page-nav-btn.prev {
+      left: -4px;
+    }
+
+    .page-nav-btn.next {
+      right: -4px;
+    }
+
+    .page-nav-btn:disabled {
+      opacity: .25;
+      cursor: default;
+    }
+
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: rgba(255, 255, 255, .3);
+      border-radius: 3px;
+      z-index: 150;
+      cursor: pointer;
+    }
+
+    /* App window (holds an iframe pointing to the standalone app file) */
+    .app-window {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      border-radius: 44px;
+      z-index: 800;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: appOpen .38s cubic-bezier(.32, .9, .35, 1);
+    }
+
+    .app-window.open {
+      display: flex;
+    }
+
+    @keyframes appOpen {
+      0% {
+        transform: scale(.94) translateY(18px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* SỬA 1: Thu gọn padding Header để nhường không gian cho iframe bên dưới */
+    .app-window-header {
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--sep);
+      background: rgba(0, 0, 0, .55);
+      flex-shrink: 0;
+      height: 46px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 2;
+    }
+
+    .app-window-header .title {
+      font-size: 16.5px;
+      font-weight: 700;
+    }
+
+    .app-window-header .close-btn {
+      background: rgba(255, 255, 255, .1);
+      border: none;
+      color: var(--blue);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-weight: 600;
+    }
+
+    .app-window-header .close-btn:hover {
+      background: rgba(255, 255, 255, .16);
+    }
+
+    /* SỬA 2: Đẩy iframe thu ngắn lại và chừa khoảng trống cho góc bo đáy (border-radius) */
+    .app-window iframe {
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 46px);
+      /* Khóa chiều cao chuẩn không vượt khung */
+      min-height: 0;
+      border: none;
+      background: #000;
+      display: block;
+      padding-bottom: 12px;
+      /* Đẩy khoảng trống đáy lên để tránh góc bo 44px che nút */
+      box-sizing: border-box;
+    }
+
+    @media(max-width:420px) {
+      .iphone {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        background: #000;
+      }
+
+      .iphone-screen,
+      .app-window {
+        border-radius: 0;
+      }
+
+      .dynamic-island {
+        top: 6px;
+        width: 100px;
+        height: 30px;
+      }
+    }
+
+    @media(max-width:380px) {
+      .icon-bg {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+      }
+
+      .dock .icon-bg {
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="iphone">
+    <div class="iphone-screen" id="screen">
+
+      <div class="dynamic-island"><span class="camera-dot"></span><span class="sensor-dot"></span><span
+          class="led"></span></div>
+
+      <div class="status-bar" id="statusBar">
+        <span class="time" id="statusTime" style="color: white;">09:41</span>
+        <span class="icons"><i class="bi bi-reception-4"></i><i class="bi bi-wifi"></i><i
+            class="bi bi-battery-charging"></i></span>
+      </div>
+
+      <!-- LOCK SCREEN -->
+      <div class="lock-screen" id="lockScreen">
+        <div class="lock-time" id="lockTime" style="color: white;">09:41</div>
+        <div class="lock-date" id="lockDate" style="color: white;">Thứ Hai, 10 tháng 6</div>
+        <div class="lock-widgets">
+          <div class="lock-widget">
+            <div class="lw-icon i-weather"><i class="bi bi-cloud-sun"></i></div>
+            <div>
+              <div class="lw-title">Thời tiết</div>
+              <div class="lw-sub">Chạm để mở khóa và xem</div>
+            </div>
+          </div>
+          <div class="lock-widget">
+            <div class="lw-icon i-gemini"><i class="bi bi-stars"></i></div>
+            <div>
+              <div class="lw-title">Gemini AI</div>
+              <div class="lw-sub">Sẵn sàng trả lời mọi câu hỏi</div>
+            </div>
+          </div>
+        </div>
+        <div class="lock-footer">
+          <div class="hint">Vuốt lên để mở khóa</div>
+          <div class="home-indicator" id="lockHomeIndicator"></div>
+        </div>
+      </div>
+
+      <!-- HOME SCREEN -->
+      <div class="home-screen" id="homeScreen">
+        <div class="desktop-pages" id="desktopPages">
+
+          <div class="desktop-page" data-page="0">
+            <div class="app-grid">
+              <div class="app-icon" data-app="feedback" data-title="Đánh giá" onclick="openFeedbackApp()">
+                <div class="icon-bg i-feedback" style="background: linear-gradient(135deg, #FF9F0A, #FF6B00);">
+                  <i class="bi bi-star-fill" style="color: #fff;"></i>
+                </div>
+                <span class="app-label">Đánh giá</span>
+              </div>
+              <div class="app-icon" data-app="weather" data-title="Thời tiết">
+                <div class="icon-bg i-weather"><i class="bi bi-cloud-sun-fill"></i></div><span class="app-label">Thời
+                  tiết</span>
+              </div>
+              <div class="app-icon" data-app="calendar" data-title="Lịch">
+                <div class="icon-bg i-calendar"><span class="cal-badge"><span class="top"
+                      id="iconCalMonth">TH6</span><span class="num" id="iconCalDay">10</span></span></div><span
+                  class="app-label">Lịch</span>
+              </div>
+              <div class="app-icon" data-app="notes" data-title="Ghi chú">
+                <div class="icon-bg i-notes"><i class="bi bi-journal-text"></i></div><span class="app-label">Ghi
+                  chú</span>
+              </div>
+              <div class="app-icon" data-app="calculator" data-title="Máy tính">
+                <div class="icon-bg i-calculator"><i class="bi bi-plus-slash-minus"></i></div><span
+                  class="app-label">Máy tính</span>
+              </div>
+              <div class="app-icon" data-app="settings" data-title="Cài đặt">
+                <div class="icon-bg i-settings"><i class="bi bi-gear-fill"></i></div><span class="app-label">Cài
+                  đặt</span>
+              </div>
+              <div class="app-icon" data-app="safari" data-title="Safari">
+                <div class="icon-bg i-safari"><i class="bi bi-compass-fill" style="color:#fff;"></i></div><span
+                  class="app-label">Safari</span>
+              </div>
+              <div class="app-icon" data-app="appstore" data-title="App Store">
+                <div class="icon-bg i-appstore"><i class="bi bi-app-indicator"></i></div><span class="app-label">App
+                  Store</span>
+              </div>
+              <div class="app-icon" data-app="photos" data-title="Ảnh">
+                <div class="icon-bg i-photos"><i class="bi bi-flower2"></i></div><span class="app-label">Ảnh</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="desktop-page" data-page="1">
+            <div class="app-grid">
+              <div class="app-icon" data-app="camera" data-title="Camera">
+                <div class="icon-bg i-camera"><i class="bi bi-camera-fill" style="color:#e8e8e8;"></i></div><span
+                  class="app-label">Camera</span>
+              </div>
+              <div class="app-icon" data-app="music" data-title="Nhạc">
+                <div class="icon-bg i-music"><i class="bi bi-music-note-beamed"></i></div><span
+                  class="app-label">Nhạc</span>
+              </div>
+              <div class="app-icon" data-app="maps" data-title="Bản đồ">
+                <div class="icon-bg i-maps"><i class="bi bi-signpost-split-fill"></i></div><span class="app-label">Bản
+                  đồ</span>
+              </div>
+              <div class="app-icon" data-app="health" data-title="Sức khỏe">
+                <div class="icon-bg i-health"><i class="bi bi-heart-fill" style="color:#FF375F;"></i></div><span
+                  class="app-label">Sức khỏe</span>
+              </div>
+              <div class="app-icon" data-app="gemini" data-title="Gemini AI">
+                <div class="icon-bg i-gemini"><i class="bi bi-stars"></i></div><span class="app-label">Gemini AI</span>
+              </div>
+              <div class="app-icon" data-app="games" data-title="Trò chơi">
+                <div class="icon-bg i-minigames"><i class="bi bi-controller"></i></div><span class="app-label">Trò
+                  chơi</span>
+              </div>
+
+              <!-- App Movie mới thêm -->
+              <div class="app-icon" data-app="movie" data-title="Phim">
+                <div class="icon-bg i-movie"><i class="bi bi-film"></i></div><span class="app-label">Xem phim</span>
+              </div>
+              <div class="app-icon" data-app="clock" data-title="Đồng hồ">
+                <div class="icon-bg i-clock"><i class="bi bi-clock-fill"></i></div><span class="app-label">Đồng
+                  hồ</span>
+              </div>
+              <div class="app-icon" data-app="voicememos" data-title="Ghi âm">
+                <div class="icon-bg" style="background:linear-gradient(160deg,#ff6b6b,#cc0000);">
+                  <i class="bi bi-mic-fill"></i>
+                </div>
+                <span class="app-label">Ghi âm</span>
+              </div>
+              <div class="app-icon" data-app="sketch" data-title="Vẽ">
+                <div class="icon-bg i-sketch">
+                  <i class="bi bi-brush-fill"></i>
+                </div>
+                <span class="app-label">Vẽ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dock">
+          <div class="app-icon" data-app="messages" data-title="Tin nhắn">
+            <div class="icon-bg i-messages"><i class="bi bi-chat-fill"></i></div><span class="app-label">Tin nhắn</span>
+          </div>
+          <div class="app-icon" data-app="mail" data-title="Mail">
+            <div class="icon-bg i-mail"><i class="bi bi-envelope-fill"></i></div><span class="app-label">Mail</span>
+          </div>
+          <div class="app-icon" data-app="safari" data-title="Safari">
+            <div class="icon-bg i-safari"><i class="bi bi-compass-fill"></i></div><span class="app-label">Safari</span>
+          </div>
+          <div class="app-icon" data-app="music" data-title="Nhạc">
+            <div class="icon-bg i-music"><i class="bi bi-music-note-beamed"></i></div><span
+              class="app-label">Nhạc</span>
+          </div>
+        </div>
+
+        <div class="page-indicator" id="pageIndicator"></div>
+        <button class="page-nav-btn prev" id="pageNavPrev" onclick="gotoPage(currentPage-1)"><i
+            class="bi bi-chevron-left"></i></button>
+        <button class="page-nav-btn next" id="pageNavNext" onclick="gotoPage(currentPage+1)"><i
+            class="bi bi-chevron-right"></i></button>
+      </div>
+
+      <div class="home-indicator" id="homeIndicator"></div>
+
+      <!-- GENERIC APP WINDOW: loads the standalone app .html file into an iframe -->
+      <div class="app-window" id="appWindow">
+        <div class="app-window-header">
+          <span class="title" id="appWindowTitle">App</span>
+          <button class="close-btn" onclick="closeApp()">Đóng</button>
+        </div>
+        <iframe id="appFrame" src="" title="app"></iframe>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ================= STATUS BAR CLOCK ================= */
+    function updateStatusBar() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0'), m = String(now.getMinutes()).padStart(2, '0');
+      const timeStr = h + ':' + m;
+      document.getElementById('statusTime').textContent = timeStr;
+      document.getElementById('lockTime').textContent = timeStr;
+      const days = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+      const months = ['tháng 1', 'tháng 2', 'tháng 3', 'tháng 4', 'tháng 5', 'tháng 6', 'tháng 7', 'tháng 8', 'tháng 9', 'tháng 10', 'tháng 11', 'tháng 12'];
+      document.getElementById('lockDate').textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()];
+      const iconMonth = document.getElementById('iconCalMonth'), iconDay = document.getElementById('iconCalDay');
+      if (iconMonth) iconMonth.textContent = 'TH' + (now.getMonth() + 1);
+      if (iconDay) iconDay.textContent = now.getDate();
+    }
+    updateStatusBar();
+    setInterval(updateStatusBar, 10000);
+
+    /* ================= LOCK SCREEN ================= */
+    function unlockScreen() { document.getElementById('lockScreen').classList.add('hidden'); }
+    document.getElementById('lockHomeIndicator').addEventListener('click', unlockScreen);
+    document.getElementById('lockScreen').addEventListener('touchstart', function (e) { this._startY = e.touches[0].clientY; });
+    document.getElementById('lockScreen').addEventListener('touchmove', function (e) {
+      const delta = e.touches[0].clientY - this._startY;
+      if (delta < -50) unlockScreen();
+    });
+    document.getElementById('lockScreen').addEventListener('click', unlockScreen);
+
+    /* ================= DESKTOP PAGES ================= */
+    let totalPages = 2, currentPage = 0;
+    function updatePageIndicator() {
+      const c = document.getElementById('pageIndicator'); c.innerHTML = '';
+      for (let i = 0; i < totalPages; i++) { const d = document.createElement('div'); d.className = 'dot' + (i === currentPage ? ' active' : ''); c.appendChild(d); }
+      const prevBtn = document.getElementById('pageNavPrev'), nextBtn = document.getElementById('pageNavNext');
+      if (prevBtn) prevBtn.disabled = (currentPage <= 0);
+      if (nextBtn) nextBtn.disabled = (currentPage >= totalPages - 1);
+    }
+    const desktopPagesEl = document.getElementById('desktopPages');
+    desktopPagesEl.addEventListener('scroll', function () {
+      const newPage = Math.round(this.scrollLeft / this.clientWidth);
+      if (newPage !== currentPage && newPage < totalPages) { currentPage = newPage; updatePageIndicator(); }
+    });
+    function gotoPage(idx) {
+      if (idx < 0 || idx >= totalPages) return;
+      desktopPagesEl.scrollTo({ left: idx * desktopPagesEl.clientWidth, behavior: 'smooth' });
+      currentPage = idx; updatePageIndicator();
+    }
+    (function () {
+      let isDown = false, startX = 0, scrollStart = 0, moved = false;
+      desktopPagesEl.addEventListener('mousedown', (e) => { isDown = true; moved = false; startX = e.pageX; scrollStart = desktopPagesEl.scrollLeft; desktopPagesEl.classList.add('dragging'); });
+      window.addEventListener('mouseup', () => {
+        if (isDown) { isDown = false; desktopPagesEl.classList.remove('dragging'); const snapped = Math.round(desktopPagesEl.scrollLeft / desktopPagesEl.clientWidth); gotoPage(snapped); }
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const dx = e.pageX - startX;
+        if (Math.abs(dx) > 4) moved = true;
+        desktopPagesEl.scrollLeft = scrollStart - dx;
+      });
+      desktopPagesEl.addEventListener('click', (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    })();
+    updatePageIndicator();
+
+    /* ================= APP NAVIGATION (iframe-based) ================= */
+    function openApp(appName, titleText) {
+      const frame = document.getElementById('appFrame');
+      frame.src = `app/${appName}.html`;
+      document.getElementById('appWindowTitle').textContent = titleText;
+      document.getElementById('appWindow').style.display = 'block';
+    }
+    function closeApp() {
+      const appWindow = document.getElementById('appWindow');
+      const frame = document.getElementById('appFrame');
+      appWindow.style.display = 'none';
+      frame.src = '';
+    }
+    document.querySelectorAll('.app-icon').forEach(icon => {
+      icon.addEventListener('click', function () {
+        const name = this.dataset.app;
+        const title = this.dataset.title;
+        if (name) openApp(name, title);
+      });
+    });
+    document.getElementById('homeIndicator').addEventListener('click', closeApp);
+
+    window.addEventListener('message', function (e) {
+      if (e.data && e.data.type === 'changeWallpaper') {
+        // Đổi hình nền cho Home Screen
+        const homeScreen = document.getElementById('homeScreen');
+        if (e.data.url) {
+          homeScreen.style.backgroundImage = `url('${e.data.url}')`;
+          homeScreen.style.backgroundSize = 'cover';
+          homeScreen.style.backgroundPosition = 'center';
+        } else {
+          homeScreen.style.backgroundImage = 'none';
+        }
+        // Lưu vào localStorage để nhớ khi tải lại
+        localStorage.setItem('wallpaper', JSON.stringify({ url: e.data.url, name: e.data.name }));
+      }
+    });
+
+    // Khôi phục wallpaper đã lưu khi tải trang
+    (function restoreWallpaper() {
+      const saved = localStorage.getItem('wallpaper');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data && data.url) {
+            const homeScreen = document.getElementById('homeScreen');
+            homeScreen.style.backgroundImage = `url('${data.url}')`;
+            homeScreen.style.backgroundSize = 'cover';
+            homeScreen.style.backgroundPosition = 'center';
+          }
+        } catch (e) { }
+      }
+    })();
+    function updateClock() {
+  const now = new Date();
+  
+  // 1. Định dạng giờ và phút (ví dụ: 09:41)
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const timeString = `${hours}:${minutes}`;
+  
+  // 2. Định dạng thứ, ngày, tháng (tiếng Việt)
+  const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+  const dayName = days[now.getDay()];
+  const date = now.getDate();
+  const month = now.getMonth() + 1; // Tháng trong JS bắt đầu từ 0
+  const dateString = `${dayName}, ${date} tháng ${month}`;
+  
+  // 3. Gán giá trị vào HTML
+  const lockTimeEl = document.getElementById('lockTime');
+  const statusTimeEl = document.getElementById('statusTime');
+  const lockDateEl = document.getElementById('lockDate');
+  
+  if (lockTimeEl) lockTimeEl.textContent = timeString;
+  if (statusTimeEl) statusTimeEl.textContent = timeString;
+  if (lockDateEl) lockDateEl.textContent = dateString;
+}
+
+// Chạy hàm ngay khi load trang và cập nhật mỗi 1000ms (1 giây)
+updateClock();
+setInterval(updateClock, 1000);
+  </script>
+</body>
+
+</html>

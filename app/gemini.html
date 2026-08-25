@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gemini AI</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.06);
+  --gradient:linear-gradient(135deg,#6C5CE7,#0A84FF);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+html,body{height:100%;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.app-shell{
+  max-width:430px;
+  width:100%;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:20px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  background:var(--gradient);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.app-header .status{
+  font-size:11px;
+  color:rgba(255,255,255,.3);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.app-header .status .dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green,#30D158);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:.3;}
+  50%{opacity:1;}
+}
+
+.app-body{
+  flex:1;
+  padding:12px 16px 8px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:#000;
+}
+
+/* Key status */
+.key-status{
+  font-size:11px;
+  color:rgba(255,255,255,.25);
+  text-align:center;
+  padding:4px 0 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.key-badge{
+  display:inline-block;
+  padding:2px 10px;
+  border-radius:10px;
+  background:var(--glass);
+  color:rgba(255,255,255,.4);
+  font-size:10px;
+  font-weight:600;
+}
+.key-badge.active{
+  background:rgba(10,132,255,.2);
+  color:var(--blue);
+}
+
+/* Messages */
+.chat-messages{
+  flex:1;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:4px 0 8px;
+}
+.chat-row{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  animation:msgIn .3s ease;
+}
+@keyframes msgIn{
+  0%{opacity:0;transform:translateY(8px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+.chat-row.user{
+  flex-direction:row-reverse;
+}
+.chat-avatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  background:var(--gradient);
+  color:#fff;
+}
+.chat-row.user .chat-avatar{
+  background:rgba(255,255,255,.1);
+}
+.chat-message{
+  max-width:78%;
+  padding:10px 16px;
+  border-radius:18px;
+  font-size:14px;
+  line-height:1.6;
+  word-wrap:break-word;
+}
+.chat-message.user{
+  background:var(--gradient);
+  color:#fff;
+  border-bottom-right-radius:4px;
+}
+.chat-message.ai{
+  background:var(--glass-strong);
+  color:rgba(255,255,255,.9);
+  border-bottom-left-radius:4px;
+}
+.chat-message.error{
+  background:rgba(255,69,58,.12);
+  color:#ff8079;
+  font-size:13px;
+  border-radius:12px;
+  border:1px solid rgba(255,69,58,.15);
+}
+.chat-message .typing{
+  display:flex;
+  gap:4px;
+  padding:4px 0;
+}
+.chat-message .typing span{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:rgba(255,255,255,.4);
+  animation:typing 1.4s infinite ease-in-out;
+}
+.chat-message .typing span:nth-child(2){animation-delay:.2s;}
+.chat-message .typing span:nth-child(3){animation-delay:.4s;}
+@keyframes typing{
+  0%,60%,100%{transform:translateY(0);opacity:.3;}
+  30%{transform:translateY(-6px);opacity:1;}
+}
+.chat-message .code-block{
+  background:rgba(0,0,0,.3);
+  border-radius:8px;
+  padding:10px 12px;
+  font-family:monospace;
+  font-size:13px;
+  margin:4px 0;
+  overflow-x:auto;
+  border:1px solid rgba(255,255,255,.06);
+}
+.chat-message .inline-code{
+  background:rgba(0,0,0,.3);
+  padding:1px 6px;
+  border-radius:4px;
+  font-family:monospace;
+  font-size:13px;
+}
+
+/* Suggestions */
+.chat-suggestions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:6px 0 10px;
+  flex-shrink:0;
+}
+.chip{
+  background:var(--glass);
+  border:1px solid rgba(255,255,255,.06);
+  color:rgba(255,255,255,.6);
+  font-size:12px;
+  padding:6px 14px;
+  border-radius:16px;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.chip:active{
+  transform:scale(.95);
+  background:var(--glass-strong);
+}
+.chip i{
+  margin-right:4px;
+}
+
+/* Input */
+.chat-input-row{
+  display:flex;
+  gap:10px;
+  padding:10px 0 4px;
+  border-top:1px solid var(--sep);
+  flex-shrink:0;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(10px);
+}
+.chat-input-row input{
+  flex:1;
+  padding:10px 16px;
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,.06);
+  background:var(--glass);
+  color:#fff;
+  font-size:14px;
+  outline:none;
+  font-family:inherit;
+  transition:border-color .3s;
+}
+.chat-input-row input:focus{
+  border-color:rgba(108,92,231,.4);
+}
+.chat-input-row input::placeholder{
+  color:rgba(255,255,255,.2);
+}
+.chat-input-row button{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:none;
+  background:var(--gradient);
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:all .2s;
+}
+.chat-input-row button:active{
+  transform:scale(.9);
+}
+.chat-input-row button:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+/* Clear button */
+.clear-btn{
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,.2);
+  font-size:16px;
+  cursor:pointer;
+  transition:all .2s;
+  padding:4px;
+}
+.clear-btn:active{
+  transform:scale(.85);
+  color:var(--red);
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:200;
+  border:1px solid var(--sep);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .chat-message{
+    font-size:13px;
+    padding:8px 12px;
+  }
+  .chip{
+    font-size:11px;
+    padding:4px 10px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-stars"></i> Gemini AI</div>
+    <div class="status">
+      <span class="dot"></span>
+      <span id="keyStatus">Sẵn sàng</span>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+    
+    <!-- Key Status -->
+    <div class="key-status">
+      <i class="bi bi-key" style="font-size:10px;"></i>
+      API Key: <span class="key-badge" id="keyBadge">1/1</span>
+      <span style="color:rgba(255,255,255,.15);">|</span>
+      <span id="modelName" style="color:rgba(255,255,255,.2);">gemini-2.0-flash</span>
+      <button class="clear-btn" onclick="clearChat()" title="Xóa lịch sử">
+        <i class="bi bi-trash3"></i>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-row">
+        <div class="chat-avatar"><i class="bi bi-stars"></i></div>
+        <div class="chat-message ai">👋 Xin chào! Mình là <b>Gemini AI</b>.<br>Hãy hỏi mình bất cứ điều gì nhé!</div>
+      </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="chat-suggestions" id="chatSuggestions">
+      <div class="chip" onclick="sendMessage('Kể một sự thật thú vị')"><i class="bi bi-lightbulb"></i> Sự thật thú vị</div>
+      <div class="chip" onclick="sendMessage('Gợi ý món ăn hôm nay')"><i class="bi bi-egg"></i> Gợi ý món ăn</div>
+      <div class="chip" onclick="sendMessage('Viết một câu chúc ngủ ngon')"><i class="bi bi-moon"></i> Chúc ngủ ngon</div>
+      <div class="chip" onclick="sendMessage('Lập trình Python cơ bản')"><i class="bi bi-code-square"></i> Học Python</div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-row">
+      <input id="chatInput" placeholder="Nhắn cho Gemini..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}">
+      <button id="chatSendBtn" onclick="sendMessage()"><i class="bi bi-arrow-up"></i></button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= CONFIG =================
+/* 📌 HƯỚNG DẪN LẤY API KEY MIỄN PHÍ:
+   1. Truy cập: https://aistudio.google.com/apikey
+   2. Đăng nhập bằng tài khoản Google
+   3. Nhấn "Create API Key" và chọn dự án
+   4. Copy key và dán vào mảng bên dưới
+   5. Lưu file và refresh trang
+*/
+const GEMINI_KEYS = [
+  'AIzaSyCg9LS9pUTVq-8-BWg0Nv8d8I5aM5n8q5E', // Key mẫu (thay bằng key thật)
+];
+
+const GEMINI_MODEL = 'gemini-2.0-flash';
+let currentKeyIndex = 0;
+let isProcessing = false;
+let messageCount = 0;
+
+// ================= DOM REFS =================
+const messagesEl = document.getElementById('chatMessages');
+const inputEl = document.getElementById('chatInput');
+const sendBtn = document.getElementById('chatSendBtn');
+const keyBadge = document.getElementById('keyBadge');
+const keyStatus = document.getElementById('keyStatus');
+
+// ================= HELPERS =================
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatAIResponse(text) {
+  let html = escapeHtml(text);
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<span class="inline-code">$1</span>');
+  // Code blocks
+  html = html.replace(/```([\s\S]*?)```/g, '<div class="code-block">$1</div>');
+  // Line breaks
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
+function updateKeyStatus() {
+  const total = GEMINI_KEYS.length;
+  const current = currentKeyIndex + 1;
+  keyBadge.textContent = `${current}/${total}`;
+  keyBadge.className = 'key-badge' + (total > 0 ? ' active' : '');
+  keyStatus.textContent = total > 0 ? 'Sẵn sàng' : '⚠️ Chưa có key';
+  document.getElementById('modelName').textContent = GEMINI_MODEL;
+}
+
+// ================= TOAST =================
+function showToast(message, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.style.borderColor = isError ? 'rgba(255,69,58,.3)' : 'var(--sep)';
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ================= CHAT =================
+function appendMessage(role, content, isHTML = false) {
+  const row = document.createElement('div');
+  row.className = `chat-row ${role}`;
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'chat-avatar';
+  avatar.innerHTML = role === 'user' 
+    ? '<i class="bi bi-person-fill"></i>' 
+    : '<i class="bi bi-stars"></i>';
+  
+  const msg = document.createElement('div');
+  msg.className = `chat-message ${role}`;
+  msg.innerHTML = isHTML ? content : escapeHtml(content);
+  
+  if (role === 'user') {
+    row.appendChild(msg);
+    row.appendChild(avatar);
+  } else {
+    row.appendChild(avatar);
+    row.appendChild(msg);
+  }
+  
+  messagesEl.appendChild(row);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return row;
+}
+
+function addTypingIndicator() {
+  const row = document.createElement('div');
+  row.className = 'chat-row';
+  row.id = 'typingIndicator';
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'chat-avatar';
+  avatar.innerHTML = '<i class="bi bi-stars"></i>';
+  
+  const msg = document.createElement('div');
+  msg.className = 'chat-message ai';
+  msg.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  
+  row.appendChild(avatar);
+  row.appendChild(msg);
+  messagesEl.appendChild(row);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function clearChat() {
+  if (messagesEl.children.length <= 1) {
+    showToast('💬 Đã sạch sẽ rồi!');
+    return;
+  }
+  if (confirm('Xóa tất cả tin nhắn?')) {
+    // Keep only the first welcome message
+    while (messagesEl.children.length > 1) {
+      messagesEl.removeChild(messagesEl.lastChild);
+    }
+    messageCount = 0;
+    showToast('🗑️ Đã xóa lịch sử');
+  }
+}
+
+// ================= SEND MESSAGE =================
+async function sendMessage(prefill) {
+  const text = prefill !== undefined ? prefill : inputEl.value.trim();
+  if (!text || isProcessing) return;
+
+  // Hide suggestions after first message
+  const suggestions = document.getElementById('chatSuggestions');
+  if (suggestions) suggestions.style.display = 'none';
+
+  // Append user message
+  appendMessage('user', text);
+  inputEl.value = '';
+  sendBtn.disabled = true;
+  isProcessing = true;
+  messageCount++;
+
+  // Show typing indicator
+  addTypingIndicator();
+
+  let success = false;
+  let attempts = 0;
+  const maxAttempts = GEMINI_KEYS.length;
+
+  while (!success && attempts < maxAttempts) {
+    const keyIndex = currentKeyIndex % GEMINI_KEYS.length;
+    const key = GEMINI_KEYS[keyIndex];
+
+    if (!key || key === 'AQ.Ab8RN6KCcS-Is43biY95HnjTN771U6DyjLUxxqKOn54kvUhOtg' || key.length < 20) {
+      attempts++;
+      currentKeyIndex++;
+      updateKeyStatus();
+      continue;
+    }
+
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 800,
+            topP: 0.9,
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        if ([429, 403, 400].includes(response.status)) {
+          currentKeyIndex++;
+          attempts++;
+          updateKeyStatus();
+          continue;
+        }
+        throw new Error(errData.error?.message || `Lỗi ${response.status}`);
+      }
+
+      const data = await response.json();
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                    'Xin lỗi, mình không thể trả lời câu hỏi này.';
+
+      removeTypingIndicator();
+      appendMessage('ai', formatAIResponse(reply), true);
+      
+      success = true;
+      currentKeyIndex = 0;
+      updateKeyStatus();
+      showToast('✅ Đã trả lời');
+
+    } catch (error) {
+      attempts++;
+      currentKeyIndex++;
+      updateKeyStatus();
+      
+      if (attempts >= maxAttempts) {
+        removeTypingIndicator();
+        const errorMsg = error.message || 'Không thể kết nối Gemini AI.';
+        const html = `❌ <b>Lỗi:</b> ${escapeHtml(errorMsg)}<br>
+                      <span style="font-size:12px;color:rgba(255,255,255,.3);">
+                      Hãy kiểm tra API key trong mã nguồn.<br>
+                      Lấy key tại: aistudio.google.com/apikey
+                      </span>`;
+        appendMessage('error', html, true);
+        showToast('⚠️ Lỗi kết nối API', true);
+      }
+    }
+  }
+
+  sendBtn.disabled = false;
+  isProcessing = false;
+  inputEl.focus();
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (isProcessing) {
+      // Can't cancel, but we can try
+      showToast('⏳ Đang xử lý, vui lòng đợi...');
+    }
+  }
+});
+
+// ================= INIT =================
+updateKeyStatus();
+inputEl.focus();
+
+// Auto-send a welcome if no keys configured
+if (GEMINI_KEYS.length === 0 || GEMINI_KEYS[0] === 'AQ.Ab8RN6JfBMvY3AayF1eYKcAZpBVz4F9RWJxpfn5GuoKznELiKA') {
+  setTimeout(() => {
+    appendMessage('ai', '⚠️ <b>Chưa có API Key!</b><br>Vui lòng dán key thật vào biến <code>GEMINI_KEYS</code> trong mã nguồn.<br>Lấy key miễn phí tại: <b>aistudio.google.com/apikey</b>', true);
+  }, 500);
+}
+</script>
+</body>
+</html>

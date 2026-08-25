@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mail</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --sep:rgba(255,255,255,.08);
+  --bg:#1c1c1e;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.app-shell{
+  width:100%;
+  max-width:430px;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  position:relative;
+  overflow:hidden;
+  border-radius:44px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05);
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.app-header .title{
+  font-size:24px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.app-header .title i{
+  color:var(--blue);
+}
+.app-header button{
+  border:none;
+  background:rgba(10,132,255,.15);
+  color:var(--blue);
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  font-size:20px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header button:active{
+  transform:scale(.9);
+  background:rgba(10,132,255,.25);
+}
+
+.app-body{
+  padding:12px 16px 20px;
+  overflow-y:auto;
+  height:calc(100vh - 75px);
+  background:#000;
+}
+
+/* Search */
+.mail-search{
+  height:42px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 14px;
+  background:rgba(118,118,128,.18);
+  border-radius:12px;
+  margin-bottom:16px;
+  transition:background .3s;
+}
+.mail-search:focus-within{
+  background:rgba(118,118,128,.28);
+}
+.mail-search i{
+  color:rgba(255,255,255,.3);
+  font-size:16px;
+}
+.mail-search input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:white;
+  font-size:14px;
+  font-family:inherit;
+}
+.mail-search input::placeholder{
+  color:rgba(255,255,255,.25);
+}
+
+/* Title row */
+.mail-title-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.mail-title{
+  font-size:22px;
+  font-weight:800;
+}
+.mail-count{
+  color:rgba(255,255,255,.35);
+  font-size:12px;
+  font-weight:500;
+}
+
+/* Tabs */
+.mail-tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  margin-bottom:14px;
+  padding:2px 0;
+}
+.mail-tabs button{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.5);
+  padding:7px 16px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:all .25s;
+  font-family:inherit;
+}
+.mail-tabs button:active{
+  transform:scale(.95);
+}
+.mail-tabs button.active{
+  background:var(--blue);
+  color:white;
+}
+.mail-tabs button i{
+  margin-right:4px;
+}
+
+/* Mail list */
+.mail-list{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.mail-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 10px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:background .2s;
+}
+.mail-item:active{
+  background:rgba(255,255,255,.06);
+}
+.mail-item.unread{
+  background:rgba(10,132,255,.06);
+}
+.mail-item.unread .mail-subject{
+  font-weight:700;
+}
+.mail-icon{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  flex-shrink:0;
+  font-size:18px;
+  position:relative;
+}
+.mail-icon.apple{background:linear-gradient(135deg,#6e6e73,#1c1c1e);}
+.mail-icon.shop{background:linear-gradient(135deg,#FF375F,#d6334a);}
+.mail-icon.project{background:linear-gradient(135deg,#5856D6,#3a38b0);}
+.mail-icon.work{background:linear-gradient(135deg,#FF9F0A,#d68a0a);}
+.mail-icon.personal{background:linear-gradient(135deg,#30D158,#1a9a3a);}
+.mail-icon.social{background:linear-gradient(135deg,#BF5AF2,#8a3ac0);}
+
+.mail-content{
+  flex:1;
+  min-width:0;
+}
+.mail-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+.mail-top strong{
+  font-size:14px;
+  font-weight:600;
+}
+.mail-top span{
+  font-size:10px;
+  color:rgba(255,255,255,.3);
+  flex-shrink:0;
+}
+.mail-subject{
+  font-size:13px;
+  font-weight:500;
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.mail-preview{
+  font-size:11px;
+  color:rgba(255,255,255,.35);
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.mail-arrow{
+  color:rgba(255,255,255,.1);
+  font-size:12px;
+  flex-shrink:0;
+}
+
+/* Reader */
+.mail-reader{
+  position:absolute;
+  inset:0;
+  background:#000;
+  display:none;
+  flex-direction:column;
+  z-index:20;
+  animation:slideIn .3s ease;
+}
+@keyframes slideIn{
+  0%{transform:translateX(30px);opacity:0;}
+  100%{transform:translateX(0);opacity:1;}
+}
+.mail-reader.open{
+  display:flex;
+}
+.mail-reader-header{
+  padding:12px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.mail-reader-header button{
+  border:none;
+  background:transparent;
+  color:var(--blue);
+  cursor:pointer;
+  font-size:14px;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:6px 8px;
+  border-radius:8px;
+  transition:background .2s;
+  font-family:inherit;
+}
+.mail-reader-header button:active{
+  background:rgba(10,132,255,.1);
+}
+.mail-reader-body{
+  flex:1;
+  overflow-y:auto;
+  padding:20px 18px 30px;
+}
+.reader-subject{
+  font-size:24px;
+  font-weight:800;
+  margin-bottom:16px;
+  line-height:1.3;
+}
+.reader-sender{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--sep);
+}
+.reader-avatar{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:var(--blue);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:18px;
+  flex-shrink:0;
+}
+.reader-sender-info strong{
+  font-size:15px;
+  display:block;
+}
+.reader-sender-info .reader-time{
+  font-size:11px;
+  color:rgba(255,255,255,.3);
+}
+.reader-content{
+  font-size:15px;
+  line-height:1.8;
+  color:rgba(255,255,255,.78);
+  padding-top:20px;
+  white-space:pre-wrap;
+}
+
+/* Compose */
+.mail-compose{
+  position:absolute;
+  inset:0;
+  background:#1c1c1e;
+  display:none;
+  flex-direction:column;
+  z-index:30;
+  animation:slideUp .35s ease;
+}
+@keyframes slideUp{
+  0%{transform:translateY(40px);opacity:0;}
+  100%{transform:translateY(0);opacity:1;}
+}
+.mail-compose.open{
+  display:flex;
+}
+.mail-compose-header{
+  padding:12px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(28,28,30,.95);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.mail-compose-header button{
+  border:none;
+  background:transparent;
+  color:var(--blue);
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  padding:6px 10px;
+  border-radius:8px;
+  transition:background .2s;
+  font-family:inherit;
+}
+.mail-compose-header button:active{
+  background:rgba(10,132,255,.1);
+}
+.mail-compose-header .title{
+  font-size:16px;
+  font-weight:700;
+}
+.compose-body{
+  flex:1;
+  padding:16px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.compose-body input{
+  height:38px;
+  border:none;
+  border-bottom:1px solid var(--sep);
+  outline:none;
+  background:transparent;
+  color:white;
+  font-size:14px;
+  font-family:inherit;
+  padding:0 2px;
+}
+.compose-body input::placeholder{
+  color:rgba(255,255,255,.25);
+}
+.compose-body textarea{
+  flex:1;
+  min-height:200px;
+  resize:none;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:white;
+  font-family:inherit;
+  font-size:14px;
+  padding:8px 2px;
+  line-height:1.6;
+}
+.compose-body textarea::placeholder{
+  color:rgba(255,255,255,.25);
+}
+
+/* Empty state */
+.mail-empty{
+  text-align:center;
+  padding:40px 20px;
+  color:rgba(255,255,255,.2);
+}
+.mail-empty i{
+  font-size:48px;
+  display:block;
+  margin-bottom:12px;
+  color:rgba(255,255,255,.06);
+}
+.mail-empty span{
+  font-size:14px;
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .mail-title{font-size:18px;}
+  .mail-item{padding:10px 8px;}
+  .mail-icon{width:38px;height:38px;font-size:15px;}
+  .mail-top strong{font-size:12px;}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- MAIN LIST -->
+  <div id="mailListContainer">
+    <div class="app-header">
+      <div class="title"><i class="bi bi-envelope-fill"></i> Mail</div>
+      <button onclick="composeMail()"><i class="bi bi-square-pen"></i></button>
+    </div>
+    <div class="app-body">
+      <div class="mail-search">
+        <i class="bi bi-search"></i>
+        <input id="mailSearch" type="text" placeholder="Tìm kiếm" oninput="searchMail()">
+        <i class="bi bi-sliders" style="font-size:14px;color:rgba(255,255,255,.2);"></i>
+      </div>
+
+      <div class="mail-title-row">
+        <div>
+          <div class="mail-title">Hộp thư đến</div>
+          <div id="mailCount" class="mail-count">0 thư</div>
+        </div>
+      </div>
+
+      <div class="mail-tabs">
+        <button class="active" onclick="filterMail('inbox', this)"><i class="bi bi-envelope"></i> Tất cả</button>
+        <button onclick="filterMail('unread', this)"><i class="bi bi-envelope-open"></i> Chưa đọc</button>
+        <button onclick="filterMail('important', this)"><i class="bi bi-star"></i> Quan trọng</button>
+        <button onclick="filterMail('sent', this)"><i class="bi bi-send"></i> Đã gửi</button>
+      </div>
+
+      <div class="mail-list" id="mailList">
+        <!-- Mails sẽ được render bằng JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- READER -->
+  <div id="mailReader" class="mail-reader">
+    <div class="mail-reader-header">
+      <button onclick="closeMailReader()"><i class="bi bi-chevron-left"></i> Hộp thư</button>
+      <button onclick="composeMail()"><i class="bi bi-reply"></i> Trả lời</button>
+    </div>
+    <div class="mail-reader-body">
+      <div id="readerSubject" class="reader-subject"></div>
+      <div class="reader-sender">
+        <div id="readerAvatar" class="reader-avatar">A</div>
+        <div class="reader-sender-info">
+          <strong id="readerSender"></strong>
+          <span class="reader-time" id="readerTime"></span>
+        </div>
+      </div>
+      <div id="readerContent" class="reader-content"></div>
+    </div>
+  </div>
+
+  <!-- COMPOSE -->
+  <div id="mailCompose" class="mail-compose">
+    <div class="mail-compose-header">
+      <button onclick="closeCompose()">Hủy</button>
+      <span class="title">Thư mới</span>
+      <button onclick="sendMail()" style="color:#0A84FF;">Gửi</button>
+    </div>
+    <div class="compose-body">
+      <input id="mailTo" type="text" placeholder="Đến">
+      <input id="mailSubject" type="text" placeholder="Chủ đề">
+      <textarea id="mailMessage" placeholder="Viết email..."></textarea>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ================= DATA =================
+let mails = [
+  {
+    id: 1,
+    sender: 'Apple',
+    subject: 'Chào mừng đến với iPhone',
+    content: 'Chào mừng bạn đến với chiếc iPhone mô phỏng của bạn! 🎉\n\nBạn đang trải nghiệm ứng dụng Mail với giao diện iOS đẹp mắt.\nHãy tận hưởng những tính năng tuyệt vời này nhé!\n\n— Apple Team',
+    time: '2 giờ trước',
+    unread: true,
+    important: false,
+    sent: false,
+    icon: 'apple'
+  },
+  {
+    id: 2,
+    sender: 'Shop',
+    subject: 'Xác nhận đặt hàng #2874',
+    content: 'Cảm ơn bạn đã đặt hàng!\n\nĐơn hàng #2874 của bạn đã được xác nhận và đang được chuẩn bị.\nThời gian dự kiến giao hàng: 2-3 ngày tới.\n\nChi tiết đơn hàng:\n• iPhone 15 Pro (1)\n• Sạc dự phòng (1)\n• Ốp lưng (1)\n\n— Shop Team',
+    time: '5 giờ trước',
+    unread: false,
+    important: true,
+    sent: false,
+    icon: 'shop'
+  },
+  {
+    id: 3,
+    sender: 'Đồng nghiệp',
+    subject: 'Báo cáo dự án tháng 6',
+    content: 'Chào bạn,\n\nMình gửi bạn báo cáo dự án tháng 6 này.\nCó một vài điểm cần thảo luận trong tuần tới.\n\nNội dung chính:\n1. Tiến độ hoàn thành 85%\n2. Cần thêm nguồn lực cho phần UI\n3. Demo với khách hàng vào thứ 5\n\nBạn xem và phản hồi giúp mình nhé.\n\n— Đồng nghiệp',
+    time: 'Hôm qua',
+    unread: false,
+    important: false,
+    sent: false,
+    icon: 'project'
+  },
+  {
+    id: 4,
+    sender: 'Công ty',
+    subject: 'Thông báo lịch họp tuần tới',
+    content: 'Thân gửi tất cả nhân viên,\n\nLịch họp tuần tới:\n• Thứ 2: Họp giao ban (9:00)\n• Thứ 4: Review dự án (14:00)\n• Thứ 6: Team building (15:00)\n\nMọi người sắp xếp thời gian tham gia đầy đủ.\n\n— Ban tổ chức',
+    time: '2 ngày trước',
+    unread: false,
+    important: false,
+    sent: false,
+    icon: 'work'
+  },
+  {
+    id: 5,
+    sender: 'Phúc lợi',
+    subject: 'Đăng ký khám sức khỏe năm 2024',
+    content: 'Kính gửi quý nhân viên,\n\nĐợt khám sức khỏe năm 2024 sẽ diễn ra:\n• Thời gian: 15-20/06/2024\n• Địa điểm: Bệnh viện Đa khoa\n\nVui lòng đăng ký trước ngày 10/06 để được sắp xếp.\n\n— Bộ phận nhân sự',
+    time: '3 ngày trước',
+    unread: true,
+    important: true,
+    sent: false,
+    icon: 'personal'
+  },
+  {
+    id: 6,
+    sender: 'Newsletter',
+    subject: 'Tin tức công nghệ tuần này',
+    content: '📱 Tin tức nổi bật:\n\n• Apple giới thiệu iOS 18 với nhiều tính năng AI\n• Samsung ra mắt Galaxy Z Fold 6\n• Google I/O 2024: Gemini được tích hợp sâu hơn\n\nĐọc thêm tại: technews.com\n\n— Biên tập viên',
+    time: '4 ngày trước',
+    unread: false,
+    important: false,
+    sent: false,
+    icon: 'social'
+  }
+];
+
+let filterType = 'inbox';
+let currentMailId = null;
+
+// ================= RENDER =================
+function renderMails() {
+  const container = document.getElementById('mailList');
+  let filtered = [...mails];
+
+  if (filterType === 'unread') {
+    filtered = filtered.filter(m => m.unread);
+  } else if (filterType === 'important') {
+    filtered = filtered.filter(m => m.important);
+  } else if (filterType === 'sent') {
+    filtered = filtered.filter(m => m.sent);
+  }
+
+  // Search
+  const query = document.getElementById('mailSearch').value.toLowerCase().trim();
+  if (query) {
+    filtered = filtered.filter(m => 
+      m.subject.toLowerCase().includes(query) || 
+      m.sender.toLowerCase().includes(query) ||
+      m.content.toLowerCase().includes(query)
+    );
+  }
+
+  // Update count
+  document.getElementById('mailCount').textContent = filtered.length + ' thư';
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="mail-empty">
+        <i class="bi bi-inbox"></i>
+        <span>Không có thư nào</span>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(mail => `
+    <div class="mail-item ${mail.unread ? 'unread' : ''}" 
+         onclick="openMail(${mail.id})">
+      <div class="mail-icon ${mail.icon}">
+        <i class="bi ${getIcon(mail.icon)}"></i>
+      </div>
+      <div class="mail-content">
+        <div class="mail-top">
+          <strong>${mail.sender}</strong>
+          <span>${mail.time}</span>
+        </div>
+        <div class="mail-subject">${mail.important ? '⭐ ' : ''}${mail.subject}</div>
+        <div class="mail-preview">${mail.content.slice(0, 60)}${mail.content.length > 60 ? '...' : ''}</div>
+      </div>
+      <i class="bi bi-chevron-right mail-arrow"></i>
+    </div>
+  `).join('');
+}
+
+function getIcon(type) {
+  const icons = {
+    apple: 'bi-apple',
+    shop: 'bi-bag-fill',
+    project: 'bi-file-earmark-text-fill',
+    work: 'bi-briefcase-fill',
+    personal: 'bi-person-fill',
+    social: 'bi-globe'
+  };
+  return icons[type] || 'bi-envelope-fill';
+}
+
+// ================= FILTER =================
+function filterMail(type, btn) {
+  filterType = type;
+  document.querySelectorAll('.mail-tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMails();
+}
+
+// ================= SEARCH =================
+function searchMail() {
+  renderMails();
+}
+
+// ================= OPEN/CLOSE MAIL =================
+function openMail(id) {
+  currentMailId = id;
+  const mail = mails.find(m => m.id === id);
+  if (!mail) return;
+
+  // Mark as read
+  mail.unread = false;
+
+  document.getElementById('readerSubject').textContent = mail.subject;
+  document.getElementById('readerSender').textContent = mail.sender;
+  document.getElementById('readerAvatar').textContent = mail.sender.charAt(0).toUpperCase();
+  document.getElementById('readerTime').textContent = mail.time;
+  document.getElementById('readerContent').textContent = mail.content;
+
+  document.getElementById('mailReader').classList.add('open');
+  renderMails();
+}
+
+function closeMailReader() {
+  document.getElementById('mailReader').classList.remove('open');
+  renderMails();
+}
+
+// ================= COMPOSE =================
+function composeMail() {
+  document.getElementById('mailCompose').classList.add('open');
+}
+
+function closeCompose() {
+  document.getElementById('mailCompose').classList.remove('open');
+  document.getElementById('mailTo').value = '';
+  document.getElementById('mailSubject').value = '';
+  document.getElementById('mailMessage').value = '';
+}
+
+function sendMail() {
+  const to = document.getElementById('mailTo').value.trim();
+  const subject = document.getElementById('mailSubject').value.trim();
+  const message = document.getElementById('mailMessage').value.trim();
+
+  if (!to) {
+    alert('Vui lòng nhập địa chỉ email người nhận');
+    return;
+  }
+
+  if (!subject) {
+    alert('Vui lòng nhập chủ đề');
+    return;
+  }
+
+  // Add to sent
+  const newMail = {
+    id: Date.now(),
+    sender: 'Tôi',
+    subject: subject,
+    content: message || '(Không có nội dung)',
+    time: 'Vừa gửi',
+    unread: false,
+    important: false,
+    sent: true,
+    icon: 'personal'
+  };
+  mails.push(newMail);
+
+  alert('✅ Đã gửi thư đến: ' + to);
+  closeCompose();
+  renderMails();
+
+  // Switch to sent tab
+  document.querySelectorAll('.mail-tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelector('.mail-tabs button:last-child').classList.add('active');
+  filterType = 'sent';
+  renderMails();
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (document.getElementById('mailReader').classList.contains('open')) {
+      closeMailReader();
+    }
+    if (document.getElementById('mailCompose').classList.contains('open')) {
+      closeCompose();
+    }
+  }
+});
+
+// ================= INIT =================
+renderMails();
+</script>
+</body>
+</html>

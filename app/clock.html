@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Đồng hồ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Inter',sans-serif;color:#fff;}
+.clock-app{height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,#1a1a2e,#000);}
+.clock-header{padding:12px 16px;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;}
+.clock-header h2{font-size:16px;font-weight:700;flex-shrink:0;display:flex;align-items:center;gap:6px;}
+.clock-header h2 i{color:var(--blue,#0A84FF);font-size:18px;}
+.clock-tabs{display:flex;gap:2px;background:rgba(255,255,255,0.05);border-radius:8px;padding:3px;flex:1;overflow-x:auto;}
+.clock-tabs button{background:none;border:none;color:rgba(255,255,255,0.5);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;white-space:nowrap;flex:1;}
+.clock-tabs button.active{background:var(--blue,#0A84FF);color:#fff;}
+.clock-content{flex:1;overflow:hidden;padding:8px 12px;}
+.tab-panel{display:none;height:100%;}
+.tab-panel.active{display:flex;flex-direction:column;height:100%;}
+
+/* World Clock */
+.world-clock{display:flex;flex-direction:column;height:100%;}
+.world-clock .add-city{display:flex;gap:4px;margin-bottom:6px;flex-shrink:0;}
+.world-clock .add-city input{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:12px;font-family:inherit;flex:1;min-width:0;}
+.world-clock .add-city input:focus{outline:2px solid var(--blue,#0A84FF);}
+.world-clock .add-city input[type="number"]{flex:0.5;min-width:50px;}
+.world-clock .add-city button{padding:6px 12px;border-radius:8px;border:none;background:var(--blue,#0A84FF);color:#fff;font-weight:600;cursor:pointer;font-size:12px;font-family:inherit;flex-shrink:0;}
+.city-list{flex:1;overflow:hidden;overflow-y:auto;}
+.city-list::-webkit-scrollbar{width:2px;}
+.city-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:2px;}
+.city-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0;}
+.city-item .city-info{display:flex;flex-direction:column;flex:1;min-width:0;}
+.city-item .city-name{font-size:13px;font-weight:500;}
+.city-item .city-offset{font-size:10px;color:rgba(255,255,255,0.3);}
+.city-item .city-time{font-size:18px;font-weight:700;color:var(--blue,#0A84FF);flex-shrink:0;margin-left:8px;}
+.city-item .delete-city{color:rgba(255,255,255,0.15);cursor:pointer;padding:2px 6px;border-radius:4px;transition:all 0.2s;font-size:12px;background:none;border:none;flex-shrink:0;}
+.city-item .delete-city:hover{color:var(--red,#FF453A);}
+
+/* Alarm */
+.alarm-list{display:flex;flex-direction:column;height:100%;}
+.alarm-list .add-alarm{display:flex;gap:4px;margin-bottom:6px;flex-shrink:0;}
+.alarm-list .add-alarm input[type="time"]{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:12px;font-family:inherit;flex:0.8;min-width:0;}
+.alarm-list .add-alarm input[type="text"]{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:12px;font-family:inherit;flex:1;min-width:0;}
+.alarm-list .add-alarm input:focus{outline:2px solid var(--blue,#0A84FF);}
+.alarm-list .add-alarm button{padding:6px 12px;border-radius:8px;border:none;background:var(--green,#30D158);color:#fff;font-weight:600;cursor:pointer;font-size:12px;font-family:inherit;flex-shrink:0;}
+.alarm-items{flex:1;overflow:hidden;overflow-y:auto;}
+.alarm-items::-webkit-scrollbar{width:2px;}
+.alarm-items::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:2px;}
+.alarm-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0;}
+.alarm-item .alarm-info{display:flex;flex-direction:column;flex:1;min-width:0;}
+.alarm-item .alarm-time{font-size:18px;font-weight:700;}
+.alarm-item .alarm-label{font-size:11px;color:rgba(255,255,255,0.5);}
+.alarm-item .alarm-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.alarm-item .alarm-toggle{width:40px;height:22px;background:rgba(255,255,255,0.15);border-radius:11px;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;}
+.alarm-item .alarm-toggle.active{background:var(--green,#30D158);}
+.alarm-item .alarm-toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform 0.2s;}
+.alarm-item .alarm-toggle.active::after{transform:translateX(18px);}
+.alarm-item .delete-alarm{color:rgba(255,255,255,0.15);cursor:pointer;padding:2px 6px;border-radius:4px;transition:all 0.2s;font-size:12px;background:none;border:none;}
+.alarm-item .delete-alarm:hover{color:var(--red,#FF453A);}
+
+/* Stopwatch */
+.stopwatch{display:flex;flex-direction:column;height:100%;}
+.stopwatch .sw-display{text-align:center;padding:10px 0;flex-shrink:0;}
+.sw-display .time{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:1px;}
+.sw-display .millis{font-size:18px;color:rgba(255,255,255,0.3);}
+.sw-controls{display:flex;justify-content:center;gap:10px;padding:8px 0;flex-shrink:0;}
+.sw-controls button{width:52px;height:52px;border-radius:50%;border:none;font-size:11px;font-weight:600;cursor:pointer;transition:transform 0.15s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:3px;flex-shrink:0;}
+.sw-controls button:active{transform:scale(0.9);}
+.sw-controls button:disabled{opacity:0.3;cursor:not-allowed;}
+.sw-controls .start{background:var(--green,#30D158);color:#fff;}
+.sw-controls .stop{background:var(--red,#FF453A);color:#fff;}
+.sw-controls .reset{background:rgba(255,255,255,0.08);color:#fff;}
+.sw-controls .lap{background:var(--orange,#FF9F0A);color:#fff;}
+.sw-laps{flex:1;overflow:hidden;overflow-y:auto;padding-top:4px;}
+.sw-laps::-webkit-scrollbar{width:2px;}
+.sw-laps::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:2px;}
+.sw-laps .lap-item{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:rgba(255,255,255,0.6);border-bottom:1px solid rgba(255,255,255,0.02);}
+
+/* Timer */
+.timer{display:flex;flex-direction:column;height:100%;justify-content:center;}
+.timer .tm-display{text-align:center;padding:10px 0;flex-shrink:0;}
+.tm-display .time{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:2px;}
+.tm-controls{display:flex;justify-content:center;gap:6px;padding:8px 0;flex-wrap:wrap;flex-shrink:0;}
+.tm-controls input{width:55px;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:14px;text-align:center;font-family:inherit;}
+.tm-controls input:focus{outline:2px solid var(--blue,#0A84FF);}
+.tm-controls button{padding:6px 14px;border-radius:8px;border:none;font-weight:600;cursor:pointer;font-family:inherit;transition:transform 0.15s;font-size:12px;}
+.tm-controls button:active{transform:scale(0.95);}
+.tm-controls button:disabled{opacity:0.3;cursor:not-allowed;}
+.tm-controls .tm-start{background:var(--green,#30D158);color:#fff;}
+.tm-controls .tm-stop{background:var(--red,#FF453A);color:#fff;}
+.tm-controls .tm-reset{background:rgba(255,255,255,0.08);color:#fff;}
+.tm-controls .tm-label{color:rgba(255,255,255,0.3);font-size:11px;display:flex;align-items:center;padding:0 2px;}
+</style>
+</head>
+<body>
+<div class="clock-app">
+  <div class="clock-header">
+    <h2><i class="bi bi-clock-fill"></i></h2>
+    <div class="clock-tabs">
+      <button class="active" data-tab="world">🌍</button>
+      <button data-tab="alarm">🔔</button>
+      <button data-tab="stopwatch">⏱</button>
+      <button data-tab="timer">⏳</button>
+    </div>
+  </div>
+  <div class="clock-content">
+    <!-- World Clock -->
+    <div class="tab-panel active" id="tab-world">
+      <div class="world-clock">
+        <div class="add-city">
+          <input type="text" id="cityInput" placeholder="Thành phố..." onkeypress="if(event.key==='Enter') addCity()">
+          <input type="number" id="offsetInput" placeholder="UTC" min="-12" max="12" step="0.5">
+          <button onclick="addCity()"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        <div class="city-list" id="cityList">
+          <div class="city-item" data-offset="7"><div class="city-info"><span class="city-name">🇻🇳 Hà Nội</span><span class="city-offset">UTC +7</span></div><span class="city-time">--:--</span><button class="delete-city" onclick="deleteCity(this)"><i class="bi bi-x-lg"></i></button></div>
+          <div class="city-item" data-offset="9"><div class="city-info"><span class="city-name">🇯🇵 Tokyo</span><span class="city-offset">UTC +9</span></div><span class="city-time">--:--</span><button class="delete-city" onclick="deleteCity(this)"><i class="bi bi-x-lg"></i></button></div>
+          <div class="city-item" data-offset="-4"><div class="city-info"><span class="city-name">🇺🇸 New York</span><span class="city-offset">UTC -4</span></div><span class="city-time">--:--</span><button class="delete-city" onclick="deleteCity(this)"><i class="bi bi-x-lg"></i></button></div>
+          <div class="city-item" data-offset="0"><div class="city-info"><span class="city-name">🇬🇧 London</span><span class="city-offset">UTC 0</span></div><span class="city-time">--:--</span><button class="delete-city" onclick="deleteCity(this)"><i class="bi bi-x-lg"></i></button></div>
+          <div class="city-item" data-offset="11"><div class="city-info"><span class="city-name">🇦🇺 Sydney</span><span class="city-offset">UTC +11</span></div><span class="city-time">--:--</span><button class="delete-city" onclick="deleteCity(this)"><i class="bi bi-x-lg"></i></button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alarm -->
+    <div class="tab-panel" id="tab-alarm">
+      <div class="alarm-list">
+        <div class="add-alarm">
+          <input type="time" id="alarmTime" value="07:00">
+          <input type="text" id="alarmLabel" placeholder="Tên..." value="Thức dậy">
+          <button onclick="addAlarm()"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        <div class="alarm-items" id="alarmList">
+          <div class="alarm-item"><div class="alarm-info"><div class="alarm-time">06:30</div><div class="alarm-label">🌅 Thức dậy</div></div><div class="alarm-actions"><div class="alarm-toggle active" onclick="toggleAlarm(this)"></div><button class="delete-alarm" onclick="deleteAlarm(this)"><i class="bi bi-x-lg"></i></button></div></div>
+          <div class="alarm-item"><div class="alarm-info"><div class="alarm-time">08:00</div><div class="alarm-label">💼 Họp</div></div><div class="alarm-actions"><div class="alarm-toggle" onclick="toggleAlarm(this)"></div><button class="delete-alarm" onclick="deleteAlarm(this)"><i class="bi bi-x-lg"></i></button></div></div>
+          <div class="alarm-item"><div class="alarm-info"><div class="alarm-time">12:00</div><div class="alarm-label">🍜 Ăn trưa</div></div><div class="alarm-actions"><div class="alarm-toggle active" onclick="toggleAlarm(this)"></div><button class="delete-alarm" onclick="deleteAlarm(this)"><i class="bi bi-x-lg"></i></button></div></div>
+          <div class="alarm-item"><div class="alarm-info"><div class="alarm-time">18:30</div><div class="alarm-label">🏋️ Tập</div></div><div class="alarm-actions"><div class="alarm-toggle" onclick="toggleAlarm(this)"></div><button class="delete-alarm" onclick="deleteAlarm(this)"><i class="bi bi-x-lg"></i></button></div></div>
+          <div class="alarm-item"><div class="alarm-info"><div class="alarm-time">22:00</div><div class="alarm-label">😴 Ngủ</div></div><div class="alarm-actions"><div class="alarm-toggle active" onclick="toggleAlarm(this)"></div><button class="delete-alarm" onclick="deleteAlarm(this)"><i class="bi bi-x-lg"></i></button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stopwatch -->
+    <div class="tab-panel" id="tab-stopwatch">
+      <div class="stopwatch">
+        <div class="sw-display">
+          <div class="time" id="swTime">00:00:00</div>
+          <div class="millis" id="swMillis">00</div>
+        </div>
+        <div class="sw-controls">
+          <button class="reset" id="swReset" onclick="stopwatchReset()"><i class="bi bi-arrow-counterclockwise"></i></button>
+          <button class="start" id="swStartBtn" onclick="stopwatchStart()"><i class="bi bi-play-fill"></i></button>
+          <button class="lap" id="swLapBtn" onclick="stopwatchLap()" disabled><i class="bi bi-flag"></i></button>
+        </div>
+        <div class="sw-laps" id="swLaps"></div>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="tab-panel" id="tab-timer">
+      <div class="timer">
+        <div class="tm-display">
+          <div class="time" id="tmTime">05:00</div>
+        </div>
+        <div class="tm-controls">
+          <span class="tm-label">P</span>
+          <input type="number" id="tmMinutes" value="5" min="1" max="60">
+          <span class="tm-label">S</span>
+          <input type="number" id="tmSeconds" value="0" min="0" max="59">
+          <button class="tm-start" id="tmStartBtn" onclick="timerStart()"><i class="bi bi-play-fill"></i></button>
+          <button class="tm-stop" id="tmStopBtn" onclick="timerStop()" disabled><i class="bi bi-pause-fill"></i></button>
+          <button class="tm-reset" onclick="timerReset()"><i class="bi bi-arrow-counterclockwise"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== TAB SWITCH =====
+document.querySelectorAll('.clock-tabs button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.clock-tabs button').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+  });
+});
+
+// ===== WORLD CLOCK =====
+function updateWorldClock() {
+  const now = new Date();
+  const userOffset = now.getTimezoneOffset() / 60;
+  document.querySelectorAll('.city-item').forEach(item => {
+    const offset = parseFloat(item.dataset.offset);
+    const localTime = new Date(now.getTime() + (offset + userOffset) * 3600000);
+    const h = String(localTime.getHours()).padStart(2,'0');
+    const m = String(localTime.getMinutes()).padStart(2,'0');
+    const timeSpan = item.querySelector('.city-time');
+    if (timeSpan) timeSpan.textContent = h + ':' + m;
+  });
+}
+updateWorldClock();
+setInterval(updateWorldClock, 5000);
+
+function addCity() {
+  const nameInput = document.getElementById('cityInput');
+  const offsetInput = document.getElementById('offsetInput');
+  const name = nameInput.value.trim();
+  const offset = parseFloat(offsetInput.value);
+  if (!name || isNaN(offset) || offset < -12 || offset > 12) {
+    alert('Nhập tên thành phố và UTC (-12 đến +12)');
+    return;
+  }
+  const list = document.getElementById('cityList');
+  const div = document.createElement('div');
+  div.className = 'city-item';
+  div.dataset.offset = offset;
+  const offsetStr = offset >= 0 ? '+' + offset : '' + offset;
+  div.innerHTML = `
+    <div class="city-info"><span class="city-name">${name}</span><span class="city-offset">UTC ${offsetStr}</span></div>
+    <span class="city-time">--:--</span>
+    <button class="delete-city" onclick="deleteCity(this)"><i class="bi bi-x-lg"></i></button>
+  `;
+  list.appendChild(div);
+  nameInput.value = '';
+  offsetInput.value = '';
+  updateWorldClock();
+}
+
+function deleteCity(btn) {
+  const item = btn.closest('.city-item');
+  if (item && document.querySelectorAll('.city-item').length > 1) {
+    item.remove();
+    updateWorldClock();
+  } else {
+    alert('Phải có ít nhất 1 thành phố!');
+  }
+}
+
+// ===== ALARM =====
+function addAlarm() {
+  const timeInput = document.getElementById('alarmTime');
+  const labelInput = document.getElementById('alarmLabel');
+  const time = timeInput.value;
+  const label = labelInput.value.trim() || 'Báo thức';
+  if (!time) { alert('Chọn giờ!'); return; }
+  const list = document.getElementById('alarmList');
+  const div = document.createElement('div');
+  div.className = 'alarm-item';
+  div.innerHTML = `
+    <div class="alarm-info"><div class="alarm-time">${time}</div><div class="alarm-label">${label}</div></div>
+    <div class="alarm-actions"><div class="alarm-toggle active" onclick="toggleAlarm(this)"></div><button class="delete-alarm" onclick="deleteAlarm(this)"><i class="bi bi-x-lg"></i></button></div>
+  `;
+  list.appendChild(div);
+  timeInput.value = '07:00';
+  labelInput.value = '';
+}
+
+function deleteAlarm(btn) { btn.closest('.alarm-item').remove(); }
+function toggleAlarm(el) { el.classList.toggle('active'); }
+
+// ===== STOPWATCH =====
+let swRunning = false, swTime = 0, swInterval = null, swLaps = [];
+function formatSw(ms) {
+  const h = String(Math.floor(ms/3600000)).padStart(2,'0');
+  const m = String(Math.floor((ms%3600000)/60000)).padStart(2,'0');
+  const s = String(Math.floor((ms%60000)/1000)).padStart(2,'0');
+  const ms2 = String(ms%1000).padStart(2,'0').slice(0,2);
+  return { h, m, s, ms: ms2 };
+}
+function updateSwDisplay() {
+  const f = formatSw(swTime);
+  document.getElementById('swTime').textContent = f.h + ':' + f.m + ':' + f.s;
+  document.getElementById('swMillis').textContent = f.ms;
+}
+function stopwatchStart() {
+  if (swRunning) return;
+  swRunning = true;
+  const start = Date.now() - swTime;
+  document.getElementById('swStartBtn').className = 'stop';
+  document.getElementById('swStartBtn').innerHTML = '<i class="bi bi-pause-fill"></i>';
+  document.getElementById('swStartBtn').onclick = stopwatchStop;
+  document.getElementById('swLapBtn').disabled = false;
+  swInterval = setInterval(() => { swTime = Date.now() - start; updateSwDisplay(); }, 20);
+}
+function stopwatchStop() {
+  if (!swRunning) return;
+  swRunning = false;
+  clearInterval(swInterval);
+  document.getElementById('swStartBtn').className = 'start';
+  document.getElementById('swStartBtn').innerHTML = '<i class="bi bi-play-fill"></i>';
+  document.getElementById('swStartBtn').onclick = stopwatchStart;
+}
+function stopwatchReset() {
+  stopwatchStop();
+  swTime = 0; swLaps = [];
+  updateSwDisplay();
+  document.getElementById('swLaps').innerHTML = '';
+  document.getElementById('swStartBtn').className = 'start';
+  document.getElementById('swStartBtn').innerHTML = '<i class="bi bi-play-fill"></i>';
+  document.getElementById('swStartBtn').onclick = stopwatchStart;
+  document.getElementById('swLapBtn').disabled = true;
+}
+function stopwatchLap() {
+  if (!swRunning) return;
+  const f = formatSw(swTime);
+  const lapTime = f.h + ':' + f.m + ':' + f.s + '.' + f.ms;
+  const lapNum = swLaps.length + 1;
+  swLaps.push(lapTime);
+  const div = document.createElement('div');
+  div.className = 'lap-item';
+  div.innerHTML = `<span>Vòng ${lapNum}</span><span>${lapTime}</span>`;
+  document.getElementById('swLaps').prepend(div);
+}
+
+// ===== TIMER =====
+let tmRemaining = 300000, tmInterval = null, tmRunning = false;
+function updateTimerDisplay() {
+  const m = String(Math.floor(tmRemaining/60000)).padStart(2,'0');
+  const s = String(Math.floor((tmRemaining%60000)/1000)).padStart(2,'0');
+  document.getElementById('tmTime').textContent = m + ':' + s;
+}
+function timerStart() {
+  if (tmRunning) return;
+  const minutes = parseInt(document.getElementById('tmMinutes').value) || 0;
+  const seconds = parseInt(document.getElementById('tmSeconds').value) || 0;
+  if (minutes === 0 && seconds === 0) { alert('Nhập thời gian!'); return; }
+  if (!tmRunning && tmRemaining <= 0) {
+    tmRemaining = (minutes * 60 + seconds) * 1000;
+  }
+  tmRunning = true;
+  document.getElementById('tmStartBtn').disabled = true;
+  document.getElementById('tmStopBtn').disabled = false;
+  document.getElementById('tmMinutes').disabled = true;
+  document.getElementById('tmSeconds').disabled = true;
+  tmInterval = setInterval(() => {
+    tmRemaining -= 100;
+    if (tmRemaining <= 0) {
+      tmRemaining = 0;
+      clearInterval(tmInterval);
+      tmRunning = false;
+      document.getElementById('tmStartBtn').disabled = false;
+      document.getElementById('tmStopBtn').disabled = true;
+      document.getElementById('tmMinutes').disabled = false;
+      document.getElementById('tmSeconds').disabled = false;
+      alert('⏰ HẾT GIỜ!');
+      updateTimerDisplay();
+    }
+    updateTimerDisplay();
+  }, 100);
+}
+function timerStop() {
+  clearInterval(tmInterval);
+  tmRunning = false;
+  document.getElementById('tmStartBtn').disabled = false;
+  document.getElementById('tmStopBtn').disabled = true;
+  document.getElementById('tmMinutes').disabled = false;
+  document.getElementById('tmSeconds').disabled = false;
+}
+function timerReset() {
+  timerStop();
+  const minutes = parseInt(document.getElementById('tmMinutes').value) || 0;
+  const seconds = parseInt(document.getElementById('tmSeconds').value) || 0;
+  tmRemaining = (minutes * 60 + seconds) * 1000;
+  if (tmRemaining === 0) tmRemaining = 300000;
+  updateTimerDisplay();
+}
+updateTimerDisplay();
+</script>
+</body>
+</html>

@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cài đặt</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --green:#30D158;
+  --red:#FF453A;
+  --orange:#FF9F0A;
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  transition:background .5s;
+}
+.app-shell{
+  width:100%;
+  max-width:430px;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:var(--blue);
+}
+.app-header .close-btn{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header .close-btn:active{
+  transform:scale(.9);
+  background:rgba(255,255,255,.12);
+}
+
+.app-body{
+  flex:1;
+  padding:12px 16px 20px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Settings group */
+.settings-group{
+  margin-bottom:20px;
+}
+.group-label{
+  font-size:12px;
+  color:rgba(255,255,255,.3);
+  text-transform:uppercase;
+  margin-bottom:8px;
+  padding:0 4px;
+  font-weight:700;
+  letter-spacing:.5px;
+}
+.settings-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 14px;
+  background:var(--glass);
+  border-radius:14px;
+  margin-bottom:2px;
+  transition:all .2s;
+  cursor:pointer;
+  position:relative;
+}
+.settings-row:active{
+  background:var(--glass-strong);
+  transform:scale(.99);
+}
+.settings-row .label{
+  font-size:15px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:500;
+}
+.settings-row .label i{
+  font-size:18px;
+  width:28px;
+  text-align:center;
+}
+.settings-row .label .icon-bg{
+  width:30px;
+  height:30px;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+}
+.settings-row .value{
+  font-size:13px;
+  color:rgba(255,255,255,.4);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.settings-row .arrow{
+  color:rgba(255,255,255,.15);
+  font-size:14px;
+  margin-left:4px;
+}
+
+/* Toggle switch */
+.toggle-switch{
+  width:48px;
+  height:28px;
+  background:rgba(255,255,255,.15);
+  border-radius:14px;
+  cursor:pointer;
+  position:relative;
+  transition:background .3s;
+  flex-shrink:0;
+}
+.toggle-switch.active{
+  background:var(--green);
+}
+.toggle-switch .thumb{
+  width:24px;
+  height:24px;
+  background:#fff;
+  border-radius:50%;
+  position:absolute;
+  top:2px;
+  left:2px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 2px 4px rgba(0,0,0,.3);
+}
+.toggle-switch.active .thumb{
+  transform:translateX(20px);
+}
+
+/* Profile section */
+.profile-section{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 14px;
+  background:var(--glass);
+  border-radius:16px;
+  margin-bottom:20px;
+  cursor:pointer;
+  transition:background .2s;
+}
+.profile-section:active{
+  background:var(--glass-strong);
+}
+.profile-avatar{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#0A84FF,#5856D6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:700;
+  color:#fff;
+  flex-shrink:0;
+}
+.profile-info{
+  flex:1;
+}
+.profile-name{
+  font-size:17px;
+  font-weight:700;
+}
+.profile-email{
+  font-size:13px;
+  color:rgba(255,255,255,.4);
+  margin-top:2px;
+}
+.profile-arrow{
+  color:rgba(255,255,255,.15);
+  font-size:18px;
+}
+
+/* Badge */
+.badge{
+  background:var(--red);
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:12px;
+  min-width:20px;
+  text-align:center;
+}
+
+/* Color options */
+.color-options{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:4px 0;
+}
+.color-option{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  cursor:pointer;
+  border:2px solid transparent;
+  transition:all .2s;
+  position:relative;
+}
+.color-option:active{
+  transform:scale(.85);
+}
+.color-option.active{
+  border-color:#fff;
+  box-shadow:0 0 20px rgba(255,255,255,.15);
+}
+.color-option .check{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  color:#fff;
+}
+.color-option.active .check{
+  display:flex;
+}
+
+/* Wallpaper preview */
+.wallpaper-preview{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:12px 14px;
+  background:var(--glass);
+  border-radius:14px;
+  margin-bottom:12px;
+}
+.wallpaper-preview .preview-thumb{
+  width:60px;
+  height:80px;
+  border-radius:10px;
+  background-size:cover;
+  background-position:center;
+  flex-shrink:0;
+  border:2px solid rgba(255,255,255,.1);
+}
+.wallpaper-preview .preview-info{
+  flex:1;
+}
+.wallpaper-preview .preview-info .name{
+  font-size:14px;
+  font-weight:600;
+}
+.wallpaper-preview .preview-info .status{
+  font-size:12px;
+  color:rgba(255,255,255,.3);
+}
+
+/* Wallpaper grid */
+.wallpaper-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin:8px 0 12px;
+}
+.wallpaper-item{
+  aspect-ratio:9/16;
+  border-radius:12px;
+  background-size:cover;
+  background-position:center;
+  cursor:pointer;
+  border:3px solid transparent;
+  transition:all .2s;
+  position:relative;
+  box-shadow:0 2px 10px rgba(0,0,0,.35);
+}
+.wallpaper-item:active{
+  transform:scale(.95);
+}
+.wallpaper-item.active{
+  border-color:var(--blue);
+  box-shadow:0 0 20px rgba(10,132,255,.3);
+}
+.wallpaper-item .check{
+  position:absolute;
+  top:4px;
+  right:4px;
+  background:var(--blue);
+  border-radius:50%;
+  width:20px;
+  height:20px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.wallpaper-item.active .check{
+  display:flex;
+}
+.wallpaper-item .name-tag{
+  position:absolute;
+  bottom:6px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:8px;
+  color:rgba(255,255,255,.7);
+  background:rgba(0,0,0,.5);
+  padding:2px 8px;
+  border-radius:10px;
+  white-space:nowrap;
+}
+
+.wallpaper-upload{
+  border:2px dashed rgba(255,255,255,.1);
+  border-radius:12px;
+  padding:14px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .2s;
+  color:rgba(255,255,255,.3);
+  font-size:12px;
+}
+.wallpaper-upload:active{
+  background:var(--glass);
+}
+.wallpaper-upload i{
+  font-size:22px;
+  display:block;
+  margin-bottom:4px;
+}
+.wallpaper-upload input{
+  display:none;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:200;
+  border:1px solid var(--sep);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .settings-row .label{
+    font-size:13px;
+  }
+  .settings-row .label i{
+    font-size:16px;
+    width:24px;
+  }
+  .profile-name{
+    font-size:15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-gear-fill"></i> Cài đặt</div>
+    <button class="close-btn" onclick="closeSettings()"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+
+    <!-- Profile -->
+    <div class="profile-section" onclick="showToast('👤 Trang cá nhân')">
+      <div class="profile-avatar">N</div>
+      <div class="profile-info">
+        <div class="profile-name">Người dùng</div>
+        <div class="profile-email">user@example.com</div>
+      </div>
+      <div class="profile-arrow"><i class="bi bi-chevron-right"></i></div>
+    </div>
+
+    <!-- Kết nối -->
+    <div class="settings-group">
+      <div class="group-label">Kết nối</div>
+      <div class="settings-row" onclick="showToast('📶 Wi-Fi: Home_5G')">
+        <span class="label"><i class="bi bi-wifi"></i>Wi-Fi</span>
+        <span class="value">Home_5G <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+      <div class="settings-row" onclick="showToast('📡 Bluetooth: Đang bật')">
+        <span class="label"><i class="bi bi-bluetooth"></i>Bluetooth</span>
+        <span class="value">Đang bật <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+      <div class="settings-row">
+        <span class="label"><i class="bi bi-airplane"></i>Chế độ máy bay</span>
+        <div class="toggle-switch" onclick="toggleSwitch(this)"><span class="thumb"></span></div>
+      </div>
+      <div class="settings-row" onclick="showToast('📱 Dữ liệu di động: Đang bật')">
+        <span class="label"><i class="bi bi-signal"></i>Dữ liệu di động</span>
+        <span class="value">Đang bật <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+    </div>
+
+    <!-- Giao diện -->
+    <div class="settings-group">
+      <div class="group-label">Giao diện</div>
+      <div class="settings-row">
+        <span class="label"><i class="bi bi-moon"></i>Chế độ tối</span>
+        <div class="toggle-switch active" id="darkModeToggle" onclick="toggleDarkMode(this)"><span class="thumb"></span></div>
+      </div>
+      <div class="settings-row" onclick="showToast('🔆 Độ sáng: 70%')">
+        <span class="label"><i class="bi bi-brightness-high"></i>Độ sáng</span>
+        <span class="value">70% <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+      <div class="settings-row">
+        <span class="label"><i class="bi bi-palette"></i>Màu sắc</span>
+        <div class="color-options">
+          <div class="color-option active" style="background:#0A84FF" onclick="changeColor(this,'#0A84FF')"><span class="check"><i class="bi bi-check-lg"></i></span></div>
+          <div class="color-option" style="background:#30D158" onclick="changeColor(this,'#30D158')"><span class="check"><i class="bi bi-check-lg"></i></span></div>
+          <div class="color-option" style="background:#FF453A" onclick="changeColor(this,'#FF453A')"><span class="check"><i class="bi bi-check-lg"></i></span></div>
+          <div class="color-option" style="background:#FF9F0A" onclick="changeColor(this,'#FF9F0A')"><span class="check"><i class="bi bi-check-lg"></i></span></div>
+          <div class="color-option" style="background:#BF5AF2" onclick="changeColor(this,'#BF5AF2')"><span class="check"><i class="bi bi-check-lg"></i></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hình nền -->
+    <div class="settings-group">
+      <div class="group-label">Hình nền</div>
+      
+      <!-- Preview hiện tại -->
+      <div class="wallpaper-preview" id="wallpaperPreview">
+        <div class="preview-thumb" id="previewThumb" style="background:linear-gradient(135deg,#1a2a3a,#0a0a0a);"></div>
+        <div class="preview-info">
+          <div class="name" id="previewName">Mặc định</div>
+          <div class="status">✅ Đang sử dụng</div>
+        </div>
+      </div>
+
+      <div class="wallpaper-grid" id="wallpaperGrid"></div>
+      <div class="wallpaper-upload" onclick="document.getElementById('wallpaperInput').click()">
+        <i class="bi bi-cloud-upload"></i>
+        Tải ảnh lên làm hình nền
+        <input type="file" id="wallpaperInput" accept="image/*" onchange="handleWallpaperUpload(this)">
+      </div>
+    </div>
+
+    <!-- Âm thanh -->
+    <div class="settings-group">
+      <div class="group-label">Âm thanh</div>
+      <div class="settings-row" onclick="showToast('🔊 Âm lượng: 50%')">
+        <span class="label"><i class="bi bi-volume-up"></i>Âm lượng</span>
+        <span class="value">50% <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+      <div class="settings-row" onclick="showToast('🎵 Nhạc chuông: Mặc định')">
+        <span class="label"><i class="bi bi-music-note"></i>Nhạc chuông</span>
+        <span class="value">Mặc định <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+      <div class="settings-row">
+        <span class="label"><i class="bi bi-vibrate"></i>Rung</span>
+        <div class="toggle-switch active" onclick="toggleSwitch(this)"><span class="thumb"></span></div>
+      </div>
+    </div>
+
+    <!-- Hệ thống -->
+    <div class="settings-group">
+      <div class="group-label">Hệ thống</div>
+      <div class="settings-row" onclick="showToast('🔋 Pin: 82%')">
+        <span class="label"><i class="bi bi-battery-charging"></i>Pin</span>
+        <span class="value">82% <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+      <div class="settings-row" onclick="showToast('ℹ️ Phiên bản: iOS 17.4.1')">
+        <span class="label"><i class="bi bi-info-circle"></i>Phiên bản</span>
+        <span class="value">iOS 17.4.1 <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+      <div class="settings-row" onclick="showToast('💾 Dung lượng: 64/128 GB')">
+        <span class="label"><i class="bi bi-hdd"></i>Dung lượng</span>
+        <span class="value">64/128 GB <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+      <div class="settings-row" onclick="showToast('🔄 Đang kiểm tra cập nhật...')">
+        <span class="label"><i class="bi bi-arrow-repeat"></i>Cập nhật phần mềm</span>
+        <span class="value"><span class="badge">1</span> <i class="bi bi-chevron-right arrow"></i></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= STATE =================
+let currentWallpaper = 0;
+let accentColor = '#0A84FF';
+
+// Lưu wallpaper vào localStorage
+const STORAGE_KEY = 'selected_wallpaper';
+
+// ================= WALLPAPER =================
+const wallpapers = [
+  { name: 'Mặc định', url: '' },
+  { name: 'Núi', url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=800&fit=crop' },
+  { name: 'Rừng', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=800&fit=crop' },
+  { name: 'Biển', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=800&fit=crop' },
+  { name: 'Thành phố', url: 'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=400&h=800&fit=crop' },
+  { name: 'Mặt trời', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=800&fit=crop' }
+];
+
+function renderWallpaperGrid() {
+  const grid = document.getElementById('wallpaperGrid');
+  grid.innerHTML = wallpapers.map((wp, idx) => `
+    <div class="wallpaper-item ${currentWallpaper === idx ? 'active' : ''}" 
+         style="background-image: ${wp.url ? `url('${wp.url}')` : 'linear-gradient(135deg,#1a2a3a,#0a0a0a)'};"
+         onclick="setWallpaper(${idx})">
+      <div class="check"><i class="bi bi-check-lg"></i></div>
+      <div class="name-tag">${wp.name}</div>
+    </div>
+  `).join('');
+  
+  // Update preview
+  updatePreview();
+}
+
+function updatePreview() {
+  const wp = wallpapers[currentWallpaper];
+  const thumb = document.getElementById('previewThumb');
+  const name = document.getElementById('previewName');
+  
+  if (wp.url) {
+    thumb.style.backgroundImage = `url('${wp.url}')`;
+  } else {
+    thumb.style.backgroundImage = 'linear-gradient(135deg,#1a2a3a,#0a0a0a)';
+  }
+  name.textContent = wp.name;
+  
+  // Áp dụng wallpaper vào home screen (nếu có)
+  applyWallpaperToHome(wp.url);
+}
+
+function applyWallpaperToHome(url) {
+  // Tìm home screen và áp dụng wallpaper
+  const homeScreen = document.querySelector('.home-screen');
+  if (homeScreen) {
+    if (url) {
+      homeScreen.style.backgroundImage = `url('${url}')`;
+      homeScreen.style.backgroundSize = 'cover';
+      homeScreen.style.backgroundPosition = 'center';
+    } else {
+      homeScreen.style.backgroundImage = 'none';
+    }
+  }
+  
+  // Lưu vào localStorage
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ index: currentWallpaper, url: url }));
+  } catch(e) {}
+}
+
+function setWallpaper(index) {
+  currentWallpaper = index;
+  renderWallpaperGrid();
+  const name = wallpapers[index].name;
+  showToast(`🖼️ Hình nền: ${name}`);
+  
+  // Lưu vào localStorage
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ 
+      index: currentWallpaper, 
+      url: wallpapers[index].url 
+    }));
+  } catch(e) {}
+}
+
+function handleWallpaperUpload(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('⚠️ Vui lòng chọn ảnh');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    wallpapers.push({ name: file.name, url: e.target.result });
+    setWallpaper(wallpapers.length - 1);
+    showToast('✅ Đã tải ảnh lên');
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+// Khôi phục wallpaper đã lưu
+function restoreWallpaper() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (data && data.index !== undefined && data.index < wallpapers.length) {
+        currentWallpaper = data.index;
+        renderWallpaperGrid();
+        applyWallpaperToHome(wallpapers[currentWallpaper].url);
+      }
+    }
+  } catch(e) {}
+}
+
+// ================= TOGGLE =================
+function toggleSwitch(el) {
+  el.classList.toggle('active');
+  const isOn = el.classList.contains('active');
+  showToast(isOn ? '✅ Đã bật' : '❌ Đã tắt');
+}
+
+function toggleDarkMode(el) {
+  el.classList.toggle('active');
+  const isDark = el.classList.contains('active');
+  const app = document.querySelector('.app-shell');
+  const body = document.querySelector('.app-body');
+  app.style.background = isDark ? '#000' : '#f0f0f0';
+  body.style.background = isDark ? '#000' : '#f0f0f0';
+  document.body.style.background = isDark ? '#000' : '#f0f0f0';
+  showToast(isDark ? '🌙 Đã bật chế độ tối' : '☀️ Đã bật chế độ sáng');
+}
+
+// ================= COLOR =================
+function changeColor(el, color) {
+  document.querySelectorAll('.color-option').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  accentColor = color;
+  document.documentElement.style.setProperty('--blue', color);
+  showToast(`🎨 Đã đổi màu chủ đạo`);
+}
+
+// ================= CLOSE =================
+function closeSettings() {
+  // Chỉ đóng nếu đang trong iframe hoặc có thể quay lại
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage('closeSettings', '*');
+  } else {
+    showToast('👆 Vuốt lên để quay lại');
+    // Tự động đóng sau 1s nếu là popup
+    setTimeout(() => {
+      if (window.opener) window.close();
+    }, 1500);
+  }
+}
+
+// ================= TOAST =================
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ================= INIT =================
+renderWallpaperGrid();
+
+// Lắng nghe sự kiện từ parent (nếu có)
+window.addEventListener('message', function(e) {
+  if (e.data === 'getWallpaper') {
+    const wp = wallpapers[currentWallpaper];
+    e.source.postMessage({ 
+      type: 'wallpaper', 
+      url: wp.url,
+      name: wp.name 
+    }, '*');
+  }
+});
+
+// Khôi phục wallpaper đã lưu
+restoreWallpaper();
+function setWallpaper(index) {
+  currentWallpaper = index;
+  renderWallpaperGrid();
+  const wp = wallpapers[index];
+  
+  // Gửi sự kiện về parent (index.html)
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type: 'changeWallpaper',
+      url: wp.url || '',
+      name: wp.name
+    }, '*');
+  }
+  
+  showToast(`🖼️ Hình nền: ${wp.name}`);
+}
+</script>
+</body>
+</html>

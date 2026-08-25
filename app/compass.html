@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>La bàn</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Inter',sans-serif;color:#fff;}
+.compass-app{height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,#1c1c2e,#0a0a12);align-items:center;justify-content:space-between;padding:16px 0 20px;}
+
+/* Header */
+.compass-header{text-align:center;flex-shrink:0;padding-top:4px;}
+.compass-header h1{font-size:20px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.compass-header .sub{font-size:13px;color:rgba(255,255,255,0.3);font-weight:400;}
+
+/* Compass */
+.compass-container{position:relative;width:280px;height:280px;flex-shrink:0;}
+.compass-circle{width:100%;height:100%;border-radius:50%;position:relative;background:radial-gradient(circle at center,#1a1a2e,#0a0a12);}
+
+/* Compass markings - exact like iPhone */
+.compass-mark{position:absolute;width:2px;background:rgba(255,255,255,0.2);left:50%;transform:translateX(-50%);}
+.compass-mark.major{height:22px;top:4px;background:rgba(255,255,255,0.4);}
+.compass-mark.minor{height:12px;top:4px;background:rgba(255,255,255,0.15);}
+
+/* Degree numbers */
+.compass-degree{position:absolute;font-size:10px;font-weight:600;color:rgba(255,255,255,0.25);transform:translate(-50%,-50%);}
+.compass-degree.d0{top:24px;left:50%;color:rgba(255,255,255,0.6);}
+.compass-degree.d30{top:40px;right:40px;}
+.compass-degree.d60{top:70px;right:18px;}
+.compass-degree.d90{top:50%;right:12px;color:rgba(255,255,255,0.4);}
+.compass-degree.d120{bottom:70px;right:18px;}
+.compass-degree.d150{bottom:40px;right:40px;}
+.compass-degree.d180{bottom:24px;left:50%;color:rgba(255,255,255,0.4);}
+.compass-degree.d210{bottom:40px;left:40px;}
+.compass-degree.d240{bottom:70px;left:18px;}
+.compass-degree.d270{top:50%;left:12px;color:rgba(255,255,255,0.4);}
+.compass-degree.d300{top:70px;left:18px;}
+.compass-degree.d330{top:40px;left:40px;}
+
+/* Labels N/S/E/W */
+.compass-label{position:absolute;font-size:14px;font-weight:700;transform:translate(-50%,-50%);}
+.compass-label.n{top:22px;left:50%;color:#FF453A;font-size:18px;}
+.compass-label.s{top:calc(100% - 22px);left:50%;color:rgba(255,255,255,0.3);}
+.compass-label.e{top:50%;left:calc(100% - 22px);color:rgba(255,255,255,0.3);}
+.compass-label.w{top:50%;left:22px;color:rgba(255,255,255,0.3);}
+
+/* Needle */
+.compass-needle{position:absolute;top:50%;left:50%;width:3px;height:120px;transform-origin:center bottom;transform:translate(-50%,-100%) rotate(0deg);transition:transform 0.05s ease-out;z-index:2;}
+.needle-half{position:absolute;width:3px;left:50%;transform:translateX(-50%);}
+.needle-half.north{height:80px;background:linear-gradient(180deg,#FF453A,#ff6b6b);top:0;border-radius:2px 2px 0 0;box-shadow:0 0 30px rgba(255,69,58,0.2);}
+.needle-half.south{height:80px;background:linear-gradient(0deg,rgba(255,255,255,0.15),rgba(255,255,255,0.05));bottom:0;border-radius:0 0 2px 2px;}
+
+.needle-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#3a3a5a,#14142a);border:2px solid rgba(255,255,255,0.1);z-index:3;}
+.needle-center-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#fff;}
+
+/* Level */
+.level-indicator{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.5);padding:2px 12px;border-radius:10px;backdrop-filter:blur(4px);}
+.level-indicator .level-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.1);}
+.level-indicator .level-dot.active{background:#30D158;}
+
+/* Info panel - exactly like iPhone */
+.compass-info{width:100%;padding:0 20px;flex-shrink:0;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.info-row:last-child{border-bottom:none;}
+.info-row .label{font-size:12px;color:rgba(255,255,255,0.3);font-weight:500;}
+.info-row .value{font-size:14px;font-weight:500;color:#fff;}
+
+/* Bottom status */
+.compass-bottom{text-align:center;flex-shrink:0;padding-top:8px;}
+.compass-bottom .status{font-size:11px;color:rgba(255,255,255,0.15);}
+.compass-bottom .status .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#30D158;margin-right:6px;}
+
+/* Responsive */
+@media(max-width:420px){
+  .compass-container{width:220px;height:220px;}
+  .compass-needle{height:95px;}
+  .needle-half.north{height:63px;}
+  .needle-half.south{height:63px;}
+  .compass-label.n{font-size:15px;top:18px;}
+  .compass-label.s{bottom:18px;}
+  .compass-label.e{right:18px;}
+  .compass-label.w{left:18px;}
+  .compass-degree{font-size:8px;}
+  .compass-degree.d0{top:20px;}
+  .compass-degree.d90{right:8px;}
+  .compass-degree.d180{bottom:20px;}
+  .compass-degree.d270{left:8px;}
+  .compass-degree.d30{top:34px;right:34px;}
+  .compass-degree.d60{top:56px;right:14px;}
+  .compass-degree.d120{bottom:56px;right:14px;}
+  .compass-degree.d150{bottom:34px;right:34px;}
+  .compass-degree.d210{bottom:34px;left:34px;}
+  .compass-degree.d240{bottom:56px;left:14px;}
+  .compass-degree.d300{top:56px;left:14px;}
+  .compass-degree.d330{top:34px;left:34px;}
+  .compass-header h1{font-size:17px;}
+  .info-row .value{font-size:12px;}
+  .compass-info{padding:0 16px;}
+}
+</style>
+</head>
+<body>
+<div class="compass-app">
+  <!-- Header -->
+  <div class="compass-header">
+    <h1>La bàn</h1>
+    <div class="sub">Vị trí hiện tại</div>
+  </div>
+
+  <!-- Compass -->
+  <div class="compass-container">
+    <div class="compass-circle" id="compassCircle">
+      <!-- Degree numbers -->
+      <div class="compass-degree d0" id="deg0">N</div>
+      <div class="compass-degree d30">30°</div>
+      <div class="compass-degree d60">60°</div>
+      <div class="compass-degree d90">90°</div>
+      <div class="compass-degree d120">120°</div>
+      <div class="compass-degree d150">150°</div>
+      <div class="compass-degree d180">180°</div>
+      <div class="compass-degree d210">210°</div>
+      <div class="compass-degree d240">240°</div>
+      <div class="compass-degree d270">270°</div>
+      <div class="compass-degree d300">300°</div>
+      <div class="compass-degree d330">330°</div>
+      
+      <!-- N/S/E/W labels -->
+      <div class="compass-label n">N</div>
+      <div class="compass-label s">S</div>
+      <div class="compass-label e">E</div>
+      <div class="compass-label w">W</div>
+      
+      <!-- Needle -->
+      <div class="compass-needle" id="compassNeedle">
+        <div class="needle-half north"></div>
+        <div class="needle-half south"></div>
+      </div>
+      <div class="needle-center"><div class="needle-center-dot"></div></div>
+      
+      <!-- Level -->
+      <div class="level-indicator">
+        <span class="level-dot active"></span>
+        <span class="level-dot active"></span>
+        <span class="level-dot"></span>
+        <span class="level-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="compass-info">
+    <div class="info-row">
+      <span class="label">Hướng</span>
+      <span class="value" id="directionDisplay">Bắc</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Góc</span>
+      <span class="value" id="degreeDisplay">0°</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Vĩ độ</span>
+      <span class="value" id="latDisplay">--°--'--"</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Kinh độ</span>
+      <span class="value" id="lngDisplay">--°--'--"</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Độ cao</span>
+      <span class="value" id="altDisplay">-- m</span>
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="compass-bottom">
+    <div class="status">
+      <span class="dot"></span>
+      <span id="statusText">Đang khởi tạo...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CREATE COMPASS TICKS =====
+const circle = document.getElementById('compassCircle');
+
+// Major ticks (every 30°)
+for (let i = 0; i < 12; i++) {
+  const angle = i * 30;
+  const mark = document.createElement('div');
+  mark.className = 'compass-mark major';
+  const rad = (angle - 90) * Math.PI / 180;
+  const radius = 120;
+  const cx = 140, cy = 140;
+  mark.style.top = (cy - radius * Math.cos(rad) - 11) + 'px';
+  mark.style.left = (cx + radius * Math.sin(rad) - 1) + 'px';
+  mark.style.transform = 'rotate(' + angle + 'deg)';
+  circle.appendChild(mark);
+}
+
+// Minor ticks (every 10°)
+for (let i = 0; i < 36; i++) {
+  const angle = i * 10;
+  if (angle % 30 === 0) continue;
+  const mark = document.createElement('div');
+  mark.className = 'compass-mark minor';
+  const rad = (angle - 90) * Math.PI / 180;
+  const radius = 120;
+  const cx = 140, cy = 140;
+  mark.style.top = (cy - radius * Math.cos(rad) - 6) + 'px';
+  mark.style.left = (cx + radius * Math.sin(rad) - 1) + 'px';
+  mark.style.transform = 'rotate(' + angle + 'deg)';
+  circle.appendChild(mark);
+}
+
+// ===== COMPASS LOGIC =====
+let currentHeading = 0;
+let hasSensor = false;
+let lat = '--';
+let lng = '--';
+let alt = '--';
+
+const needle = document.getElementById('compassNeedle');
+const degreeDisplay = document.getElementById('degreeDisplay');
+const directionDisplay = document.getElementById('directionDisplay');
+const statusText = document.getElementById('statusText');
+const latDisplay = document.getElementById('latDisplay');
+const lngDisplay = document.getElementById('lngDisplay');
+const altDisplay = document.getElementById('altDisplay');
+
+function getDirection(deg) {
+  const dirs = ['Bắc', 'Đông Bắc', 'Đông', 'Đông Nam', 'Nam', 'Tây Nam', 'Tây', 'Tây Bắc'];
+  const idx = Math.round(((deg % 360) / 45)) % 8;
+  return dirs[idx];
+}
+
+function toDMS(coord, isLat) {
+  if (coord === '--' || isNaN(coord)) return '--°--\'--"';
+  const abs = Math.abs(coord);
+  const deg = Math.floor(abs);
+  const min = Math.floor((abs - deg) * 60);
+  const sec = Math.round(((abs - deg) * 60 - min) * 60);
+  const dir = isLat ? (coord >= 0 ? 'B' : 'N') : (coord >= 0 ? 'Đ' : 'T');
+  return deg + '°' + min + "'" + sec + '" ' + dir;
+}
+
+function updateCompass(heading) {
+  if (heading === null || heading === undefined || isNaN(heading)) return;
+  
+  currentHeading = heading;
+  needle.style.transform = 'translate(-50%,-100%) rotate(' + heading + 'deg)';
+  
+  const displayDeg = Math.round(heading);
+  degreeDisplay.textContent = displayDeg + '°';
+  directionDisplay.textContent = getDirection(heading);
+}
+
+// ===== SENSOR =====
+function handleOrientation(event) {
+  let heading = null;
+  
+  if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
+    heading = event.webkitCompassHeading;
+    hasSensor = true;
+    statusText.textContent = 'Đã kết nối';
+  } else if (event.alpha !== undefined && event.alpha !== null) {
+    heading = 360 - event.alpha;
+    if (heading >= 360) heading -= 360;
+    hasSensor = true;
+    statusText.textContent = 'Đã kết nối';
+  }
+  
+  if (heading !== null) {
+    updateCompass(heading);
+  }
+}
+
+// ===== REQUEST PERMISSION =====
+if (typeof DeviceOrientationEvent !== 'undefined' && 
+    typeof DeviceOrientationEvent.requestPermission === 'function') {
+  DeviceOrientationEvent.requestPermission()
+    .then(response => {
+      if (response === 'granted') {
+        window.addEventListener('deviceorientation', handleOrientation, true);
+        statusText.textContent = 'Đã kết nối';
+      } else {
+        statusText.textContent = '⚠️ Cần cấp quyền';
+        startFallback();
+      }
+    })
+    .catch(() => {
+      statusText.textContent = '⚠️ Lỗi';
+      startFallback();
+    });
+} else if (typeof DeviceOrientationEvent !== 'undefined') {
+  window.addEventListener('deviceorientation', handleOrientation, true);
+  statusText.textContent = 'Đang kết nối...';
+  setTimeout(() => {
+    if (!hasSensor) {
+      statusText.textContent = '⚠️ Không có cảm biến';
+      startFallback();
+    }
+  }, 2000);
+} else {
+  statusText.textContent = '⚠️ Không hỗ trợ';
+  startFallback();
+}
+
+// ===== FALLBACK =====
+let fallbackInterval = null;
+
+function startFallback() {
+  if (fallbackInterval) return;
+  statusText.textContent = '📱 Mô phỏng';
+  let angle = 0;
+  fallbackInterval = setInterval(() => {
+    angle = (angle + 0.5) % 360;
+    updateCompass(angle);
+  }, 50);
+}
+
+// ===== LOCATION =====
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      lat = pos.coords.latitude;
+      lng = pos.coords.longitude;
+      alt = pos.coords.altitude || 0;
+      latDisplay.textContent = toDMS(lat, true);
+      lngDisplay.textContent = toDMS(lng, false);
+      altDisplay.textContent = Math.round(alt) + ' m';
+    },
+    () => {
+      latDisplay.textContent = '--°--\'--"';
+      lngDisplay.textContent = '--°--\'--"';
+      altDisplay.textContent = '-- m';
+    },
+    { enableHighAccuracy: true }
+  );
+}
+
+// ===== STOP FALLBACK =====
+const origHandle = handleOrientation;
+handleOrientation = function(event) {
+  if (fallbackInterval && 
+      (event.webkitCompassHeading !== undefined || event.alpha !== undefined)) {
+    clearInterval(fallbackInterval);
+    fallbackInterval = null;
+    statusText.textContent = 'Đã kết nối';
+  }
+  origHandle(event);
+};
+
+// ===== SUBTLE ROTATION =====
+setInterval(() => {
+  const ring = document.querySelector('.compass-circle');
+  if (ring) {
+    const angle = parseFloat(ring.dataset.rot || 0) + 0.01;
+    ring.dataset.rot = angle;
+  }
+}, 50);
+
+console.log('🧭 La bàn đã sẵn sàng!');
+</script>
+</body>
+</html>

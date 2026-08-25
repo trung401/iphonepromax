@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ghi âm</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Inter',sans-serif;color:#fff;}
+.voice-app{height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,#1a1a2e,#0a0a12);}
+.voice-header{padding:14px 20px;background:rgba(0,0,0,0.5);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;display:flex;align-items:center;gap:12px;}
+.voice-header h2{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px;flex:1;}
+.voice-header h2 i{color:var(--red,#FF453A);}
+.voice-header .record-btn{width:40px;height:40px;border-radius:50%;border:none;background:var(--red,#FF453A);color:#fff;font-size:18px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;}
+.voice-header .record-btn.recording{background:#ff6b6b;animation:pulse 1s infinite;}
+
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);box-shadow:0 0 20px rgba(255,69,58,0.3);}}
+
+.voice-list{flex:1;overflow:hidden;overflow-y:auto;padding:8px 16px;}
+.voice-list::-webkit-scrollbar{width:2px;}
+.voice-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+
+.voice-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;margin-bottom:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03);transition:background 0.2s;}
+.voice-item:hover{background:rgba(255,255,255,0.06);}
+.voice-item .icon{width:36px;height:36px;border-radius:50%;background:var(--red,#FF453A);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;}
+.voice-item .info{flex:1;min-width:0;}
+.voice-item .info .name{font-size:14px;font-weight:500;}
+.voice-item .info .duration{font-size:11px;color:rgba(255,255,255,0.4);}
+.voice-item .actions{display:flex;gap:6px;flex-shrink:0;}
+.voice-item .actions button{background:none;border:none;color:rgba(255,255,255,0.3);font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:all 0.2s;}
+.voice-item .actions button:hover{color:#fff;background:rgba(255,255,255,0.05);}
+.voice-item .actions button.play{color:var(--blue,#0A84FF);}
+.voice-item .actions button.play:hover{color:#fff;background:rgba(10,132,255,0.15);}
+.voice-item .actions button.delete:hover{color:var(--red,#FF453A);}
+
+.voice-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.2);gap:12px;}
+.voice-empty i{font-size:48px;}
+.voice-empty p{font-size:14px;}
+
+.recording-bar{position:fixed;bottom:0;left:0;right:0;padding:16px 20px;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);display:none;align-items:center;gap:16px;}
+.recording-bar.active{display:flex;}
+.recording-bar .wave{flex:1;display:flex;align-items:center;gap:2px;height:40px;}
+.recording-bar .wave span{display:block;width:3px;background:var(--red,#FF453A);border-radius:2px;animation:waveAnim 0.5s infinite alternate;}
+.recording-bar .wave span:nth-child(1){height:15px;animation-delay:0s;}
+.recording-bar .wave span:nth-child(2){height:25px;animation-delay:0.1s;}
+.recording-bar .wave span:nth-child(3){height:35px;animation-delay:0.2s;}
+.recording-bar .wave span:nth-child(4){height:20px;animation-delay:0.3s;}
+.recording-bar .wave span:nth-child(5){height:30px;animation-delay:0.15s;}
+.recording-bar .wave span:nth-child(6){height:18px;animation-delay:0.25s;}
+.recording-bar .wave span:nth-child(7){height:28px;animation-delay:0.05s;}
+.recording-bar .wave span:nth-child(8){height:12px;animation-delay:0.35s;}
+@keyframes waveAnim{0%{transform:scaleY(0.5);}100%{transform:scaleY(1);}}
+.recording-bar .time{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;min-width:50px;text-align:center;}
+.recording-bar .stop-btn{width:44px;height:44px;border-radius:50%;border:none;background:var(--red,#FF453A);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.15s;}
+.recording-bar .stop-btn:active{transform:scale(0.9);}
+</style>
+</head>
+<body>
+<div class="voice-app">
+  <div class="voice-header">
+    <h2><i class="bi bi-mic-fill"></i> Ghi âm</h2>
+    <button class="record-btn" id="recordBtn" onclick="toggleRecording()"><i class="bi bi-mic-fill"></i></button>
+  </div>
+  <div class="voice-list" id="voiceList">
+    <div class="voice-empty">
+      <i class="bi bi-mic-mute"></i>
+      <p>Chưa có bản ghi âm nào</p>
+      <p style="font-size:12px;">Nhấn nút 🔴 để bắt đầu ghi</p>
+    </div>
+  </div>
+</div>
+
+<!-- Recording Bar -->
+<div class="recording-bar" id="recordingBar">
+  <div class="wave">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+  <div class="time" id="recordTime">00:00</div>
+  <button class="stop-btn" onclick="stopRecording()"><i class="bi bi-stop-fill"></i></button>
+</div>
+
+<script>
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+let recordTimer = null;
+let seconds = 0;
+let recordings = [];
+let audioContext = null;
+
+// Load saved recordings
+function loadRecordings() {
+  const saved = localStorage.getItem('voiceMemos');
+  if (saved) {
+    try {
+      recordings = JSON.parse(saved);
+      renderRecordings();
+    } catch(e) {}
+  }
+}
+
+function saveRecordings() {
+  localStorage.setItem('voiceMemos', JSON.stringify(recordings));
+}
+
+function formatTime(s) {
+  const m = String(Math.floor(s / 60)).padStart(2, '0');
+  const sec = String(s % 60).padStart(2, '0');
+  return m + ':' + sec;
+}
+
+function renderRecordings() {
+  const list = document.getElementById('voiceList');
+  if (recordings.length === 0) {
+    list.innerHTML = `
+      <div class="voice-empty">
+        <i class="bi bi-mic-mute"></i>
+        <p>Chưa có bản ghi âm nào</p>
+        <p style="font-size:12px;">Nhấn nút 🔴 để bắt đầu ghi</p>
+      </div>
+    `;
+    return;
+  }
+  let html = '';
+  recordings.forEach((rec, index) => {
+    html += `
+      <div class="voice-item">
+        <div class="icon"><i class="bi bi-mic-fill"></i></div>
+        <div class="info">
+          <div class="name">${rec.name || 'Ghi âm ' + (index + 1)}</div>
+          <div class="duration">${formatTime(rec.duration)}</div>
+        </div>
+        <div class="actions">
+          <button class="play" onclick="playRecording(${index})"><i class="bi bi-play-fill"></i></button>
+          <button class="delete" onclick="deleteRecording(${index})"><i class="bi bi-trash3-fill"></i></button>
+        </div>
+      </div>
+    `;
+  });
+  list.innerHTML = html;
+}
+
+function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+    return;
+  }
+  startRecording();
+}
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    
+    mediaRecorder.ondataavailable = (event) => {
+      audioChunks.push(event.data);
+    };
+    
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      reader.onloadend = () => {
+        const base64Audio = reader.result;
+        const name = prompt('Nhập tên cho bản ghi âm:', 'Ghi âm ' + (recordings.length + 1));
+        recordings.push({
+          name: name || 'Ghi âm ' + (recordings.length + 1),
+          duration: seconds,
+          audio: base64Audio
+        });
+        saveRecordings();
+        renderRecordings();
+        seconds = 0;
+        document.getElementById('recordTime').textContent = '00:00';
+        document.getElementById('recordingBar').classList.remove('active');
+        document.getElementById('recordBtn').classList.remove('recording');
+        document.getElementById('recordBtn').innerHTML = '<i class="bi bi-mic-fill"></i>';
+        isRecording = false;
+      };
+    };
+    
+    mediaRecorder.start();
+    isRecording = true;
+    seconds = 0;
+    document.getElementById('recordingBar').classList.add('active');
+    document.getElementById('recordBtn').classList.add('recording');
+    document.getElementById('recordBtn').innerHTML = '<i class="bi bi-stop-fill"></i>';
+    
+    recordTimer = setInterval(() => {
+      seconds++;
+      document.getElementById('recordTime').textContent = formatTime(seconds);
+    }, 1000);
+    
+  } catch(err) {
+    alert('Không thể truy cập microphone. Vui lòng cho phép quyền truy cập.');
+    console.error(err);
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && isRecording) {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    clearInterval(recordTimer);
+  }
+}
+
+function playRecording(index) {
+  const rec = recordings[index];
+  if (!rec || !rec.audio) return;
+  
+  const audio = new Audio(rec.audio);
+  audio.play();
+  
+  // Đổi icon sang pause
+  const items = document.querySelectorAll('.voice-item');
+  if (items[index]) {
+    const playBtn = items[index].querySelector('.play');
+    if (playBtn) {
+      playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+      audio.onended = () => {
+        playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+      };
+    }
+  }
+}
+
+function deleteRecording(index) {
+  if (confirm('Xóa bản ghi âm này?')) {
+    recordings.splice(index, 1);
+    saveRecordings();
+    renderRecordings();
+  }
+}
+
+// Init
+loadRecordings();
+</script>
+</body>
+</html>

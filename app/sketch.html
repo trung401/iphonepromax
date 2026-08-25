@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Vẽ - Sketch Pad Pro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:#1a1a1e;font-family:'Inter',sans-serif;overflow:hidden;}
+
+.app-container{
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  max-width:500px;
+  margin:0 auto;
+  padding:12px;
+  background:#1a1a1e;
+}
+
+/* Header */
+.app-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:4px 4px 12px;
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:20px;
+  font-weight:800;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:#BF5AF2;
+}
+.app-header .actions{
+  display:flex;
+  gap:6px;
+}
+.app-header .actions button{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.6);
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  font-size:15px;
+  cursor:pointer;
+  transition:all .2s;
+}
+.app-header .actions button:active{
+  transform:scale(.85);
+  background:rgba(255,255,255,.12);
+}
+.app-header .actions button.active{
+  background:rgba(191,90,242,.2);
+  color:#BF5AF2;
+}
+
+/* Canvas */
+.canvas-wrapper{
+  flex:1;
+  background:#fff;
+  border-radius:16px;
+  overflow:hidden;
+  position:relative;
+  touch-action:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.canvas-wrapper canvas{
+  width:100%;
+  height:100%;
+  display:block;
+  cursor:crosshair;
+}
+.canvas-wrapper .grid-overlay{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  display:none;
+  background-image:
+    linear-gradient(rgba(0,0,0,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,.08) 1px, transparent 1px);
+  background-size:30px 30px;
+}
+.canvas-wrapper .grid-overlay.show{
+  display:block;
+}
+
+/* Toolbar */
+.toolbar{
+  display:flex;
+  gap:6px;
+  padding:10px 4px 4px;
+  flex-wrap:wrap;
+  justify-content:center;
+  flex-shrink:0;
+}
+.toolbar .color-btn{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  border:2.5px solid transparent;
+  cursor:pointer;
+  transition:all .2s;
+  flex-shrink:0;
+}
+.toolbar .color-btn:hover{
+  transform:scale(1.12);
+}
+.toolbar .color-btn:active{
+  transform:scale(.85);
+}
+.toolbar .color-btn.active{
+  border-color:#fff;
+  transform:scale(1.18);
+  box-shadow:0 0 20px rgba(255,255,255,0.2);
+}
+.toolbar .color-btn[data-color="#ffffff"]:active,
+.toolbar .color-btn[data-color="#ffffff"].active{
+  border-color:#888;
+}
+.toolbar .separator{
+  width:1px;
+  background:rgba(255,255,255,.08);
+  margin:0 2px;
+}
+.toolbar .tool-btn{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.toolbar .tool-btn:active{
+  transform:scale(.85);
+  background:rgba(255,255,255,.12);
+}
+.toolbar .tool-btn.active{
+  background:rgba(191,90,242,.2);
+  color:#BF5AF2;
+}
+.toolbar .size-slider{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0 10px;
+  background:rgba(255,255,255,.06);
+  border-radius:20px;
+}
+.toolbar .size-slider input{
+  width:50px;
+  accent-color:#BF5AF2;
+  cursor:pointer;
+}
+.toolbar .size-slider span{
+  font-size:11px;
+  color:rgba(255,255,255,.4);
+  min-width:18px;
+  text-align:center;
+  font-weight:600;
+}
+
+/* Footer */
+.app-footer{
+  text-align:center;
+  font-size:10px;
+  color:rgba(255,255,255,.12);
+  padding:6px 0 2px;
+  flex-shrink:0;
+}
+
+/* Toast notification */
+.toast{
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:8px 18px;
+  border-radius:12px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:100;
+  border:1px solid rgba(255,255,255,.06);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media(max-width:480px){
+  .app-container{padding:8px;}
+  .toolbar .color-btn{width:26px;height:26px;}
+  .toolbar .tool-btn{width:30px;height:30px;font-size:13px;}
+  .toolbar .size-slider input{width:40px;}
+  .app-header .title{font-size:17px;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-brush-fill"></i> Vẽ</div>
+    <div class="actions">
+      <button onclick="toggleGrid()" title="Lưới"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+      <button onclick="exportImage()" title="Xuất ảnh"><i class="bi bi-download"></i></button>
+      <button onclick="clearCanvas()" title="Xóa tất cả"><i class="bi bi-trash3"></i></button>
+      <button onclick="undoCanvas()" title="Hoàn tác (Ctrl+Z)"><i class="bi bi-arrow-counterclockwise"></i></button>
+      <button onclick="redoCanvas()" title="Làm lại (Ctrl+Y)"><i class="bi bi-arrow-clockwise"></i></button>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div class="canvas-wrapper">
+    <canvas id="sketchCanvas"></canvas>
+    <div class="grid-overlay" id="gridOverlay"></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <!-- Màu sắc -->
+    <div class="color-btn active" data-color="#000000" style="background:#000000;" onclick="setColor('#000000',this)"></div>
+    <div class="color-btn" data-color="#FF453A" style="background:#FF453A;" onclick="setColor('#FF453A',this)"></div>
+    <div class="color-btn" data-color="#FF9F0A" style="background:#FF9F0A;" onclick="setColor('#FF9F0A',this)"></div>
+    <div class="color-btn" data-color="#FFD60A" style="background:#FFD60A;" onclick="setColor('#FFD60A',this)"></div>
+    <div class="color-btn" data-color="#30D158" style="background:#30D158;" onclick="setColor('#30D158',this)"></div>
+    <div class="color-btn" data-color="#0A84FF" style="background:#0A84FF;" onclick="setColor('#0A84FF',this)"></div>
+    <div class="color-btn" data-color="#BF5AF2" style="background:#BF5AF2;" onclick="setColor('#BF5AF2',this)"></div>
+    <div class="color-btn" data-color="#ffffff" style="background:#ffffff;border-color:rgba(255,255,255,.2);" onclick="setColor('#ffffff',this)"></div>
+
+    <div class="separator"></div>
+
+    <!-- Kích thước -->
+    <div class="size-slider">
+      <input type="range" min="1" max="30" value="4" id="sizeSlider" oninput="updateSize()">
+      <span id="sizeLabel">4</span>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- Công cụ -->
+    <button class="tool-btn active" onclick="setTool('pen',this)" title="Bút"><i class="bi bi-pencil-fill"></i></button>
+    <button class="tool-btn" onclick="setTool('eraser',this)" title="Tẩy"><i class="bi bi-eraser-fill"></i></button>
+    <button class="tool-btn" onclick="setTool('highlighter',this)" title="Bút highlight"><i class="bi bi-highlighter"></i></button>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="app-footer">✏️ Vẽ tự do — Chạm và kéo để vẽ | Ctrl+Z: Hoàn tác</div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ================= SKETCH ENGINE =================
+const canvas = document.getElementById('sketchCanvas');
+const ctx = canvas.getContext('2d');
+const gridOverlay = document.getElementById('gridOverlay');
+
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+let currentColor = '#000000';
+let currentSize = 4;
+let currentTool = 'pen'; // pen, eraser, highlighter
+let history = [];
+let historyIndex = -1;
+let redoStack = [];
+const MAX_HISTORY = 50;
+
+// ================= CANVAS SETUP =================
+function initCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  saveState();
+}
+
+// ================= HISTORY =================
+function saveState() {
+  const data = canvas.toDataURL();
+  // Clear redo stack when new action
+  redoStack = [];
+  history = history.slice(0, historyIndex + 1);
+  history.push(data);
+  if (history.length > MAX_HISTORY) history.shift();
+  historyIndex = history.length - 1;
+}
+
+function restoreHistory(index) {
+  if (index >= 0 && index < history.length && history[index]) {
+    const img = new Image();
+    img.onload = function() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = history[index];
+    historyIndex = index;
+  }
+}
+
+function undoCanvas() {
+  if (historyIndex > 0) {
+    // Push current state to redo
+    redoStack.push(history[historyIndex]);
+    restoreHistory(historyIndex - 1);
+    showToast('↩️ Hoàn tác');
+  } else {
+    showToast('⚠️ Không thể hoàn tác thêm');
+  }
+}
+
+function redoCanvas() {
+  if (redoStack.length > 0) {
+    const state = redoStack.pop();
+    history.push(state);
+    historyIndex = history.length - 1;
+    restoreHistory(historyIndex);
+    showToast('↪️ Làm lại');
+  } else {
+    showToast('⚠️ Không thể làm lại');
+  }
+}
+
+// ================= DRAWING =================
+function getCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * (canvas.width / rect.width),
+    y: (clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function startDrawing(e) {
+  e.preventDefault();
+  isDrawing = true;
+  const pos = getCoords(e);
+  lastX = pos.x;
+  lastY = pos.y;
+  
+  // For dot drawing
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, currentSize/2, 0, Math.PI * 2);
+  ctx.fillStyle = currentTool === 'eraser' ? '#ffffff' : currentColor;
+  ctx.fill();
+}
+
+function draw(e) {
+  if (!isDrawing) return;
+  e.preventDefault();
+  const pos = getCoords(e);
+  
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(pos.x, pos.y);
+  
+  if (currentTool === 'eraser') {
+    ctx.strokeStyle = '#ffffff';
+  } else if (currentTool === 'highlighter') {
+    ctx.strokeStyle = currentColor;
+    ctx.globalAlpha = 0.3;
+  } else {
+    ctx.strokeStyle = currentColor;
+    ctx.globalAlpha = 1;
+  }
+  
+  ctx.lineWidth = currentSize;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  
+  lastX = pos.x;
+  lastY = pos.y;
+}
+
+function stopDrawing(e) {
+  if (isDrawing) {
+    isDrawing = false;
+    saveState();
+  }
+}
+
+// ================= EVENTS =================
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('mouseleave', stopDrawing);
+
+canvas.addEventListener('touchstart', startDrawing, {passive: false});
+canvas.addEventListener('touchmove', draw, {passive: false});
+canvas.addEventListener('touchend', stopDrawing, {passive: false});
+
+// ================= CONTROLS =================
+function setColor(color, btn) {
+  currentColor = color;
+  document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (currentTool === 'eraser') {
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('[onclick="setTool(\'pen\',this)"]').classList.add('active');
+    currentTool = 'pen';
+  }
+}
+
+function updateSize() {
+  currentSize = parseInt(document.getElementById('sizeSlider').value);
+  document.getElementById('sizeLabel').textContent = currentSize;
+}
+
+function setTool(tool, btn) {
+  currentTool = tool;
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  if (tool === 'eraser') {
+    showToast('🧹 Dùng tẩy');
+  } else if (tool === 'highlighter') {
+    showToast('🟡 Bút highlight');
+  } else {
+    showToast('✏️ Bút vẽ');
+  }
+}
+
+function toggleGrid() {
+  gridOverlay.classList.toggle('show');
+  const btn = document.querySelector('[onclick="toggleGrid()"]');
+  btn.classList.toggle('active');
+  showToast(gridOverlay.classList.contains('show') ? '📐 Bật lưới' : '📐 Tắt lưới');
+}
+
+function clearCanvas() {
+  if (history.length === 0) return;
+  if (confirm('Xóa tất cả nét vẽ?')) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveState();
+    showToast('🗑️ Đã xóa tất cả');
+  }
+}
+
+function exportImage() {
+  if (history.length === 0) {
+    showToast('⚠️ Không có gì để xuất');
+    return;
+  }
+  const link = document.createElement('a');
+  link.download = `sketch_${Date.now()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('✅ Đã xuất ảnh');
+}
+
+// ================= TOAST =================
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key === 'z') {
+    e.preventDefault();
+    undoCanvas();
+  }
+  if (e.ctrlKey && e.key === 'y') {
+    e.preventDefault();
+    redoCanvas();
+  }
+  if (e.ctrlKey && e.key === 's') {
+    e.preventDefault();
+    exportImage();
+  }
+  if (e.key === 'Escape') {
+    clearCanvas();
+  }
+  if (e.key === 'g' || e.key === 'G') {
+    toggleGrid();
+  }
+});
+
+// ================= INIT =================
+setTimeout(initCanvas, 50);
+
+// Resize handler
+let resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(initCanvas, 200);
+});
+
+// Prevent scroll on touch
+document.addEventListener('touchmove', function(e) {
+  if (e.target === canvas) e.preventDefault();
+}, {passive: false});
+
+// ================= SAVE SHORTCUT HINT =================
+console.log('🎨 Sketch Pad Pro - Phím tắt:');
+console.log('  Ctrl+Z: Hoàn tác');
+console.log('  Ctrl+Y: Làm lại');
+console.log('  Ctrl+S: Xuất ảnh');
+console.log('  G: Bật/tắt lưới');
+console.log('  Esc: Xóa tất cả');
+</script>
+</body>
+</html>

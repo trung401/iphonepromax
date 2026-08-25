@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ghi chú</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#1c1c1e;
+  font-family:'Inter',-apple-system,sans-serif;
+  color:#fff;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Header */
+.app-header{
+  padding:12px 16px 8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#1c1c1e;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:700;
+  color:#fff;
+}
+.app-header .actions{
+  display:flex;
+  gap:16px;
+  font-size:20px;
+  color:#0A84FF;
+  cursor:pointer;
+}
+.app-header .actions i{
+  transition:transform .2s;
+}
+.app-header .actions i:active{
+  transform:scale(.85);
+}
+
+/* Toolbar */
+.toolbar{
+  padding:8px 16px;
+  display:flex;
+  gap:8px;
+  background:#1c1c1e;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  flex-shrink:0;
+  flex-wrap:wrap;
+}
+.toolbar button{
+  background:rgba(255,255,255,.08);
+  border:none;
+  color:#fff;
+  padding:6px 12px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  transition:background .2s;
+  font-family:inherit;
+}
+.toolbar button:active{
+  background:rgba(255,255,255,.16);
+}
+.toolbar button i{
+  font-size:14px;
+}
+
+/* Note list */
+.note-list{
+  flex:1;
+  overflow-y:auto;
+  padding:8px 16px;
+  background:#1c1c1e;
+}
+.note-item{
+  background:rgba(255,255,255,.04);
+  border-radius:12px;
+  padding:14px 16px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:background .2s;
+  border-left:3px solid #FFD60A;
+}
+.note-item:active{
+  background:rgba(255,255,255,.08);
+}
+.note-item .note-title{
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:4px;
+}
+.note-item .note-preview{
+  font-size:14px;
+  color:rgba(255,255,255,.5);
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.note-item .note-date{
+  font-size:11px;
+  color:rgba(255,255,255,.3);
+  margin-top:6px;
+}
+
+.note-empty{
+  text-align:center;
+  color:rgba(255,255,255,.3);
+  padding:60px 20px;
+  font-size:15px;
+}
+.note-empty i{
+  font-size:48px;
+  display:block;
+  margin-bottom:16px;
+  color:rgba(255,255,255,.1);
+}
+
+/* Editor */
+.note-editor{
+  position:fixed;
+  inset:0;
+  background:#1c1c1e;
+  z-index:100;
+  display:none;
+  flex-direction:column;
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp{
+  0%{transform:translateY(30px);opacity:0;}
+  100%{transform:translateY(0);opacity:1;}
+}
+.note-editor.open{
+  display:flex;
+}
+.editor-header{
+  padding:12px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  flex-shrink:0;
+}
+.editor-header .back{
+  font-size:20px;
+  color:#0A84FF;
+  cursor:pointer;
+  padding:4px 8px;
+}
+.editor-header .back:active{
+  opacity:.6;
+}
+.editor-header .save{
+  font-size:16px;
+  font-weight:600;
+  color:#0A84FF;
+  cursor:pointer;
+  padding:4px 12px;
+}
+.editor-header .save:active{
+  opacity:.6;
+}
+.editor-body{
+  flex:1;
+  padding:20px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.editor-body input{
+  background:transparent;
+  border:none;
+  color:#fff;
+  font-size:22px;
+  font-weight:700;
+  font-family:inherit;
+  outline:none;
+  padding:4px 0;
+}
+.editor-body input::placeholder{
+  color:rgba(255,255,255,.25);
+}
+.editor-body textarea{
+  background:transparent;
+  border:none;
+  color:rgba(255,255,255,.85);
+  font-size:16px;
+  font-family:inherit;
+  outline:none;
+  resize:none;
+  flex:1;
+  padding:4px 0;
+  line-height:1.6;
+}
+.editor-body textarea::placeholder{
+  color:rgba(255,255,255,.25);
+}
+
+/* Delete button */
+.delete-note{
+  background:rgba(255,69,58,.15);
+  border:none;
+  color:#FF453A;
+  padding:12px;
+  border-radius:12px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  margin:8px 16px 20px;
+  transition:background .2s;
+  font-family:inherit;
+}
+.delete-note:active{
+  background:rgba(255,69,58,.25);
+}
+
+/* Responsive */
+@media (max-width:420px){
+  .app-header .title{font-size:20px;}
+  .toolbar button{font-size:12px;padding:5px 10px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <span class="title"><i class="bi bi-journal-text" style="margin-right:8px;color:#FFD60A;"></i>Ghi chú</span>
+  <div class="actions">
+    <i class="bi bi-plus-square" id="addNote" onclick="createNote()"></i>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button id="filterAll" onclick="filterNotes('all')" style="background:rgba(10,132,255,.2);"><i class="bi bi-list-ul"></i> Tất cả</button>
+  <button id="filterRecent" onclick="filterNotes('recent')"><i class="bi bi-clock"></i> Gần đây</button>
+  <button id="filterPinned" onclick="filterNotes('pinned')"><i class="bi bi-pin-fill"></i> Ghim</button>
+</div>
+
+<!-- NOTE LIST -->
+<div class="note-list" id="noteList">
+  <div class="note-empty">
+    <i class="bi bi-journal-text"></i>
+    Không có ghi chú nào<br>
+    <span style="font-size:13px;">Nhấn <i class="bi bi-plus-square" style="color:#0A84FF;"></i> để tạo mới</span>
+  </div>
+</div>
+
+<!-- EDITOR -->
+<div class="note-editor" id="noteEditor">
+  <div class="editor-header">
+    <span class="back" onclick="closeEditor()"><i class="bi bi-chevron-left"></i> Quay lại</span>
+    <span class="save" onclick="saveNote()">Lưu</span>
+  </div>
+  <div class="editor-body">
+    <input type="text" id="noteTitle" placeholder="Tiêu đề ghi chú...">
+    <textarea id="noteContent" placeholder="Nhập nội dung ghi chú..."></textarea>
+  </div>
+  <button class="delete-note" id="deleteBtn" onclick="deleteNote()"><i class="bi bi-trash3"></i> Xóa ghi chú</button>
+</div>
+
+<script>
+// ================= DATA =================
+let notes = [];
+let editingId = null;
+let filterType = 'all';
+
+// Load from localStorage
+function loadNotes(){
+  const saved = localStorage.getItem('notes_data');
+  if(saved){
+    try{
+      notes = JSON.parse(saved);
+    }catch(e){
+      notes = [];
+    }
+  }
+  if(notes.length === 0){
+    // Add sample notes
+    notes = [
+      { id: Date.now()-100000, title: 'Chào mừng!', content: 'Đây là ghi chú đầu tiên của bạn trên iPhone 15 Pro.', pinned: false, createdAt: Date.now()-100000 },
+      { id: Date.now()-50000, title: 'Mẹo vặt', content: 'Vuốt trái để xóa ghi chú. Nhấn vào để chỉnh sửa.', pinned: true, createdAt: Date.now()-50000 }
+    ];
+    saveNotes();
+  }
+  renderNotes();
+}
+
+function saveNotes(){
+  localStorage.setItem('notes_data', JSON.stringify(notes));
+}
+
+// ================= RENDER =================
+function renderNotes(){
+  const container = document.getElementById('noteList');
+  let filtered = [...notes];
+  
+  if(filterType === 'recent'){
+    filtered.sort((a,b) => b.createdAt - a.createdAt);
+    filtered = filtered.slice(0, 5);
+  } else if(filterType === 'pinned'){
+    filtered = filtered.filter(n => n.pinned);
+  } else {
+    filtered.sort((a,b) => b.createdAt - a.createdAt);
+  }
+  
+  if(filtered.length === 0){
+    container.innerHTML = `
+      <div class="note-empty">
+        <i class="bi bi-journal-text"></i>
+        ${filterType === 'pinned' ? 'Chưa có ghi chú nào được ghim' : 'Không có ghi chú nào'}<br>
+        <span style="font-size:13px;">Nhấn <i class="bi bi-plus-square" style="color:#0A84FF;"></i> để tạo mới</span>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = filtered.map(note => `
+    <div class="note-item" onclick="openNote('${note.id}')">
+      <div class="note-title">${note.pinned ? '📌 ' : ''}${note.title || 'Không tiêu đề'}</div>
+      <div class="note-preview">${note.content || 'Không có nội dung'}</div>
+      <div class="note-date">${formatDate(note.createdAt)}</div>
+    </div>
+  `).join('');
+  
+  // Update filter buttons
+  document.querySelectorAll('.toolbar button').forEach(btn => {
+    btn.style.background = 'rgba(255,255,255,.08)';
+  });
+  if(filterType === 'all') document.getElementById('filterAll').style.background = 'rgba(10,132,255,.2)';
+  else if(filterType === 'recent') document.getElementById('filterRecent').style.background = 'rgba(10,132,255,.2)';
+  else if(filterType === 'pinned') document.getElementById('filterPinned').style.background = 'rgba(10,132,255,.2)';
+}
+
+function formatDate(timestamp){
+  const d = new Date(timestamp);
+  const now = new Date();
+  const diff = now - d;
+  if(diff < 60000) return 'Vừa xong';
+  if(diff < 3600000) return Math.floor(diff/60000) + ' phút trước';
+  if(diff < 86400000) return Math.floor(diff/3600000) + ' giờ trước';
+  if(diff < 172800000) return 'Hôm qua';
+  return d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear();
+}
+
+// ================= FILTER =================
+function filterNotes(type){
+  filterType = type;
+  renderNotes();
+}
+
+// ================= CRUD =================
+function createNote(){
+  const newNote = {
+    id: Date.now(),
+    title: 'Ghi chú mới',
+    content: '',
+    pinned: false,
+    createdAt: Date.now()
+  };
+  notes.push(newNote);
+  saveNotes();
+  openNote(newNote.id);
+}
+
+function openNote(id){
+  editingId = id;
+  const note = notes.find(n => n.id === id);
+  if(!note) return;
+  
+  document.getElementById('noteTitle').value = note.title || '';
+  document.getElementById('noteContent').value = note.content || '';
+  document.getElementById('deleteBtn').style.display = 'block';
+  document.getElementById('noteEditor').classList.add('open');
+}
+
+function closeEditor(){
+  document.getElementById('noteEditor').classList.remove('open');
+  editingId = null;
+  renderNotes();
+}
+
+function saveNote(){
+  if(editingId === null){
+    // Create new
+    const newNote = {
+      id: Date.now(),
+      title: document.getElementById('noteTitle').value || 'Không tiêu đề',
+      content: document.getElementById('noteContent').value || '',
+      pinned: false,
+      createdAt: Date.now()
+    };
+    notes.push(newNote);
+  } else {
+    const note = notes.find(n => n.id === editingId);
+    if(note){
+      note.title = document.getElementById('noteTitle').value || 'Không tiêu đề';
+      note.content = document.getElementById('noteContent').value || '';
+    }
+  }
+  saveNotes();
+  closeEditor();
+}
+
+function deleteNote(){
+  if(editingId === null) return;
+  if(confirm('Bạn có chắc muốn xóa ghi chú này?')){
+    notes = notes.filter(n => n.id !== editingId);
+    saveNotes();
+    closeEditor();
+  }
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e){
+  if(e.ctrlKey && e.key === 's'){
+    e.preventDefault();
+    if(document.getElementById('noteEditor').classList.contains('open')){
+      saveNote();
+    }
+  }
+  if(e.key === 'Escape'){
+    if(document.getElementById('noteEditor').classList.contains('open')){
+      closeEditor();
+    }
+  }
+});
+
+// ================= INIT =================
+loadNotes();
+
+// Swipe to delete (mobile)
+let touchStartX = 0, touchStartY = 0;
+document.getElementById('noteList').addEventListener('touchstart', function(e){
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, {passive: true});
+
+document.getElementById('noteList').addEventListener('touchend', function(e){
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){
+    // Find which note was swiped
+    const items = document.querySelectorAll('.note-item');
+    let target = null;
+    items.forEach(item => {
+      const rect = item.getBoundingClientRect();
+      if(e.changedTouches[0].clientX >= rect.left && e.changedTouches[0].clientX <= rect.right &&
+         e.changedTouches[0].clientY >= rect.top && e.changedTouches[0].clientY <= rect.bottom){
+        target = item;
+      }
+    });
+    if(target){
+      const titleEl = target.querySelector('.note-title');
+      if(titleEl){
+        const title = titleEl.textContent.replace('📌 ', '');
+        const note = notes.find(n => n.title === title || (title === 'Không tiêu đề' && n.title === ''));
+        if(note && confirm('Xóa "' + (note.title || 'Không tiêu đề') + '" ?')){
+          notes = notes.filter(n => n.id !== note.id);
+          saveNotes();
+          renderNotes();
+        }
+      }
+    }
+  }
+}, {passive: true});
+
+// Pin/Unpin on double click
+document.getElementById('noteList').addEventListener('dblclick', function(e){
+  const item = e.target.closest('.note-item');
+  if(!item) return;
+  const titleEl = item.querySelector('.note-title');
+  if(!titleEl) return;
+  const title = titleEl.textContent.replace('📌 ', '');
+  const note = notes.find(n => n.title === title || (title === 'Không tiêu đề' && n.title === ''));
+  if(note){
+    note.pinned = !note.pinned;
+    saveNotes();
+    renderNotes();
+  }
+});
+</script>
+
+</body>
+</html>

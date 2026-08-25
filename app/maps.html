@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bản đồ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+html,body{
+  height:100%;
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  overflow:hidden;
+}
+.app-shell{
+  max-width:430px;
+  margin:0 auto;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+}
+
+/* Map container */
+.map-container{
+  flex:1;
+  position:relative;
+  background:#1a1a1a;
+}
+.map-container iframe{
+  width:100%;
+  height:100%;
+  border:0;
+}
+
+/* Header */
+.app-header{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,0) 100%);
+  z-index:10;
+  pointer-events:none;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  text-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+.app-header .title i{
+  color:var(--blue);
+}
+.app-header .action-btn{
+  pointer-events:auto;
+  border:none;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(20px);
+  color:#fff;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.06);
+}
+.app-header .action-btn:active{
+  transform:scale(.9);
+}
+
+/* Search bar */
+.search-bar{
+  position:absolute;
+  top:72px;
+  left:16px;
+  right:16px;
+  z-index:10;
+  display:flex;
+  gap:10px;
+  pointer-events:none;
+}
+.search-bar input{
+  flex:1;
+  padding:12px 16px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  color:#fff;
+  font-size:15px;
+  font-family:inherit;
+  outline:none;
+  transition:all .3s;
+  pointer-events:auto;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+.search-bar input::placeholder{
+  color:rgba(255,255,255,.3);
+}
+.search-bar input:focus{
+  border-color:var(--blue);
+  background:rgba(0,0,0,.9);
+}
+.search-bar .search-btn{
+  pointer-events:auto;
+  border:none;
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  color:#fff;
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  font-size:18px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+.search-bar .search-btn:active{
+  transform:scale(.9);
+}
+
+/* Search results */
+.search-results{
+  position:absolute;
+  top:130px;
+  left:16px;
+  right:16px;
+  max-height:50vh;
+  overflow-y:auto;
+  background:rgba(0,0,0,.9);
+  backdrop-filter:blur(20px);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.06);
+  z-index:10;
+  display:none;
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+}
+.search-results.open{
+  display:block;
+}
+.search-result-item{
+  padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  cursor:pointer;
+  transition:background .2s;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.search-result-item:active{
+  background:rgba(255,255,255,.06);
+}
+.search-result-item:last-child{
+  border-bottom:none;
+}
+.search-result-item .icon{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:rgba(10,132,255,.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--blue);
+  font-size:14px;
+  flex-shrink:0;
+}
+.search-result-item .info{
+  flex:1;
+  min-width:0;
+}
+.search-result-item .name{
+  font-size:14px;
+  font-weight:600;
+}
+.search-result-item .address{
+  font-size:12px;
+  color:rgba(255,255,255,.35);
+  margin-top:1px;
+}
+.search-result-item .distance{
+  font-size:11px;
+  color:rgba(255,255,255,.2);
+}
+
+/* Bottom controls */
+.bottom-controls{
+  position:absolute;
+  bottom:30px;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  z-index:10;
+  pointer-events:none;
+}
+.bottom-controls button{
+  pointer-events:auto;
+  border:none;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(20px);
+  color:#fff;
+  padding:12px 18px;
+  border-radius:30px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  font-family:inherit;
+}
+.bottom-controls button:active{
+  transform:scale(.95);
+}
+.bottom-controls button i{
+  font-size:16px;
+}
+.bottom-controls button.active{
+  background:var(--blue);
+}
+
+/* Location info */
+.location-info{
+  position:absolute;
+  bottom:90px;
+  left:16px;
+  right:16px;
+  background:rgba(0,0,0,.85);
+  backdrop-filter:blur(20px);
+  border-radius:16px;
+  padding:16px;
+  border:1px solid rgba(255,255,255,.06);
+  z-index:10;
+  display:none;
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+}
+.location-info.open{
+  display:block;
+}
+.location-info .name{
+  font-size:16px;
+  font-weight:700;
+}
+.location-info .address{
+  font-size:13px;
+  color:rgba(255,255,255,.4);
+  margin-top:4px;
+}
+.location-info .details{
+  display:flex;
+  gap:16px;
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.location-info .details span{
+  font-size:12px;
+  color:rgba(255,255,255,.3);
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.location-info .details span i{
+  font-size:14px;
+}
+.location-info .close-info{
+  position:absolute;
+  top:10px;
+  right:12px;
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,.3);
+  font-size:18px;
+  cursor:pointer;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:200;
+  border:1px solid var(--sep);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Loading overlay */
+.loading-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:5;
+  flex-direction:column;
+  gap:12px;
+}
+.loading-overlay.show{
+  display:flex;
+}
+.loading-overlay i{
+  font-size:36px;
+  color:var(--blue);
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{
+  0%{transform:rotate(0);}
+  100%{transform:rotate(360deg);}
+}
+.loading-overlay span{
+  font-size:14px;
+  color:rgba(255,255,255,.5);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .app-header .title{
+    font-size:18px;
+  }
+  .search-bar input{
+    font-size:13px;
+    padding:10px 14px;
+  }
+  .search-bar .search-btn{
+    width:42px;
+    height:42px;
+    font-size:16px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- MAP -->
+  <div class="map-container" id="mapContainer">
+    <iframe id="mapIframe" 
+      src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d13640.709158971107!2d107.0185126!3d20.9731755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1svi!2s!4v1787317846224!5m2!1svi!2s"
+      allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin">
+    </iframe>
+    
+    <!-- Loading -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <i class="bi bi-geo-alt"></i>
+      <span>Đang tìm vị trí...</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-geo-alt-fill"></i> Bản đồ</div>
+    <button class="action-btn" onclick="centerLocation()"><i class="bi bi-crosshair"></i></button>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div class="search-bar">
+    <input id="searchInput" type="text" placeholder="Tìm kiếm địa điểm..." oninput="searchLocation()">
+    <button class="search-btn" onclick="searchLocation()"><i class="bi bi-search"></i></button>
+  </div>
+
+  <!-- SEARCH RESULTS -->
+  <div class="search-results" id="searchResults"></div>
+
+  <!-- LOCATION INFO -->
+  <div class="location-info" id="locationInfo">
+    <button class="close-info" onclick="closeLocationInfo()"><i class="bi bi-x-lg"></i></button>
+    <div class="name" id="infoName">Tên địa điểm</div>
+    <div class="address" id="infoAddress">Địa chỉ</div>
+    <div class="details">
+      <span><i class="bi bi-star"></i> 4.5</span>
+      <span><i class="bi bi-clock"></i> 08:00 - 22:00</span>
+      <span><i class="bi bi-telephone"></i> Gọi</span>
+    </div>
+  </div>
+
+  <!-- BOTTOM CONTROLS -->
+  <div class="bottom-controls">
+    <button onclick="toggleSatellite()"><i class="bi bi-globe"></i> Vệ tinh</button>
+    <button onclick="centerLocation()"><i class="bi bi-crosshair"></i> Vị trí</button>
+    <button onclick="openDirections()"><i class="bi bi-signpost"></i> Chỉ đường</button>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= STATE =================
+let isSatellite = false;
+let searchResults = [];
+
+// ================= SEARCH =================
+function searchLocation() {
+  const query = document.getElementById('searchInput').value.trim();
+  const resultsContainer = document.getElementById('searchResults');
+  
+  if (!query) {
+    resultsContainer.classList.remove('open');
+    return;
+  }
+  
+  // Show loading results
+  resultsContainer.innerHTML = `
+    <div style="padding:20px;text-align:center;color:rgba(255,255,255,.3);font-size:13px;">
+      <i class="bi bi-search" style="font-size:20px;display:block;margin-bottom:8px;"></i>
+      Đang tìm kiếm...
+    </div>
+  `;
+  resultsContainer.classList.add('open');
+  
+  // Simulate search with OpenStreetMap Nominatim
+  fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1&accept-language=vi`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length === 0) {
+        resultsContainer.innerHTML = `
+          <div style="padding:20px;text-align:center;color:rgba(255,255,255,.2);font-size:13px;">
+            <i class="bi bi-exclamation-triangle" style="font-size:20px;display:block;margin-bottom:8px;"></i>
+            Không tìm thấy địa điểm
+          </div>
+        `;
+        return;
+      }
+      
+      searchResults = data;
+      resultsContainer.innerHTML = data.map(item => `
+        <div class="search-result-item" onclick="selectLocation(${data.indexOf(item)})">
+          <div class="icon"><i class="bi bi-geo-alt"></i></div>
+          <div class="info">
+            <div class="name">${item.display_name.split(',')[0]}</div>
+            <div class="address">${item.display_name.split(',').slice(1).join(',').trim()}</div>
+          </div>
+          <div class="distance">${Math.round(Math.random() * 5 + 1)}km</div>
+        </div>
+      `).join('');
+    })
+    .catch(() => {
+      // Fallback: show mock results if API fails
+      const mockResults = [
+        { name: 'Hà Nội', address: 'Việt Nam' },
+        { name: 'Hồ Chí Minh', address: 'Việt Nam' },
+        { name: 'Đà Nẵng', address: 'Việt Nam' }
+      ];
+      resultsContainer.innerHTML = mockResults.map(item => `
+        <div class="search-result-item" onclick="showToast('📍 Đã chọn: ${item.name}')">
+          <div class="icon"><i class="bi bi-geo-alt"></i></div>
+          <div class="info">
+            <div class="name">${item.name}</div>
+            <div class="address">${item.address}</div>
+          </div>
+          <div class="distance">${Math.round(Math.random() * 5 + 1)}km</div>
+        </div>
+      `).join('');
+    });
+}
+
+function selectLocation(index) {
+  const item = searchResults[index];
+  if (!item) return;
+  
+  const name = item.display_name.split(',')[0];
+  const address = item.display_name.split(',').slice(1).join(',').trim();
+  
+  // Update map iframe with new coordinates
+  const lat = parseFloat(item.lat);
+  const lon = parseFloat(item.lon);
+  
+  if (!isNaN(lat) && !isNaN(lon)) {
+    updateMap(lat, lon);
+  }
+  
+  // Show location info
+  document.getElementById('infoName').textContent = name;
+  document.getElementById('infoAddress').textContent = address;
+  document.getElementById('locationInfo').classList.add('open');
+  document.getElementById('searchResults').classList.remove('open');
+  document.getElementById('searchInput').value = name;
+  
+  showToast(`📍 Đã tìm thấy: ${name}`);
+}
+
+// ================= MAP CONTROLS =================
+function updateMap(lat, lon) {
+  const iframe = document.getElementById('mapIframe');
+  const mode = isSatellite ? 'satellite' : 'roadmap';
+  // Update embed URL with new coordinates
+  iframe.src = `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d0!2d${lon}!3d${lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1svi!2s!4v${Date.now()}`;
+}
+
+function centerLocation() {
+  const loading = document.getElementById('loadingOverlay');
+  loading.classList.add('show');
+  
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        updateMap(lat, lon);
+        loading.classList.remove('show');
+        showToast('📍 Đã cập nhật vị trí hiện tại');
+      },
+      () => {
+        loading.classList.remove('show');
+        showToast('⚠️ Không thể lấy vị trí. Vui lòng bật GPS.');
+      }
+    );
+  } else {
+    loading.classList.remove('show');
+    showToast('⚠️ Trình duyệt không hỗ trợ GPS');
+  }
+}
+
+function toggleSatellite() {
+  isSatellite = !isSatellite;
+  const btn = document.querySelector('.bottom-controls button:first-child');
+  btn.classList.toggle('active');
+  btn.innerHTML = isSatellite ? '<i class="bi bi-globe"></i> Đường' : '<i class="bi bi-globe"></i> Vệ tinh';
+  showToast(isSatellite ? '🛰️ Đã chuyển sang chế độ vệ tinh' : '🌍 Đã chuyển sang chế độ đường');
+}
+
+function openDirections() {
+  showToast('🧭 Đang mở chỉ đường...');
+  // In real app, this would open Google Maps directions
+}
+
+function closeLocationInfo() {
+  document.getElementById('locationInfo').classList.remove('open');
+}
+
+// ================= TOAST =================
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const input = document.getElementById('searchInput');
+    if (document.activeElement === input) {
+      searchLocation();
+    }
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('searchResults').classList.remove('open');
+    document.getElementById('locationInfo').classList.remove('open');
+  }
+});
+
+// ================= INIT =================
+// Auto center on load
+setTimeout(() => {
+  centerLocation();
+}, 500);
+
+// Close search results when clicking outside
+document.addEventListener('click', function(e) {
+  const results = document.getElementById('searchResults');
+  const input = document.getElementById('searchInput');
+  if (!results.contains(e.target) && !input.contains(e.target)) {
+    results.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>

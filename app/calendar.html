@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lịch</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --red:#FF453A;
+  --green:#30D158;
+  --orange:#FF9F0A;
+  --purple:#BF5AF2;
+  --pink:#FF375F;
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.app-shell{
+  width:100%;
+  max-width:430px;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:var(--red);
+}
+.app-header .action-btn{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header .action-btn:active{
+  transform:scale(.9);
+  background:rgba(255,255,255,.12);
+}
+
+.app-body{
+  flex:1;
+  padding:12px 16px 16px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Calendar header */
+.cal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+}
+.month-year{
+  font-size:18px;
+  font-weight:700;
+}
+.nav-btn{
+  background:var(--glass);
+  border:none;
+  color:#fff;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.nav-btn:active{
+  background:var(--glass-strong);
+  transform:scale(.9);
+}
+.nav-btn.today-btn{
+  background:var(--red);
+  font-size:12px;
+  font-weight:600;
+  color:#fff;
+  padding:0 12px;
+  border-radius:18px;
+  width:auto;
+}
+.nav-btn.today-btn:active{
+  opacity:.7;
+}
+
+/* Weekdays */
+.cal-weekdays{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  text-align:center;
+  font-size:12px;
+  color:rgba(255,255,255,.35);
+  margin-bottom:8px;
+  font-weight:600;
+}
+.cal-weekdays .weekend{
+  color:var(--red);
+}
+
+/* Days grid */
+.cal-days{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  margin-bottom:20px;
+}
+.cal-days .day{
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  font-size:15px;
+  font-weight:500;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  color:rgba(255,255,255,.8);
+}
+.cal-days .day:active{
+  transform:scale(.85);
+}
+.cal-days .day.other-month{
+  color:rgba(255,255,255,.15);
+}
+.cal-days .day.today{
+  background:var(--red);
+  color:#fff;
+  font-weight:700;
+}
+.cal-days .day.selected{
+  background:var(--blue);
+  color:#fff;
+}
+.cal-days .day.has-event::after{
+  content:'';
+  position:absolute;
+  bottom:3px;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--blue);
+}
+.cal-days .day.today.has-event::after{
+  background:#fff;
+}
+.cal-days .day.weekend{
+  color:var(--red);
+}
+.cal-days .day.weekend.today{
+  color:#fff;
+}
+
+/* Events section */
+.events-section{
+  background:var(--glass);
+  border-radius:16px;
+  padding:16px;
+  margin-top:4px;
+}
+.events-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.events-title{
+  font-size:14px;
+  font-weight:700;
+  color:rgba(255,255,255,.6);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.events-count{
+  font-size:12px;
+  color:rgba(255,255,255,.3);
+}
+.events-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.event-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px;
+  background:rgba(255,255,255,.04);
+  border-radius:12px;
+  cursor:pointer;
+  transition:all .2s;
+}
+.event-item:active{
+  background:rgba(255,255,255,.08);
+  transform:scale(.98);
+}
+.event-dot{
+  width:4px;
+  height:36px;
+  border-radius:4px;
+  flex-shrink:0;
+}
+.event-info{
+  flex:1;
+  min-width:0;
+}
+.event-name{
+  font-size:14px;
+  font-weight:600;
+}
+.event-time{
+  font-size:12px;
+  color:rgba(255,255,255,.35);
+  margin-top:1px;
+}
+.event-location{
+  font-size:11px;
+  color:rgba(255,255,255,.2);
+  margin-top:1px;
+}
+.event-actions{
+  display:flex;
+  gap:6px;
+}
+.event-actions button{
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,.2);
+  cursor:pointer;
+  font-size:16px;
+  padding:4px;
+  transition:all .2s;
+}
+.event-actions button:active{
+  transform:scale(.85);
+  color:var(--red);
+}
+.no-events{
+  text-align:center;
+  padding:20px 0;
+  color:rgba(255,255,255,.2);
+  font-size:13px;
+}
+.no-events i{
+  font-size:24px;
+  display:block;
+  margin-bottom:8px;
+  color:rgba(255,255,255,.06);
+}
+
+/* Add event modal */
+.modal-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  border-radius:44px;
+}
+.modal-overlay.open{
+  display:flex;
+}
+.modal{
+  background:#1c1c1e;
+  border-radius:24px;
+  padding:24px 20px;
+  width:90%;
+  max-width:360px;
+  max-height:80vh;
+  overflow-y:auto;
+  animation:modalIn .3s ease;
+}
+@keyframes modalIn{
+  0%{transform:scale(.9) translateY(20px);opacity:0;}
+  100%{transform:scale(1) translateY(0);opacity:1;}
+}
+.modal-title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:16px;
+  text-align:center;
+}
+.modal-field{
+  margin-bottom:14px;
+}
+.modal-field label{
+  display:block;
+  font-size:12px;
+  color:rgba(255,255,255,.4);
+  margin-bottom:4px;
+  font-weight:600;
+}
+.modal-field input,
+.modal-field textarea,
+.modal-field select{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--sep);
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+  color:#fff;
+  font-size:14px;
+  font-family:inherit;
+  outline:none;
+  transition:border-color .2s;
+}
+.modal-field input:focus,
+.modal-field textarea:focus,
+.modal-field select:focus{
+  border-color:var(--blue);
+}
+.modal-field textarea{
+  resize:vertical;
+  min-height:60px;
+}
+.modal-field select option{
+  background:#1c1c1e;
+  color:#fff;
+}
+.modal-actions{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+}
+.modal-actions button{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.modal-actions button:active{
+  transform:scale(.96);
+}
+.modal-actions .cancel{
+  background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.5);
+}
+.modal-actions .save{
+  background:var(--blue);
+  color:#fff;
+}
+.modal-actions .delete{
+  background:rgba(255,69,58,.15);
+  color:var(--red);
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:200;
+  border:1px solid var(--sep);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+  .modal-overlay{
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .cal-days .day{
+    font-size:13px;
+  }
+  .event-item{
+    padding:8px 10px;
+  }
+  .event-name{
+    font-size:13px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-calendar3"></i> Lịch</div>
+    <button class="action-btn" onclick="openAddEvent()"><i class="bi bi-plus"></i></button>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+    <div class="cal-header">
+      <button class="nav-btn" onclick="changeMonth(-1)"><i class="bi bi-chevron-left"></i></button>
+      <span class="month-year" id="calMonthYear">Tháng 1, 2025</span>
+      <button class="nav-btn today-btn" onclick="goToday()">Hôm nay</button>
+      <button class="nav-btn" onclick="changeMonth(1)"><i class="bi bi-chevron-right"></i></button>
+    </div>
+
+    <div class="cal-weekdays" id="weekdays">
+      <span class="weekend">CN</span><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span class="weekend">T7</span>
+    </div>
+
+    <div class="cal-days" id="calDays"></div>
+
+    <div class="events-section">
+      <div class="events-header">
+        <span class="events-title"><i class="bi bi-list-check"></i> Sự kiện</span>
+        <span class="events-count" id="eventCount">0 sự kiện</span>
+      </div>
+      <div class="events-list" id="eventsList">
+        <div class="no-events">
+          <i class="bi bi-calendar-plus"></i>
+          Không có sự kiện nào
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle">Thêm sự kiện</div>
+      <input type="hidden" id="editEventId">
+      
+      <div class="modal-field">
+        <label>Tên sự kiện</label>
+        <input id="eventName" type="text" placeholder="Nhập tên sự kiện...">
+      </div>
+      
+      <div class="modal-field">
+        <label>Ngày</label>
+        <input id="eventDate" type="date">
+      </div>
+      
+      <div class="modal-field">
+        <label>Thời gian</label>
+        <input id="eventTime" type="time">
+      </div>
+      
+      <div class="modal-field">
+        <label>Địa điểm</label>
+        <input id="eventLocation" type="text" placeholder="Nhập địa điểm...">
+      </div>
+      
+      <div class="modal-field">
+        <label>Màu sắc</label>
+        <select id="eventColor">
+          <option value="#0A84FF">Xanh dương</option>
+          <option value="#FF453A">Đỏ</option>
+          <option value="#30D158">Xanh lá</option>
+          <option value="#FF9F0A">Cam</option>
+          <option value="#BF5AF2">Tím</option>
+          <option value="#FF375F">Hồng</option>
+        </select>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="cancel" onclick="closeModal()">Hủy</button>
+        <button class="save" onclick="saveEvent()">Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= DATA =================
+let events = [];
+let currentDate = new Date();
+let selectedDate = new Date();
+let viewMonth = currentDate.getMonth();
+let viewYear = currentDate.getFullYear();
+
+// Load from localStorage
+function loadEvents() {
+  const saved = localStorage.getItem('calendar_events');
+  if (saved) {
+    try {
+      events = JSON.parse(saved);
+    } catch(e) {
+      events = [];
+    }
+  }
+  if (events.length === 0) {
+    // Sample events
+    const today = new Date();
+    events = [
+      {
+        id: Date.now(),
+        name: 'Họp dự án',
+        date: formatDate(today),
+        time: '10:00',
+        location: 'Phòng họp A',
+        color: '#0A84FF'
+      },
+      {
+        id: Date.now() + 1,
+        name: 'Gặp khách hàng',
+        date: formatDate(new Date(today.getTime() + 86400000)),
+        time: '14:30',
+        location: 'Cà phê ABC',
+        color: '#30D158'
+      },
+      {
+        id: Date.now() + 2,
+        name: 'Thuyết trình dự án',
+        date: formatDate(new Date(today.getTime() + 2 * 86400000)),
+        time: '09:00',
+        location: 'Hội trường',
+        color: '#FF9F0A'
+      }
+    ];
+    saveEvents();
+  }
+}
+
+function saveEvents() {
+  localStorage.setItem('calendar_events', JSON.stringify(events));
+}
+
+function formatDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// ================= RENDER CALENDAR =================
+function renderCalendar() {
+  const grid = document.getElementById('calDays');
+  const monthEl = document.getElementById('calMonthYear');
+  
+  const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 
+                      'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+  monthEl.textContent = `${monthNames[viewMonth]}, ${viewYear}`;
+  
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
+  
+  const today = new Date();
+  const todayStr = formatDate(today);
+  const selectedStr = formatDate(selectedDate);
+  
+  let html = '';
+  
+  // Previous month days
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const day = daysInPrevMonth - i;
+    html += `<div class="day other-month">${day}</div>`;
+  }
+  
+  // Current month days
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(viewYear, viewMonth, d);
+    const dateStr = formatDate(date);
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === selectedStr;
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+    const hasEvent = events.some(e => e.date === dateStr);
+    
+    let classes = 'day';
+    if (isToday) classes += ' today';
+    if (isSelected && !isToday) classes += ' selected';
+    if (isWeekend) classes += ' weekend';
+    if (hasEvent) classes += ' has-event';
+    
+    html += `<div class="${classes}" onclick="selectDate('${dateStr}')">${d}</div>`;
+  }
+  
+  grid.innerHTML = html;
+  renderEvents();
+}
+
+// ================= RENDER EVENTS =================
+function renderEvents() {
+  const container = document.getElementById('eventsList');
+  const countEl = document.getElementById('eventCount');
+  
+  const dayEvents = events.filter(e => e.date === selectedStr());
+  
+  if (dayEvents.length === 0) {
+    container.innerHTML = `
+      <div class="no-events">
+        <i class="bi bi-calendar-plus"></i>
+        Không có sự kiện nào trong ngày này
+      </div>
+    `;
+    countEl.textContent = '0 sự kiện';
+    return;
+  }
+  
+  countEl.textContent = `${dayEvents.length} sự kiện`;
+  
+  container.innerHTML = dayEvents.map(event => `
+    <div class="event-item" onclick="editEvent('${event.id}')">
+      <div class="event-dot" style="background:${event.color}"></div>
+      <div class="event-info">
+        <div class="event-name">${event.name}</div>
+        <div class="event-time">${event.time || 'Cả ngày'}</div>
+        ${event.location ? `<div class="event-location">📍 ${event.location}</div>` : ''}
+      </div>
+      <div class="event-actions">
+        <button onclick="event.stopPropagation();deleteEvent('${event.id}')">
+          <i class="bi bi-trash3"></i>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectedStr() {
+  return formatDate(selectedDate);
+}
+
+// ================= SELECT DATE =================
+function selectDate(dateStr) {
+  const parts = dateStr.split('-');
+  selectedDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  renderCalendar();
+}
+
+// ================= NAVIGATION =================
+function changeMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth > 11) {
+    viewMonth = 0;
+    viewYear++;
+  } else if (viewMonth < 0) {
+    viewMonth = 11;
+    viewYear--;
+  }
+  renderCalendar();
+}
+
+function goToday() {
+  const today = new Date();
+  viewMonth = today.getMonth();
+  viewYear = today.getFullYear();
+  selectedDate = new Date(today);
+  renderCalendar();
+}
+
+// ================= MODAL =================
+function openAddEvent() {
+  document.getElementById('modalTitle').textContent = 'Thêm sự kiện';
+  document.getElementById('editEventId').value = '';
+  document.getElementById('eventName').value = '';
+  document.getElementById('eventDate').value = selectedStr();
+  document.getElementById('eventTime').value = '';
+  document.getElementById('eventLocation').value = '';
+  document.getElementById('eventColor').value = '#0A84FF';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function editEvent(id) {
+  const event = events.find(e => e.id == id);
+  if (!event) return;
+  
+  document.getElementById('modalTitle').textContent = 'Sửa sự kiện';
+  document.getElementById('editEventId').value = event.id;
+  document.getElementById('eventName').value = event.name;
+  document.getElementById('eventDate').value = event.date;
+  document.getElementById('eventTime').value = event.time || '';
+  document.getElementById('eventLocation').value = event.location || '';
+  document.getElementById('eventColor').value = event.color || '#0A84FF';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function saveEvent() {
+  const id = document.getElementById('editEventId').value;
+  const name = document.getElementById('eventName').value.trim();
+  const date = document.getElementById('eventDate').value;
+  const time = document.getElementById('eventTime').value;
+  const location = document.getElementById('eventLocation').value.trim();
+  const color = document.getElementById('eventColor').value;
+  
+  if (!name) {
+    showToast('Vui lòng nhập tên sự kiện');
+    return;
+  }
+  if (!date) {
+    showToast('Vui lòng chọn ngày');
+    return;
+  }
+  
+  if (id) {
+    // Edit existing
+    const index = events.findIndex(e => e.id == id);
+    if (index !== -1) {
+      events[index] = { ...events[index], name, date, time, location, color };
+    }
+  } else {
+    // Add new
+    events.push({
+      id: Date.now() + Math.random(),
+      name,
+      date,
+      time,
+      location,
+      color
+    });
+  }
+  
+  saveEvents();
+  closeModal();
+  renderCalendar();
+  showToast('✅ Đã lưu sự kiện');
+}
+
+function deleteEvent(id) {
+  if (!confirm('Bạn có chắc muốn xóa sự kiện này?')) return;
+  events = events.filter(e => e.id != id);
+  saveEvents();
+  renderCalendar();
+  showToast('🗑️ Đã xóa sự kiện');
+}
+
+// ================= TOAST =================
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (document.getElementById('modalOverlay').classList.contains('open')) {
+      closeModal();
+    }
+  }
+  if (e.key === 'ArrowLeft') changeMonth(-1);
+  if (e.key === 'ArrowRight') changeMonth(1);
+});
+
+// ================= INIT =================
+loadEvents();
+renderCalendar();
+</script>
+</body>
+</html>

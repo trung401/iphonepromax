@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Đánh giá & Phản hồi</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  overflow:hidden;
+}
+.app-shell{
+  width:100%;
+  max-width:430px;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:20px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:#FF9F0A;
+}
+.app-header .close-btn{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  font-size:16px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header .close-btn:active{
+  transform:scale(.9);
+  background:rgba(255,255,255,.12);
+}
+
+.app-body{
+  flex:1;
+  padding:20px 16px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Rating stars */
+.rating-section{
+  text-align:center;
+  padding:12px 0 20px;
+}
+.rating-section .label{
+  font-size:14px;
+  color:rgba(255,255,255,.5);
+  margin-bottom:12px;
+}
+.rating-stars{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+.rating-stars i{
+  font-size:40px;
+  color:rgba(255,255,255,.1);
+  cursor:pointer;
+  transition:all .2s;
+}
+.rating-stars i:hover{
+  transform:scale(1.15);
+}
+.rating-stars i.active{
+  color:#FFD60A;
+  text-shadow:0 0 30px rgba(255,214,10,.3);
+}
+.rating-stars i.active:hover{
+  transform:scale(1.2);
+}
+.rating-text{
+  font-size:16px;
+  font-weight:600;
+  margin-top:8px;
+  color:rgba(255,255,255,.6);
+}
+.rating-text .highlight{
+  color:#FFD60A;
+}
+
+/* Form */
+.form-group{
+  margin-bottom:16px;
+}
+.form-group label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  color:rgba(255,255,255,.4);
+  margin-bottom:4px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  color:#fff;
+  font-size:14px;
+  font-family:inherit;
+  outline:none;
+  transition:border-color .3s;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus{
+  border-color:#FF9F0A;
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder{
+  color:rgba(255,255,255,.2);
+}
+.form-group textarea{
+  resize:vertical;
+  min-height:90px;
+}
+.form-group select option{
+  background:#1a1a1e;
+  color:#fff;
+}
+
+/* Quick feedback buttons */
+.quick-feedback{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:4px 0 12px;
+}
+.quick-feedback button{
+  padding:6px 16px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.5);
+  font-size:12px;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.quick-feedback button:active{
+  transform:scale(.95);
+  background:rgba(255,255,255,.08);
+}
+.quick-feedback button:hover{
+  border-color:rgba(255,159,10,.3);
+  color:#fff;
+}
+
+/* Submit button */
+.submit-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg,#FF9F0A,#FF6B00);
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .3s;
+  font-family:inherit;
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.submit-btn:active{
+  transform:scale(.97);
+}
+.submit-btn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+.submit-btn i{
+  font-size:18px;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:12px 24px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:200;
+  border:1px solid rgba(255,255,255,.06);
+  max-width:90%;
+  text-align:center;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+.toast.success{
+  border-color:rgba(48,209,88,.3);
+}
+.toast.error{
+  border-color:rgba(255,69,58,.3);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .rating-stars i{
+    font-size:32px;
+  }
+  .app-header .title{
+    font-size:17px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-star-fill"></i> Đánh giá</div>
+    <button class="close-btn" onclick="closeApp()"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+
+    <!-- Rating Stars -->
+    <div class="rating-section">
+      <div class="label">Bạn đánh giá trải nghiệm này thế nào?</div>
+      <div class="rating-stars" id="ratingStars">
+        <i class="bi bi-star" data-value="1" onclick="setRating(1)"></i>
+        <i class="bi bi-star" data-value="2" onclick="setRating(2)"></i>
+        <i class="bi bi-star" data-value="3" onclick="setRating(3)"></i>
+        <i class="bi bi-star" data-value="4" onclick="setRating(4)"></i>
+        <i class="bi bi-star" data-value="5" onclick="setRating(5)"></i>
+      </div>
+      <div class="rating-text" id="ratingText">Chọn số sao để đánh giá</div>
+    </div>
+
+    <!-- Quick Feedback -->
+    <div class="quick-feedback">
+      <button onclick="setQuickFeedback('Tuyệt vời!')">❤️ Tuyệt vời</button>
+      <button onclick="setQuickFeedback('Tốt')">👍 Tốt</button>
+      <button onclick="setQuickFeedback('Bình thường')">😐 Bình thường</button>
+      <button onclick="setQuickFeedback('Cần cải thiện')">😟 Cần cải thiện</button>
+      <button onclick="setQuickFeedback('Tệ')">😤 Tệ</button>
+    </div>
+
+    <!-- Form -->
+<div class="form-group">
+  <label><i class="bi bi-person-badge"></i> Tên hoặc Email</label>
+  <input id="userEmail" type="text" placeholder="Nhập tên hoặc email của bạn..." name="contact">
+</div>
+
+    <div class="form-group">
+      <label><i class="bi bi-chat-text"></i> Phản hồi của bạn</label>
+      <textarea id="userFeedback" placeholder="Chia sẻ trải nghiệm của bạn với chúng tôi..." name="message"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label><i class="bi bi-tag"></i> Danh mục</label>
+      <select id="feedbackCategory" name="category">
+        <option value="general">Chung</option>
+        <option value="feature">Tính năng</option>
+        <option value="bug">Lỗi / Sự cố</option>
+        <option value="ui">Giao diện</option>
+        <option value="performance">Hiệu năng</option>
+        <option value="suggestion">Đề xuất</option>
+      </select>
+    </div>
+
+    <!-- Ẩn input rating -->
+    <input type="hidden" id="hiddenRating" name="rating" value="0">
+
+    <button class="submit-btn" id="submitBtn" onclick="submitFeedback()">
+      <i class="bi bi-send-fill"></i> Gửi phản hồi
+    </button>
+
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= CONFIG =================
+// 🔥 LINK FORMSPREE CỦA BẠN
+const FORMSPREE_URL = 'https://formspree.io/f/mbgrngjq';
+
+// ================= STATE =================
+let selectedRating = 0;
+const ratingTexts = [
+  '',
+  '😢 Rất tệ — Chúng tôi sẽ cải thiện!',
+  '😕 Không hài lòng — Hãy cho chúng tôi biết lý do',
+  '😐 Bình thường — Còn nhiều điều để làm',
+  '😊 Hài lòng — Cảm ơn bạn!',
+  '🤩 Tuyệt vời — Bạn thật tuyệt!'
+];
+
+// ================= RATING =================
+function setRating(value) {
+  selectedRating = value;
+  document.getElementById('hiddenRating').value = value;
+  const stars = document.querySelectorAll('.rating-stars i');
+  stars.forEach((star, index) => {
+    if (index < value) {
+      star.className = 'bi bi-star-fill active';
+    } else {
+      star.className = 'bi bi-star';
+    }
+  });
+  document.getElementById('ratingText').innerHTML = ratingTexts[value] || 'Chọn số sao để đánh giá';
+}
+
+function setQuickFeedback(text) {
+  document.getElementById('userFeedback').value = text;
+  document.getElementById('userFeedback').focus();
+  const btn = event.target;
+  btn.style.borderColor = '#FF9F0A';
+  btn.style.color = '#FF9F0A';
+  setTimeout(() => {
+    btn.style.borderColor = 'rgba(255,255,255,.06)';
+    btn.style.color = 'rgba(255,255,255,.5)';
+  }, 800);
+}
+
+// ================= SUBMIT =================
+async function submitFeedback() {
+  const btn = document.getElementById('submitBtn');
+  
+  // Lấy giá trị tên/email và làm sạch khoảng trắng thừa
+  const rawContact = document.getElementById('userEmail').value.trim();
+  // Nếu chuỗi rỗng thì tự động gán là 'Ẩn danh'
+  const contactInfo = rawContact !== '' ? rawContact : 'Ẩn danh';
+  
+  const feedback = document.getElementById('userFeedback').value.trim();
+  const category = document.getElementById('feedbackCategory').value;
+  const rating = document.getElementById('hiddenRating').value;
+  
+  // Validate số sao
+  if (selectedRating === 0) {
+    showToast('⭐ Vui lòng chọn số sao đánh giá', 'error');
+    return;
+  }
+  
+  // Validate nội dung phản hồi (Bắt buộc không được rỗng)
+  if (!feedback) {
+    showToast('📝 Vui lòng nhập phản hồi của bạn', 'error');
+    document.getElementById('userFeedback').focus();
+    return;
+  }
+  
+  if (feedback.length < 10) {
+    showToast('📝 Phản hồi cần ít nhất 10 ký tự', 'error');
+    document.getElementById('userFeedback').focus();
+    return;
+  }
+  
+  // Disable button
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
+  
+  try {
+    // Gửi qua Formspree
+    const response = await fetch(FORMSPREE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: contactInfo, 
+        message: feedback,
+        category: category,
+        rating: rating,
+        timestamp: new Date().toLocaleString('vi-VN')
+      })
+    });
+    
+    if (response.ok) {
+      // Lưu vào localStorage
+      saveFeedbackToLocal({
+        rating: selectedRating,
+        category: category,
+        feedback: feedback,
+        sender: contactInfo,
+        time: new Date().toISOString()
+      });
+      
+      showToast('✅ Đã gửi phản hồi! Cảm ơn bạn! 🎉', 'success');
+      
+      setTimeout(() => {
+        resetForm();
+      }, 2000);
+    } else {
+      throw new Error('Lỗi gửi form');
+    }
+  } catch (error) {
+    showToast('❌ Có lỗi xảy ra, vui lòng thử lại sau', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-send-fill"></i> Gửi phản hồi';
+  }
+}
+
+// ================= LOCAL STORAGE =================
+function saveFeedbackToLocal(data) {
+  let history = JSON.parse(localStorage.getItem('feedback_history') || '[]');
+  history.push(data);
+  if (history.length > 50) history.shift();
+  localStorage.setItem('feedback_history', JSON.stringify(history));
+}
+
+// ================= RESET =================
+function resetForm() {
+  setRating(0);
+  document.getElementById('userEmail').value = '';
+  document.getElementById('userFeedback').value = '';
+  document.getElementById('feedbackCategory').value = 'general';
+  document.getElementById('hiddenRating').value = '0';
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="bi bi-send-fill"></i> Gửi phản hồi';
+  document.querySelectorAll('.rating-stars i').forEach(star => {
+    star.className = 'bi bi-star';
+  });
+  document.getElementById('ratingText').textContent = 'Chọn số sao để đánh giá';
+}
+
+// ================= TOAST =================
+function showToast(message, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.className = 'toast';
+  if (type) el.classList.add(type);
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ================= CLOSE =================
+function closeApp() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage('closeApp', '*');
+  } else {
+    window.close();
+  }
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeApp();
+  if (e.ctrlKey && e.key === 'Enter') submitFeedback();
+});
+
+// ================= INIT =================
+console.log('📱 Ứng dụng Đánh giá & Phản hồi');
+console.log('📧 Formspree URL:', FORMSPREE_URL);
+</script>
+</body>
+</html>

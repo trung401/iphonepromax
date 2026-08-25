@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Xem phim</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --red:#FF453A;
+  --orange:#FF9F0A;
+  --green:#30D158;
+  --purple:#BF5AF2;
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.app-shell{
+  max-width:430px;
+  width:100%;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.app-header .title{
+  font-size:22px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.app-header .title i{
+  color:var(--red);
+}
+.app-header .action-btn{
+  border:none;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  font-size:16px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app-header .action-btn:active{
+  transform:scale(.9);
+  background:rgba(255,255,255,.12);
+}
+
+.app-body{
+  flex:1;
+  padding:12px 16px 16px;
+  overflow-y:auto;
+  background:#000;
+}
+
+/* Search */
+.movie-search{
+  height:40px;
+  border-radius:12px;
+  background:var(--glass);
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  gap:10px;
+  margin-bottom:16px;
+  border:1px solid transparent;
+  transition:all .3s;
+}
+.movie-search:focus-within{
+  border-color:rgba(255,69,58,.3);
+}
+.movie-search i{
+  color:rgba(255,255,255,.2);
+  font-size:16px;
+}
+.movie-search input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:white;
+  font-size:14px;
+  font-family:inherit;
+}
+.movie-search input::placeholder{
+  color:rgba(255,255,255,.2);
+}
+
+/* Categories */
+.movie-categories{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:4px;
+  margin-bottom:16px;
+}
+.movie-categories button{
+  border:none;
+  white-space:nowrap;
+  padding:6px 16px;
+  border-radius:20px;
+  background:var(--glass);
+  color:rgba(255,255,255,.4);
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  transition:all .3s;
+  font-family:inherit;
+}
+.movie-categories button:active{
+  transform:scale(.95);
+}
+.movie-categories button.active{
+  background:var(--red);
+  color:#fff;
+}
+.movie-categories button i{
+  margin-right:4px;
+}
+
+/* Featured */
+.movie-featured{
+  border-radius:16px;
+  overflow:hidden;
+  margin-bottom:18px;
+  position:relative;
+  cursor:pointer;
+  transition:all .3s;
+}
+.movie-featured:active{
+  transform:scale(.98);
+}
+.movie-featured .poster{
+  width:100%;
+  aspect-ratio:16/9;
+  background:linear-gradient(135deg,#1a1a2e,#2a1a3a);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:60px;
+  position:relative;
+}
+.movie-featured .poster .play-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.3);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  transition:all .3s;
+}
+.movie-featured:hover .poster .play-overlay{
+  opacity:1;
+}
+.movie-featured .poster .play-overlay i{
+  font-size:48px;
+  color:#fff;
+  background:rgba(255,255,255,.15);
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.movie-featured .info{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:40px 16px 16px;
+  background:linear-gradient(to top,rgba(0,0,0,.9),transparent);
+}
+.movie-featured .info .title{
+  font-size:20px;
+  font-weight:800;
+}
+.movie-featured .info .meta{
+  display:flex;
+  gap:12px;
+  font-size:12px;
+  color:rgba(255,255,255,.5);
+  margin-top:4px;
+}
+.movie-featured .info .meta .tag{
+  background:var(--red);
+  color:#fff;
+  padding:2px 10px;
+  border-radius:12px;
+  font-size:10px;
+  font-weight:700;
+}
+.movie-featured .info .desc{
+  font-size:13px;
+  color:rgba(255,255,255,.5);
+  margin-top:6px;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+/* Movie grid */
+.movie-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+.movie-card{
+  border-radius:14px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:all .3s;
+  background:var(--glass);
+}
+.movie-card:active{
+  transform:scale(.97);
+}
+.movie-card .poster{
+  width:100%;
+  aspect-ratio:2/3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:40px;
+  position:relative;
+}
+.movie-card .poster .rating{
+  position:absolute;
+  top:8px;
+  right:8px;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(10px);
+  padding:2px 8px;
+  border-radius:10px;
+  font-size:11px;
+  font-weight:700;
+  color:#FFD60A;
+}
+.movie-card .info{
+  padding:10px 12px 12px;
+}
+.movie-card .info .title{
+  font-size:14px;
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.movie-card .info .year{
+  font-size:11px;
+  color:rgba(255,255,255,.35);
+  margin-top:2px;
+}
+.movie-card .info .genres{
+  display:flex;
+  gap:4px;
+  margin-top:4px;
+  flex-wrap:wrap;
+}
+.movie-card .info .genres span{
+  font-size:9px;
+  color:rgba(255,255,255,.3);
+  background:var(--glass);
+  padding:2px 8px;
+  border-radius:8px;
+}
+
+/* Movie detail */
+.movie-detail{
+  position:absolute;
+  inset:0;
+  background:#0a0a0f;
+  z-index:50;
+  display:none;
+  flex-direction:column;
+  animation:slideUp .35s ease;
+}
+@keyframes slideUp{
+  0%{transform:translateY(30px);opacity:0;}
+  100%{transform:translateY(0);opacity:1;}
+}
+.movie-detail.open{
+  display:flex;
+}
+.detail-header{
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.detail-header .back{
+  border:none;
+  background:transparent;
+  color:var(--red);
+  font-size:14px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-weight:600;
+  font-family:inherit;
+}
+.detail-header .back:active{
+  opacity:.7;
+}
+.detail-header .title{
+  font-size:16px;
+  font-weight:700;
+  flex:1;
+}
+.detail-body{
+  flex:1;
+  overflow-y:auto;
+  padding:16px;
+}
+.detail-poster{
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:64px;
+  position:relative;
+  overflow:hidden;
+}
+.detail-poster .play-btn{
+  position:absolute;
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  background:rgba(255,255,255,.15);
+  backdrop-filter:blur(10px);
+  border:2px solid rgba(255,255,255,.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  color:#fff;
+  cursor:pointer;
+  transition:all .3s;
+}
+.detail-poster .play-btn:active{
+  transform:scale(.9);
+}
+.detail-info{
+  margin-top:16px;
+}
+.detail-info .title{
+  font-size:22px;
+  font-weight:800;
+}
+.detail-info .meta{
+  display:flex;
+  gap:12px;
+  font-size:13px;
+  color:rgba(255,255,255,.4);
+  margin-top:4px;
+  flex-wrap:wrap;
+}
+.detail-info .meta .dot{
+  color:rgba(255,255,255,.15);
+}
+.detail-info .rating-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+}
+.detail-info .rating-row .stars{
+  color:#FFD60A;
+  font-size:14px;
+}
+.detail-info .rating-row .score{
+  font-size:14px;
+  font-weight:700;
+}
+.detail-info .rating-row .reviews{
+  font-size:12px;
+  color:rgba(255,255,255,.3);
+}
+.detail-info .plot{
+  font-size:14px;
+  line-height:1.7;
+  color:rgba(255,255,255,.7);
+  margin-top:12px;
+}
+.detail-actions{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+}
+.detail-actions button{
+  flex:1;
+  padding:12px;
+  border-radius:14px;
+  border:none;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.detail-actions button:active{
+  transform:scale(.97);
+}
+.detail-actions .watch{
+  background:var(--red);
+  color:#fff;
+}
+.detail-actions .favorite{
+  background:var(--glass);
+  color:#fff;
+}
+.detail-actions .favorite.active{
+  background:rgba(255,69,58,.2);
+  color:var(--red);
+}
+.detail-cast{
+  margin-top:16px;
+}
+.detail-cast .label{
+  font-size:13px;
+  font-weight:700;
+  color:rgba(255,255,255,.4);
+  margin-bottom:8px;
+}
+.detail-cast .cast-list{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+}
+.detail-cast .cast-item{
+  text-align:center;
+  flex-shrink:0;
+}
+.detail-cast .cast-item .avatar{
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:var(--glass);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+}
+.detail-cast .cast-item .name{
+  font-size:10px;
+  color:rgba(255,255,255,.5);
+  margin-top:4px;
+  max-width:60px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,34,.95);
+  backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:14px;
+  font-size:13px;
+  color:#fff;
+  opacity:0;
+  transition:all .3s;
+  pointer-events:none;
+  z-index:2000;
+  border:1px solid var(--sep);
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .movie-grid{
+    gap:8px;
+  }
+  .movie-card .info .title{
+    font-size:12px;
+  }
+  .detail-poster{
+    font-size:48px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="title"><i class="bi bi-film"></i> Xem phim</div>
+    <button class="action-btn" onclick="showToast('🎬 Đang tải phim mới...')"><i class="bi bi-arrow-clockwise"></i></button>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+    
+    <!-- Search -->
+    <div class="movie-search">
+      <i class="bi bi-search"></i>
+      <input id="movieSearch" type="text" placeholder="Tìm kiếm phim..." oninput="searchMovies()">
+    </div>
+
+    <!-- Categories -->
+    <div class="movie-categories">
+      <button class="active" onclick="filterMovies('all', this)"><i class="bi bi-grid-fill"></i> Tất cả</button>
+      <button onclick="filterMovies('action', this)"><i class="bi bi-lightning-fill"></i> Hành động</button>
+      <button onclick="filterMovies('comedy', this)"><i class="bi bi-emoji-laughing-fill"></i> Hài</button>
+      <button onclick="filterMovies('drama', this)"><i class="bi bi-heart-fill"></i> Tâm lý</button>
+      <button onclick="filterMovies('sci-fi', this)"><i class="bi bi-rocket-fill"></i> Khoa học</button>
+    </div>
+
+    <!-- Featured -->
+    <div id="featuredContainer"></div>
+
+    <!-- Movie Grid -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 2px 12px;">
+      <span style="font-size:17px;font-weight:800;">Phim nổi bật</span>
+      <span style="font-size:12px;color:var(--red);font-weight:600;cursor:pointer;" onclick="showToast('🎬 Xem tất cả phim')">Xem tất cả →</span>
+    </div>
+    <div class="movie-grid" id="movieGrid">
+      <!-- Movies rendered by JS -->
+    </div>
+  </div>
+
+  <!-- MOVIE DETAIL -->
+  <div class="movie-detail" id="movieDetail">
+    <div class="detail-header">
+      <button class="back" onclick="closeDetail()"><i class="bi bi-chevron-left"></i> Quay lại</button>
+      <span class="title" id="detailTitle">Tên phim</span>
+    </div>
+    <div class="detail-body" id="detailBody">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ================= MOVIE DATA =================
+const movies = [
+  {
+    id: 1,
+    title: 'Inception',
+    year: 2010,
+    genre: 'sci-fi',
+    emoji: '🌀',
+    rating: 8.8,
+    reviews: 24500,
+    plot: 'Một tên trộm tài năng sử dụng công nghệ xâm nhập vào giấc mơ để đánh cắp bí mật, nhưng phải đối mặt với nhiệm vụ nguy hiểm nhất: cấy ghép một ý tưởng vào tâm trí người khác.',
+    cast: ['🎭 Leonardo DiCaprio', '🎭 Joseph Gordon-Levitt', '🎭 Ellen Page'],
+    featured: true,
+    backdrop: 'linear-gradient(135deg,#0a0a2e,#1a1a4a)'
+  },
+  {
+    id: 2,
+    title: 'The Dark Knight',
+    year: 2008,
+    genre: 'action',
+    emoji: '🦇',
+    rating: 9.0,
+    reviews: 32100,
+    plot: 'Batman phải đối mặt với Joker, một tên tội phạm điên loạn muốn chứng minh rằng ngay cả người tốt nhất cũng có thể trở thành kẻ xấu.',
+    cast: ['🎭 Christian Bale', '🎭 Heath Ledger', '🎭 Aaron Eckhart'],
+    featured: true,
+    backdrop: 'linear-gradient(135deg,#1a0a0a,#2a1a1a)'
+  },
+  {
+    id: 3,
+    title: 'Interstellar',
+    year: 2014,
+    genre: 'sci-fi',
+    emoji: '🚀',
+    rating: 8.6,
+    reviews: 18900,
+    plot: 'Một nhóm nhà thám hiểm vượt qua lỗ sâu đục để tìm kiếm hành tinh mới cho nhân loại khi Trái Đất đang dần chết.',
+    cast: ['🎭 Matthew McConaughey', '🎭 Anne Hathaway', '🎭 Jessica Chastain'],
+    featured: false,
+    backdrop: 'linear-gradient(135deg,#0a1a2a,#1a2a4a)'
+  },
+  {
+    id: 4,
+    title: 'The Hangover',
+    year: 2009,
+    genre: 'comedy',
+    emoji: '🍻',
+    rating: 7.7,
+    reviews: 15600,
+    plot: 'Ba người bạn tỉnh dậy sau một đêm tiệc tùng ở Las Vegas với một em bé, một con hổ và hoàn toàn mất trí nhớ về những gì đã xảy ra.',
+    cast: ['🎭 Bradley Cooper', '🎭 Ed Helms', '🎭 Zach Galifianakis'],
+    featured: false,
+    backdrop: 'linear-gradient(135deg,#2a1a0a,#3a2a1a)'
+  },
+  {
+    id: 5,
+    title: 'The Godfather',
+    year: 1972,
+    genre: 'drama',
+    emoji: '🤵',
+    rating: 9.2,
+    reviews: 41200,
+    plot: 'Gia đình mafia Corleone đấu tranh để giữ quyền lực trong thế giới tội phạm ngầm New York, trong khi người con trai út Michael dần dần bị cuốn vào.',
+    cast: ['🎭 Marlon Brando', '🎭 Al Pacino', '🎭 James Caan'],
+    featured: true,
+    backdrop: 'linear-gradient(135deg,#1a0a0a,#2a1a1a)'
+  },
+  {
+    id: 6,
+    title: 'Guardians of Galaxy',
+    year: 2014,
+    genre: 'action',
+    emoji: '🌌',
+    rating: 8.0,
+    reviews: 12400,
+    plot: 'Một nhóm những kẻ ngoài vũ trụ kỳ quặc hợp sức để bảo vệ một viên đá quý có sức mạnh hủy diệt khỏi rơi vào tay kẻ xấu.',
+    cast: ['🎭 Chris Pratt', '🎭 Zoe Saldana', '🎭 Dave Bautista'],
+    featured: false,
+    backdrop: 'linear-gradient(135deg,#0a0a2a,#1a0a3a)'
+  },
+  {
+    id: 7,
+    title: 'The Shawshank Redemption',
+    year: 1994,
+    genre: 'drama',
+    emoji: '🔒',
+    rating: 9.3,
+    reviews: 45100,
+    plot: 'Một chủ ngân hàng bị kết án oan về tội giết vợ và phải sống trong nhà tù Shawshank, nơi anh tìm thấy hy vọng và tình bạn bất ngờ.',
+    cast: ['🎭 Tim Robbins', '🎭 Morgan Freeman', '🎭 Bob Gunton'],
+    featured: true,
+    backdrop: 'linear-gradient(135deg,#1a1a0a,#2a2a1a)'
+  },
+  {
+    id: 8,
+    title: 'The Martian',
+    year: 2015,
+    genre: 'sci-fi',
+    emoji: '🔴',
+    rating: 8.0,
+    reviews: 9800,
+    plot: 'Một phi hành gia bị bỏ lại trên Sao Hỏa sau một cơn bão và phải chiến đấu để sinh tồn với nguồn tài nguyên hạn chế cho đến khi được giải cứu.',
+    cast: ['🎭 Matt Damon', '🎭 Jessica Chastain', '🎭 Jeff Daniels'],
+    featured: false,
+    backdrop: 'linear-gradient(135deg,#1a0a0a,#2a1a0a)'
+  }
+];
+
+// ================= STATE =================
+let currentCategory = 'all';
+let favoriteMovies = [];
+let currentMovieId = null;
+
+// ================= RENDER =================
+function renderMovies() {
+  const grid = document.getElementById('movieGrid');
+  const search = document.getElementById('movieSearch').value.toLowerCase().trim();
+  
+  const filtered = movies.filter(movie => {
+    const matchCategory = currentCategory === 'all' || movie.genre === currentCategory;
+    const matchSearch = movie.title.toLowerCase().includes(search) || 
+                        movie.genre.toLowerCase().includes(search);
+    return matchCategory && matchSearch;
+  });
+  
+  // Render featured
+  const featured = movies.filter(m => m.featured);
+  const featuredContainer = document.getElementById('featuredContainer');
+  if (featured.length > 0 && !search) {
+    const f = featured[Math.floor(Math.random() * featured.length)];
+    featuredContainer.innerHTML = `
+      <div class="movie-featured" onclick="openDetail(${f.id})">
+        <div class="poster" style="background:${f.backdrop}">
+          ${f.emoji}
+          <div class="play-overlay">
+            <i class="bi bi-play-fill"></i>
+          </div>
+        </div>
+        <div class="info">
+          <div class="title">${f.title}</div>
+          <div class="meta">
+            <span>${f.year}</span>
+            <span class="tag">${f.genre.toUpperCase()}</span>
+            <span>⭐ ${f.rating}</span>
+          </div>
+          <div class="desc">${f.plot.slice(0, 80)}...</div>
+        </div>
+      </div>
+    `;
+  } else {
+    featuredContainer.innerHTML = '';
+  }
+  
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:rgba(255,255,255,.2);font-size:14px;">
+        <i class="bi bi-film" style="font-size:32px;display:block;margin-bottom:8px;color:rgba(255,255,255,.05);"></i>
+        Không tìm thấy phim nào
+      </div>
+    `;
+    return;
+  }
+  
+  grid.innerHTML = filtered.map(movie => `
+    <div class="movie-card" onclick="openDetail(${movie.id})">
+      <div class="poster" style="background:${movie.backdrop}">
+        ${movie.emoji}
+        <span class="rating">⭐ ${movie.rating}</span>
+      </div>
+      <div class="info">
+        <div class="title">${movie.title}</div>
+        <div class="year">${movie.year}</div>
+        <div class="genres">
+          <span>${movie.genre}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ================= FILTER & SEARCH =================
+function filterMovies(category, btn) {
+  currentCategory = category;
+  document.querySelectorAll('.movie-categories button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMovies();
+}
+
+function searchMovies() {
+  renderMovies();
+}
+
+// ================= MOVIE DETAIL =================
+function openDetail(id) {
+  currentMovieId = id;
+  const movie = movies.find(m => m.id === id);
+  if (!movie) return;
+  
+  const isFavorite = favoriteMovies.includes(id);
+  
+  document.getElementById('detailTitle').textContent = movie.title;
+  document.getElementById('movieDetail').classList.add('open');
+  
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-poster" style="background:${movie.backdrop};">
+      ${movie.emoji}
+      <div class="play-btn" onclick="event.stopPropagation();showToast('🎬 Đang phát ${movie.title}...')">
+        <i class="bi bi-play-fill"></i>
+      </div>
+    </div>
+    
+    <div class="detail-info">
+      <div class="title">${movie.title}</div>
+      <div class="meta">
+        <span>${movie.year}</span>
+        <span class="dot">•</span>
+        <span>${movie.genre.toUpperCase()}</span>
+        <span class="dot">•</span>
+        <span>⏱️ 2h 28m</span>
+      </div>
+      <div class="rating-row">
+        <span class="stars">${'★'.repeat(Math.floor(movie.rating))}${movie.rating % 1 >= 0.5 ? '☆' : ''}</span>
+        <span class="score">${movie.rating}</span>
+        <span class="reviews">(${formatNumber(movie.reviews)} đánh giá)</span>
+      </div>
+      <div class="plot">${movie.plot}</div>
+      
+      <div class="detail-actions">
+        <button class="watch" onclick="showToast('🎬 Đang phát ${movie.title}...')">
+          <i class="bi bi-play-fill"></i> Xem ngay
+        </button>
+        <button class="favorite ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(${movie.id})">
+          <i class="bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'}"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="detail-cast">
+      <div class="label">🎭 Diễn viên</div>
+      <div class="cast-list">
+        ${movie.cast.map(c => `
+          <div class="cast-item">
+            <div class="avatar">${c.split(' ')[0]}</div>
+            <div class="name">${c.replace('🎭 ', '')}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+  showToast(`🎬 Đang xem: ${movie.title}`);
+}
+
+function closeDetail() {
+  document.getElementById('movieDetail').classList.remove('open');
+}
+
+function toggleFavorite(id) {
+  const index = favoriteMovies.indexOf(id);
+  if (index === -1) {
+    favoriteMovies.push(id);
+    showToast('❤️ Đã thêm vào yêu thích');
+  } else {
+    favoriteMovies.splice(index, 1);
+    showToast('💔 Đã xóa khỏi yêu thích');
+  }
+  if (currentMovieId === id) {
+    openDetail(id);
+  }
+}
+
+// ================= HELPERS =================
+function formatNumber(num) {
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  return num;
+}
+
+// ================= TOAST =================
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('movieDetail').classList.contains('open')) {
+    if (e.key === 'Escape') {
+      closeDetail();
+    }
+  }
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+    const search = document.getElementById('movieSearch');
+    if (document.activeElement !== search) {
+      e.preventDefault();
+      search.focus();
+    }
+  }
+});
+
+// ================= INIT =================
+renderMovies();
+</script>
+</body>
+</html>

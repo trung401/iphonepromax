@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Safari</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0A84FF;
+  --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.1);
+  --sep:rgba(255,255,255,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}
+html,body{height:100%;}
+body{
+  background:#000;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.app-shell{
+  max-width:430px;
+  width:100%;
+  height:100vh;
+  max-height:844px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Toolbar */
+.safari-toolbar{
+  display:flex;
+  gap:6px;
+  padding:10px 12px;
+  align-items:center;
+  border-bottom:1px solid var(--sep);
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+.nav-btn{
+  background:var(--glass);
+  border:none;
+  color:rgba(255,255,255,.6);
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  font-size:14px;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.nav-btn:active{
+  transform:scale(.9);
+  background:var(--glass-strong);
+}
+.nav-btn:disabled{
+  opacity:.3;
+  cursor:not-allowed;
+}
+.url-bar{
+  flex:1;
+  background:var(--glass);
+  border:1px solid transparent;
+  border-radius:12px;
+  padding:8px 14px;
+  color:#fff;
+  font-size:13px;
+  outline:none;
+  font-family:inherit;
+  transition:border-color .3s;
+  min-width:0;
+}
+.url-bar:focus{
+  border-color:var(--blue);
+}
+.url-bar::placeholder{
+  color:rgba(255,255,255,.2);
+}
+.url-bar.secure{
+  border-color:rgba(52,199,89,.3);
+}
+.nav-btn.primary{
+  background:var(--blue);
+  color:#fff;
+}
+.nav-btn.primary:active{
+  background:rgba(10,132,255,.7);
+}
+
+/* Content */
+.safari-content{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+  background:#000;
+}
+
+/* Welcome */
+.safari-welcome{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+  padding:20px;
+  text-align:center;
+  gap:6px;
+  animation:fadeIn .4s ease;
+}
+@keyframes fadeIn{
+  0%{opacity:0;transform:translateY(10px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+.safari-welcome .logo{
+  width:72px;
+  height:72px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#0A84FF,#5856D6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  color:#fff;
+  margin-bottom:8px;
+  box-shadow:0 8px 30px rgba(10,132,255,.2);
+}
+.safari-welcome h3{
+  font-size:20px;
+  font-weight:800;
+}
+.safari-welcome p{
+  font-size:13px;
+  color:rgba(255,255,255,.3);
+  max-width:240px;
+}
+
+/* Shortcuts */
+.safari-shortcuts{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:20px;
+  width:100%;
+  max-width:320px;
+}
+.safari-shortcuts .sc{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  cursor:pointer;
+  transition:all .2s;
+  padding:8px 4px;
+  border-radius:12px;
+}
+.safari-shortcuts .sc:active{
+  transform:scale(.9);
+  background:var(--glass);
+}
+.safari-shortcuts .sc i{
+  font-size:24px;
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--glass);
+}
+.safari-shortcuts .sc span{
+  font-size:10px;
+  color:rgba(255,255,255,.4);
+  font-weight:500;
+}
+
+/* Actions */
+.safari-actions{
+  display:flex;
+  gap:8px;
+  margin-top:16px;
+  width:100%;
+  max-width:320px;
+}
+.safari-actions button{
+  flex:1;
+  background:var(--glass);
+  border:1px solid rgba(255,255,255,.06);
+  color:rgba(255,255,255,.7);
+  padding:8px 14px;
+  border-radius:12px;
+  font-size:12px;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.safari-actions button:active{
+  transform:scale(.95);
+  background:var(--glass-strong);
+}
+.safari-actions button.active{
+  background:rgba(10,132,255,.15);
+  color:var(--blue);
+  border-color:rgba(10,132,255,.2);
+}
+
+/* Iframe wrapper */
+.iframe-wrapper{
+  width:100%;
+  height:100%;
+  position:relative;
+}
+.iframe-wrapper iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  background:#fff;
+}
+.iframe-wrapper .loading-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:12px;
+}
+.iframe-wrapper .loading-overlay.show{
+  display:flex;
+}
+.iframe-wrapper .loading-overlay i{
+  font-size:32px;
+  color:var(--blue);
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{
+  0%{transform:rotate(0);}
+  100%{transform:rotate(360deg);}
+}
+.iframe-wrapper .loading-overlay span{
+  font-size:13px;
+  color:rgba(255,255,255,.5);
+}
+
+/* Footer info */
+.safari-footer{
+  position:absolute;
+  bottom:8px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:10px;
+  color:rgba(255,255,255,.15);
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(10px);
+  padding:4px 12px;
+  border-radius:12px;
+  pointer-events:none;
+  z-index:5;
+}
+
+/* Tabs indicator */
+.tabs-indicator{
+  display:flex;
+  gap:4px;
+  padding:4px 0 0;
+  justify-content:center;
+}
+.tabs-indicator .dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:rgba(255,255,255,.15);
+  transition:all .3s;
+}
+.tabs-indicator .dot.active{
+  background:var(--blue);
+  width:16px;
+  border-radius:4px;
+}
+
+/* Responsive */
+@media (max-width:430px){
+  .app-shell{
+    max-height:100vh;
+    border-radius:0;
+  }
+}
+@media (max-width:380px){
+  .safari-shortcuts{
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+  .safari-shortcuts .sc i{
+    width:40px;
+    height:40px;
+    font-size:20px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- TOOLBAR -->
+  <div class="safari-toolbar">
+    <button class="nav-btn" id="backBtn" onclick="goBack()" disabled><i class="bi bi-chevron-left"></i></button>
+    <button class="nav-btn" id="forwardBtn" onclick="goForward()" disabled><i class="bi bi-chevron-right"></i></button>
+    <button class="nav-btn" onclick="reloadPage()"><i class="bi bi-arrow-clockwise"></i></button>
+    <input class="url-bar" id="urlBar" placeholder="Tìm kiếm hoặc nhập URL..." 
+           onkeydown="if(event.key==='Enter')navigate()">
+    <button class="nav-btn primary" onclick="navigate()"><i class="bi bi-arrow-right"></i></button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="safari-content" id="safariContent">
+    <!-- Welcome screen -->
+    <div class="safari-welcome" id="welcomeScreen">
+      <div class="logo"><i class="bi bi-compass-fill"></i></div>
+      <h3>Safari</h3>
+      <p>Nhấn vào shortcut để mở trang web</p>
+      
+      <div class="safari-shortcuts">
+        <div class="sc" onclick="navigateTo('https://www.google.com')">
+          <i class="bi bi-google" style="color:#4285F4;background:rgba(66,133,244,.15);"></i>
+          <span>Google</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://www.youtube.com')">
+          <i class="bi bi-youtube" style="color:#FF0000;background:rgba(255,0,0,.15);"></i>
+          <span>YouTube</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://www.facebook.com')">
+          <i class="bi bi-facebook" style="color:#1877F2;background:rgba(24,119,242,.15);"></i>
+          <span>Facebook</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://vi.wikipedia.org')">
+          <i class="bi bi-book-half" style="color:#636466;background:rgba(255,255,255,.08);"></i>
+          <span>Wikipedia</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://chat.zalo.me')">
+          <i class="bi bi-chat" style="color:#0068FF;background:rgba(0,104,255,.15);"></i>
+          <span>Zalo</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://www.messenger.com')">
+          <i class="bi bi-messenger" style="color:#00B2FF;background:rgba(0,178,255,.15);"></i>
+          <span>Messenger</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://github.com')">
+          <i class="bi bi-github" style="color:#f0f6fc;background:rgba(255,255,255,.08);"></i>
+          <span>GitHub</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://chat.openai.com')">
+          <i class="bi bi-chat-dots" style="color:#10A37F;background:rgba(16,163,127,.15);"></i>
+          <span>ChatGPT</span>
+        </div>
+      </div>
+
+      <div class="safari-actions">
+        <button onclick="showWelcome()"><i class="bi bi-house"></i> Trang chủ</button>
+        <button id="proxyBtn" onclick="toggleProxy()"><i class="bi bi-shield"></i> Proxy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS INDICATOR -->
+  <div class="tabs-indicator" id="tabsIndicator">
+    <span class="dot active"></span>
+  </div>
+</div>
+
+<script>
+// ================= STATE =================
+let history = [];
+let historyIndex = -1;
+let useProxy = false;
+let currentUrl = '';
+
+// ================= DOM REFS =================
+const content = document.getElementById('safariContent');
+const urlBar = document.getElementById('urlBar');
+const welcomeScreen = document.getElementById('welcomeScreen');
+const backBtn = document.getElementById('backBtn');
+const forwardBtn = document.getElementById('forwardBtn');
+const proxyBtn = document.getElementById('proxyBtn');
+
+// ================= NAVIGATION =================
+function navigateTo(url) {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    // If it's a search query, search with Google
+    if (!url.includes('.') && !url.includes(' ')) {
+      url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+    } else {
+      url = 'https://' + url;
+    }
+  }
+  
+  currentUrl = url;
+  urlBar.value = url;
+  urlBar.classList.add('secure');
+  
+  // Hide welcome
+  welcomeScreen.style.display = 'none';
+  
+  // Show loading
+  showLoading(true);
+  
+  // Build the page
+  let html = `<div class="iframe-wrapper" id="iframeWrapper">`;
+  
+  if (useProxy) {
+    // Use proxy
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    html += `<iframe src="${proxyUrl}" 
+                      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                      loading="lazy"
+                      onload="hideLoading()"
+                      onerror="showError('Không thể tải trang qua proxy')"></iframe>`;
+    html += `<div class="safari-footer">🔁 Proxy mode</div>`;
+  } else {
+    // Open in new tab
+    html += `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:30px;text-align:center;background:#000;">
+        <i class="bi bi-box-arrow-up-right" style="font-size:48px;color:var(--blue);margin-bottom:16px;"></i>
+        <div style="font-size:18px;font-weight:700;margin-bottom:4px;">Đang mở trang</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.3);margin-bottom:12px;">${url}</div>
+        <a href="${url}" target="_blank" rel="noopener noreferrer" 
+           style="color:var(--blue);font-size:14px;text-decoration:underline;word-break:break-all;">
+          ${url}
+        </a>
+        <div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.15);">
+          Nhấn vào link để mở trong tab mới
+        </div>
+        <button onclick="navigateTo('${url}')" 
+                style="margin-top:16px;background:var(--blue);border:none;border-radius:20px;padding:8px 24px;color:#fff;cursor:pointer;font-family:inherit;font-size:14px;">
+          Mở lại
+        </button>
+      </div>
+    `;
+    html += `<div class="safari-footer">📌 Mở tab mới</div>`;
+  }
+  
+  html += `</div>`;
+  content.innerHTML = html;
+  
+  // Update history
+  if (historyIndex < history.length - 1) {
+    history = history.slice(0, historyIndex + 1);
+  }
+  history.push(url);
+  historyIndex = history.length - 1;
+  updateButtons();
+}
+
+function navigate() {
+  const query = urlBar.value.trim();
+  if (!query) return;
+  
+  // Check if it's a URL or search
+  if (query.includes('.') && !query.includes(' ')) {
+    navigateTo(query);
+  } else {
+    navigateTo(query);
+  }
+}
+
+// ================= NAVIGATION CONTROLS =================
+function goBack() {
+  if (historyIndex > 0) {
+    historyIndex--;
+    const url = history[historyIndex];
+    urlBar.value = url;
+    navigateTo(url);
+  }
+}
+
+function goForward() {
+  if (historyIndex < history.length - 1) {
+    historyIndex++;
+    const url = history[historyIndex];
+    urlBar.value = url;
+    navigateTo(url);
+  }
+}
+
+function reloadPage() {
+  if (currentUrl) {
+    navigateTo(currentUrl);
+  }
+}
+
+function showWelcome() {
+  content.innerHTML = `
+    <div class="safari-welcome" id="welcomeScreen">
+      <div class="logo"><i class="bi bi-compass-fill"></i></div>
+      <h3>Safari</h3>
+      <p>Nhấn vào shortcut để mở trang web</p>
+      
+      <div class="safari-shortcuts">
+        <div class="sc" onclick="navigateTo('https://www.google.com')">
+          <i class="bi bi-google" style="color:#4285F4;background:rgba(66,133,244,.15);"></i>
+          <span>Google</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://www.youtube.com')">
+          <i class="bi bi-youtube" style="color:#FF0000;background:rgba(255,0,0,.15);"></i>
+          <span>YouTube</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://www.facebook.com')">
+          <i class="bi bi-facebook" style="color:#1877F2;background:rgba(24,119,242,.15);"></i>
+          <span>Facebook</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://vi.wikipedia.org')">
+          <i class="bi bi-book-half" style="color:#636466;background:rgba(255,255,255,.08);"></i>
+          <span>Wikipedia</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://chat.zalo.me')">
+          <i class="bi bi-chat" style="color:#0068FF;background:rgba(0,104,255,.15);"></i>
+          <span>Zalo</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://www.messenger.com')">
+          <i class="bi bi-messenger" style="color:#00B2FF;background:rgba(0,178,255,.15);"></i>
+          <span>Messenger</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://github.com')">
+          <i class="bi bi-github" style="color:#f0f6fc;background:rgba(255,255,255,.08);"></i>
+          <span>GitHub</span>
+        </div>
+        <div class="sc" onclick="navigateTo('https://chat.openai.com')">
+          <i class="bi bi-chat-dots" style="color:#10A37F;background:rgba(16,163,127,.15);"></i>
+          <span>ChatGPT</span>
+        </div>
+      </div>
+
+      <div class="safari-actions">
+        <button onclick="showWelcome()"><i class="bi bi-house"></i> Trang chủ</button>
+        <button id="proxyBtn" onclick="toggleProxy()"><i class="bi bi-shield"></i> Proxy</button>
+      </div>
+    </div>
+  `;
+  urlBar.value = '';
+  urlBar.classList.remove('secure');
+  currentUrl = '';
+  history = [];
+  historyIndex = -1;
+  updateButtons();
+}
+
+// ================= PROXY =================
+function toggleProxy() {
+  useProxy = !useProxy;
+  const btn = document.getElementById('proxyBtn');
+  if (btn) {
+    btn.classList.toggle('active');
+    btn.innerHTML = useProxy ? '<i class="bi bi-shield-fill"></i> Proxy ON' : '<i class="bi bi-shield"></i> Proxy';
+  }
+  if (currentUrl) {
+    navigateTo(currentUrl);
+  }
+}
+
+// ================= LOADING =================
+function showLoading(show) {
+  // Will be handled by iframe onload
+}
+
+function hideLoading() {
+  // Called when iframe loads
+}
+
+function showError(msg) {
+  // Will be handled by iframe onerror
+}
+
+// ================= UI HELPERS =================
+function updateButtons() {
+  backBtn.disabled = historyIndex <= 0;
+  forwardBtn.disabled = historyIndex >= history.length - 1;
+}
+
+// ================= KEYBOARD SHORTCUTS =================
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'l') {
+      e.preventDefault();
+      urlBar.focus();
+      urlBar.select();
+    }
+    if (e.key === 'r') {
+      e.preventDefault();
+      reloadPage();
+    }
+  }
+  if (e.key === 'Escape') {
+    urlBar.blur();
+    if (!currentUrl) showWelcome();
+  }
+});
+
+// ================= INIT =================
+// Nothing else needed
+</script>
+</body>
+</html>
