@@ -775,7 +775,12 @@
                 <div class="icon-bg i-minigames"><i class="bi bi-controller"></i></div><span class="app-label">Trò
                   chơi</span>
               </div>
-
+              <div class="app-icon" data-app="cards" data-title="Bài Tây">
+                <div class="icon-bg" style="background:linear-gradient(160deg,#2d5a2e,#0a3a12);">
+                  <i class="bi bi-suit-spade-fill"></i>
+                </div>
+                <span class="app-label">Bài Tây</span>
+              </div>
               <!-- App Movie mới thêm -->
               <div class="app-icon" data-app="movie" data-title="Phim">
                 <div class="icon-bg i-movie"><i class="bi bi-film"></i></div><span class="app-label">Xem phim</span>
@@ -954,33 +959,33 @@
       }
     })();
     function updateClock() {
-  const now = new Date();
-  
-  // 1. Định dạng giờ và phút (ví dụ: 09:41)
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const timeString = `${hours}:${minutes}`;
-  
-  // 2. Định dạng thứ, ngày, tháng (tiếng Việt)
-  const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-  const dayName = days[now.getDay()];
-  const date = now.getDate();
-  const month = now.getMonth() + 1; // Tháng trong JS bắt đầu từ 0
-  const dateString = `${dayName}, ${date} tháng ${month}`;
-  
-  // 3. Gán giá trị vào HTML
-  const lockTimeEl = document.getElementById('lockTime');
-  const statusTimeEl = document.getElementById('statusTime');
-  const lockDateEl = document.getElementById('lockDate');
-  
-  if (lockTimeEl) lockTimeEl.textContent = timeString;
-  if (statusTimeEl) statusTimeEl.textContent = timeString;
-  if (lockDateEl) lockDateEl.textContent = dateString;
-}
+      const now = new Date();
 
-// Chạy hàm ngay khi load trang và cập nhật mỗi 1000ms (1 giây)
-updateClock();
-setInterval(updateClock, 1000);
+      // 1. Định dạng giờ và phút (ví dụ: 09:41)
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const timeString = `${hours}:${minutes}`;
+
+      // 2. Định dạng thứ, ngày, tháng (tiếng Việt)
+      const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+      const dayName = days[now.getDay()];
+      const date = now.getDate();
+      const month = now.getMonth() + 1; // Tháng trong JS bắt đầu từ 0
+      const dateString = `${dayName}, ${date} tháng ${month}`;
+
+      // 3. Gán giá trị vào HTML
+      const lockTimeEl = document.getElementById('lockTime');
+      const statusTimeEl = document.getElementById('statusTime');
+      const lockDateEl = document.getElementById('lockDate');
+
+      if (lockTimeEl) lockTimeEl.textContent = timeString;
+      if (statusTimeEl) statusTimeEl.textContent = timeString;
+      if (lockDateEl) lockDateEl.textContent = dateString;
+    }
+
+    // Chạy hàm ngay khi load trang và cập nhật mỗi 1000ms (1 giây)
+    updateClock();
+    setInterval(updateClock, 1000);
   </script>
 </body>
 
